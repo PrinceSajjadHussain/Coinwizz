@@ -1,0 +1,37 @@
+<svg width="600" height="200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cyanGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Coin text with gold gradient -->
+  <text x="20" y="130" font-family="'Orbitron', sans-serif" font-size="90" font-weight="700" fill="url(#goldGradient)" filter="url(#glow)">Coin</text>
+  
+  <!-- Wizz text with cyan gradient -->
+  <text x="280" y="130" font-family="'Orbitron', sans-serif" font-size="90" font-weight="700" fill="url(#cyanGradient)" filter="url(#glow)">Wizz</text>
+  
+  <!-- Sparkles -->
+  <circle cx="360" cy="50" r="3" fill="#fff" opacity="0.8"/>
+  <circle cx="380" cy="40" r="2" fill="#fff" opacity="0.6"/>
+  <circle cx="420" cy="55" r="2.5" fill="#fff" opacity="0.7"/>
+  <circle cx="500" cy="50" r="3" fill="#fff" opacity="0.8"/>
+  
+  <!-- Star sparkles -->
+  <polygon points="340,65 342,70 347,70 343,73 345,78 340,75 335,78 337,73 333,70 338,70" fill="#fff" opacity="0.7"/>
+  <polygon points="480,45 482,50 487,50 483,53 485,58 480,55 475,58 477,53 473,50 478,50" fill="#fff" opacity="0.6"/>
+</svg>

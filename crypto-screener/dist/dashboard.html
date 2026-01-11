@@ -292,26 +292,16 @@
     <!-- Header -->
     <header class="header">
         <div class="header-left">
-            <div class="logo">COINWIZZ</div>
+            <img src="coinwizz-logo.svg" alt="CoinWizz" class="logo" style="height:32px;cursor:pointer;">
             <div class="plan-badge free" id="planBadge" data-i18n="planFree">KOSTENLOS</div>
         </div>
         <div class="header-right">
-            <a href="index.html" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);color:#3b82f6;padding:6px 14px;border-radius:8px;font-family:Orbitron,sans-serif;font-size:0.65rem;text-decoration:none;font-weight:600;">CryptoSpaces ▼</a>
-            <a href="index.html" style="background:rgba(251,191,36,0.2);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;padding:6px 14px;border-radius:8px;font-family:Orbitron,sans-serif;font-size:0.65rem;text-decoration:none;font-weight:600;">Visual Views ▼</a>
-            <a href="index.html" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);color:#3b82f6;padding:6px 14px;border-radius:8px;font-family:Orbitron,sans-serif;font-size:0.65rem;text-decoration:none;font-weight:600;">📊 ANALYSE ▼</a>
-            <a href="index.html" style="background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.4);color:#8b5cf6;padding:6px 14px;border-radius:8px;font-family:Orbitron,sans-serif;font-size:0.65rem;text-decoration:none;font-weight:600;">✨ EFFECTS ▼</a>
             <div class="lang-switch">
                 <button class="lang-btn" data-lang="de" onclick="setLanguage('de')">DE</button>
                 <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
             </div>
-            <!-- <div class="user-info">
-                <div style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.85rem;" id="userAvatar">A</div>
-                <div style="text-align:left;">
-                    <div class="user-name" id="userName">admin</div>
-                    <div class="user-email" id="userEmail">admin@member.cs</div>
-                </div>
-            </div> -->
-            <button class="logout-btn" id="logoutBtn" data-i18n="logout">Logout</button>
+            <span id="userNameDisplay" style="color:#3b82f6;font-size:0.7rem;font-weight:600;margin-right:10px;"></span>
+            <button class="logout-btn" id="logoutBtn" data-i18n="logout" title="">Logout</button>
         </div>
     </header>
 
@@ -576,9 +566,14 @@
         } else {
             authGate.classList.add('hidden');
             
-            // User Info anzeigen
-            document.getElementById('userName').textContent = user.name || 'Mitglied';
-            document.getElementById('userEmail').textContent = user.email || '-';
+            // Set user name display
+            const userNameDisplay = document.getElementById('userNameDisplay');
+            userNameDisplay.textContent = user.name || 'Member';
+            
+            // Set logout button tooltip with user info
+            const logoutBtn = document.getElementById('logoutBtn');
+            logoutBtn.title = `${user.name || 'Member'}\n${user.email || '-'}`;
+            
             document.getElementById('memberSince').textContent = user.memberSince || new Date().toLocaleDateString('de-DE');
             
             // Plan-Status
