@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Dashboard - CryptoSpaces</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Google Sign-In -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <!-- PayPal Sandbox Integration (removed SDK - using form-based approach) -->
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -47,6 +49,34 @@
         }
         .auth-box h2 { font-family: 'Orbitron', sans-serif; color: var(--gold); margin-bottom: 12px; }
         .auth-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
+        
+        /* Google Sign-In in Auth Gate */
+        .google-signin-dashboard {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.75rem;
+        }
+        
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .auth-divider span {
+            padding: 0 15px;
+        }
+        
         .auth-btn {
             background: linear-gradient(135deg, var(--accent), #06b6d4);
             color: #fff; border: none;
@@ -232,6 +262,29 @@
         <div class="auth-box">
             <h2 data-i18n="memberArea">🔒 Mitgliederbereich</h2>
             <p data-i18n="pleaseLogin">Bitte melde dich an, um auf das Dashboard zuzugreifen.</p>
+            
+            <!-- Google Sign-In -->
+            <div id="g_id_onload"
+                 data-client_id="1042748358097-26m1nacnj115gtcadmvnq8sr0a26np2n.apps.googleusercontent.com"
+                 data-callback="handleDashboardGoogleSignIn"
+                 data-auto_prompt="false">
+            </div>
+            <div class="google-signin-dashboard">
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-size="large"
+                     data-theme="filled_blue"
+                     data-text="continue_with"
+                     data-shape="rectangular"
+                     data-logo_alignment="left"
+                     data-width="320">
+                </div>
+            </div>
+            
+            <div class="auth-divider">
+                <span>ODER</span>
+            </div>
+            
             <a href="index.html" class="auth-btn" data-i18n="toHomepage">← Zur Startseite & Login</a>
         </div>
     </div>
@@ -378,6 +431,13 @@
     </footer>
 
     <script>
+        // PayPal Subscription Plans (defined at top to avoid initialization errors)
+        const paypalPlans = {
+            25: { price: '24.90', name: 'Rallye 25', coins: 25 },
+            50: { price: '49.90', name: 'Rallye 50', coins: 50 },
+            100: { price: '99.90', name: 'ELITE PLAN - Rallye 100', coins: 100 }
+        };
+        
         // i18n Translations
         const translations = {
             de: {
@@ -469,6 +529,43 @@
             document.documentElement.lang = lang;
         }
         
+        // Google Sign-In Handler for Dashboard
+        function handleDashboardGoogleSignIn(response) {
+            // Decode JWT token to get user info
+            const userData = parseJwt(response.credential);
+            
+            if (userData) {
+                const userInfo = {
+                    loggedIn: true,
+                    name: userData.name,
+                    email: userData.email,
+                    picture: userData.picture,
+                    plan: 'free',
+                    authProvider: 'google',
+                    memberSince: new Date().toLocaleDateString('de-DE')
+                };
+                localStorage.setItem('cryptoUser', JSON.stringify(userInfo));
+                
+                // Reload the page to update the dashboard
+                window.location.reload();
+            }
+        }
+        
+        // Parse JWT token
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                console.error('Error parsing JWT:', e);
+                return null;
+            }
+        }
+        
         // Auth Check
         const user = JSON.parse(localStorage.getItem('cryptoUser') || 'null');
         const authGate = document.getElementById('authGate');
@@ -539,16 +636,12 @@
         // Initialize language
         setLanguage(currentLang);
         
-        // PayPal Subscription Payment System
-        const paypalPlans = {
-            25: { price: '24.90', name: 'Rallye 25', coins: 25 },
-            50: { price: '49.90', name: 'Rallye 50', coins: 50 },
-            100: { price: '99.90', name: 'ELITE PLAN - Rallye 100', coins: 100 }
-        };
-        
         // Handle plan upgrade
         function upgradePlan(planId) {
-            if (!user || !user.loggedIn) {
+            // Re-fetch user data to ensure it's current
+            const currentUser = JSON.parse(localStorage.getItem('cryptoUser') || 'null');
+            
+            if (!currentUser || !currentUser.loggedIn) {
                 alert('⚠️ Bitte melden Sie sich an');
                 return;
             }
@@ -575,7 +668,7 @@
                 'return': window.location.href,
                 'cancel_return': window.location.href,
                 'notify_url': 'https://your-domain.com/paypal-webhook',
-                'custom': user.email || 'guest',
+                'custom': currentUser.email || 'guest',
                 'invoice': 'INV_' + planId + '_' + Date.now(),
                 'rm': '2',
                 'no_shipping': '1'
