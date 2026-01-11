@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aufmerksamkeits-vs-Kapital-Screener | CryptoSpaces</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --space-black: #000510;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f97316;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-yellow: #eab308;
+            --text-light: #f1f5f9;
+            --gradient-attention: linear-gradient(135deg, #eab308, #f97316, #8b5cf6);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--space-black);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Language Toggle */
+        [data-lang-de], [data-lang-en] { display: none; }
+        body.lang-de [data-lang-de] { display: inline; }
+        body.lang-en [data-lang-en] { display: inline; }
+        body.lang-de [data-lang-de-block] { display: block; }
+        body.lang-en [data-lang-en-block] { display: block; }
+        [data-lang-de-block], [data-lang-en-block] { display: none; }
+
+        .lang-switch {
+            display: flex;
+            gap: 5px;
+            background: rgba(15,23,42,0.8);
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid rgba(234,179,8,0.3);
+        }
+        .lang-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            background: transparent;
+            color: rgba(241,245,249,0.5);
+        }
+        .lang-btn.active {
+            background: linear-gradient(135deg, var(--accent-yellow), var(--accent-orange));
+            color: white;
+            box-shadow: 0 0 10px rgba(234,179,8,0.4);
+        }
+
+        /* Animated Background */
+        .attention-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .attention-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(234,179,8,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(139,92,246,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(249,115,22,0.08) 0%, transparent 60%);
+            animation: attentionPulse 5s ease-in-out infinite alternate;
+        }
+        @keyframes attentionPulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* Flow Canvas */
+        #flowCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Header */
+        header {
+            position: relative;
+            z-index: 100;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,5,16,0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(234,179,8,0.2);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .logo-icon { font-size: 1.8rem; }
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-yellow), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .back-btn {
+            padding: 8px 16px;
+            background: rgba(234,179,8,0.1);
+            border: 1px solid rgba(234,179,8,0.3);
+            border-radius: 8px;
+            color: var(--accent-yellow);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            background: rgba(234,179,8,0.2);
+            box-shadow: 0 0 15px rgba(234,179,8,0.3);
+        }
+
+        /* Main Content */
+        main {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .hero-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: pullStrings 3s ease-in-out infinite;
+        }
+        @keyframes pullStrings {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.3rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: var(--gradient-attention);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: rgba(241,245,249,0.8);
+            max-width: 750px;
+            margin: 0 auto;
+        }
+        .highlight-attention { color: var(--accent-yellow); font-weight: 700; }
+        .highlight-capital { color: var(--accent-purple); font-weight: 700; }
+
+        /* Flow Visualization */
+        .flow-section {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(234,179,8,0.3);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+        .flow-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .flow-column {
+            flex: 1;
+            min-width: 280px;
+            text-align: center;
+        }
+        .flow-column h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        .flow-column.attention h3 { color: var(--accent-yellow); }
+        .flow-column.capital h3 { color: var(--accent-purple); }
+
+        .flow-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .flow-item {
+            background: rgba(0,5,16,0.6);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+        .flow-item:hover {
+            transform: translateX(5px);
+        }
+        .flow-item.attention { border-left: 3px solid var(--accent-yellow); }
+        .flow-item.capital { border-left: 3px solid var(--accent-purple); }
+        .flow-item-icon { font-size: 1.5rem; }
+        .flow-item-text { text-align: left; font-size: 0.95rem; }
+
+        .flow-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .flow-arrow {
+            font-size: 3rem;
+            animation: flowPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes flowPulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        .correlation-badge {
+            background: linear-gradient(135deg, var(--accent-yellow), var(--accent-purple));
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Real-Time Tracker */
+        .tracker-section {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+        .tracker-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .tracker-card {
+            background: rgba(0,5,16,0.5);
+            border: 1px solid rgba(234,179,8,0.2);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .tracker-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-yellow), var(--accent-purple));
+        }
+        .tracker-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .tracker-coin {
+            font-size: 1.8rem;
+        }
+        .tracker-name {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+        }
+        .tracker-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .bar-group label {
+            font-size: 0.8rem;
+            color: rgba(241,245,249,0.7);
+            display: block;
+            margin-bottom: 5px;
+        }
+        .bar-container {
+            height: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s ease;
+        }
+        .bar-fill.attention-bar {
+            background: linear-gradient(90deg, var(--accent-yellow), #fbbf24);
+        }
+        .bar-fill.capital-bar {
+            background: linear-gradient(90deg, var(--accent-purple), #a78bfa);
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+        .feature-card {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(234,179,8,0.2);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(234,179,8,0.4);
+            box-shadow: 0 10px 40px rgba(234,179,8,0.15);
+        }
+        .feature-icon { font-size: 2.5rem; margin-bottom: 15px; }
+        .feature-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--accent-yellow);
+        }
+        .feature-card p {
+            color: rgba(241,245,249,0.75);
+            line-height: 1.6;
+        }
+
+        /* Additional Functions */
+        .additional-section {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(234,179,8,0.2);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+        .additional-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            text-align: center;
+            color: var(--accent-yellow);
+        }
+        .additional-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .additional-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 20px;
+            background: rgba(0,5,16,0.4);
+            border-radius: 12px;
+            border: 1px solid rgba(139,92,246,0.2);
+        }
+        .additional-icon { font-size: 1.8rem; }
+        .additional-text h4 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95rem;
+            color: var(--accent-cyan);
+            margin-bottom: 8px;
+        }
+        .additional-text p {
+            font-size: 0.9rem;
+            color: rgba(241,245,249,0.7);
+        }
+
+        /* Info Section */
+        .info-section {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(234,179,8,0.2);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+        .info-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--accent-yellow);
+        }
+        .info-section p {
+            color: rgba(241,245,249,0.8);
+            line-height: 1.8;
+        }
+
+        /* CTA */
+        .cta-section {
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, rgba(234,179,8,0.1), rgba(139,92,246,0.1));
+            border: 1px solid rgba(234,179,8,0.3);
+            border-radius: 20px;
+            margin-bottom: 50px;
+        }
+        .cta-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        .cta-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: var(--gradient-attention);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(234,179,8,0.4);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0,5,16,0.95);
+            border-top: 1px solid rgba(234,179,8,0.2);
+            padding: 30px;
+            text-align: center;
+        }
+        .disclaimer {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(234,179,8,0.05);
+            border: 1px solid rgba(234,179,8,0.2);
+            border-radius: 12px;
+        }
+        .disclaimer-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--accent-yellow);
+            margin-bottom: 10px;
+        }
+        .disclaimer p {
+            font-size: 0.85rem;
+            color: rgba(241,245,249,0.6);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.7rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .flow-container { flex-direction: column; }
+            header { flex-direction: column; gap: 15px; }
+        }
+    </style>
+</head>
+<body class="lang-de">
+
+<div class="attention-bg">
+    <canvas id="flowCanvas"></canvas>
+</div>
+
+<header>
+    <a href="index.html" class="logo">
+        <span class="logo-icon">🚀</span>
+        <span class="logo-text">CryptoSpaces</span>
+    </a>
+    <div class="header-right">
+        <div class="lang-switch">
+            <button class="lang-btn active" onclick="setLang('de')">DE</button>
+            <button class="lang-btn" onclick="setLang('en')">EN</button>
+        </div>
+        <a href="index.html" class="back-btn">
+            <span data-lang-de>← Zurück</span>
+            <span data-lang-en>← Back</span>
+        </a>
+    </div>
+</header>
+
+<main>
+    <section class="hero">
+        <div class="hero-icon">🎯</div>
+        <h1>
+            <span data-lang-de>Aufmerksamkeits-vs-Kapital-Screener</span>
+            <span data-lang-en>Attention vs. Capital Screener</span>
+        </h1>
+        <p class="hero-subtitle">
+            <span data-lang-de>Erkenne, wo die <span class="highlight-attention">Aufmerksamkeit</span> und das <span class="highlight-capital">Kapital</span> zusammenkommen und wie sie den Markt beeinflussen.</span>
+            <span data-lang-en>Identify where <span class="highlight-attention">attention</span> and <span class="highlight-capital">capital</span> converge and how they influence the market.</span>
+        </p>
+    </section>
+
+    <!-- Flow Visualization -->
+    <section class="flow-section">
+        <h2 style="font-family: 'Orbitron', sans-serif; text-align: center; margin-bottom: 30px;">
+            <span data-lang-de>🔄 Aufmerksamkeit ↔ Kapital Korrelation</span>
+            <span data-lang-en>🔄 Attention ↔ Capital Correlation</span>
+        </h2>
+        <div class="flow-container">
+            <div class="flow-column attention">
+                <h3>
+                    <span data-lang-de>👁️ Aufmerksamkeit</span>
+                    <span data-lang-en>👁️ Attention</span>
+                </h3>
+                <div class="flow-items">
+                    <div class="flow-item attention">
+                        <span class="flow-item-icon">📱</span>
+                        <span class="flow-item-text" data-lang-de>Social Media Trends</span>
+                        <span class="flow-item-text" data-lang-en>Social Media Trends</span>
+                    </div>
+                    <div class="flow-item attention">
+                        <span class="flow-item-icon">📰</span>
+                        <span class="flow-item-text" data-lang-de>Breaking News</span>
+                        <span class="flow-item-text" data-lang-en>Breaking News</span>
+                    </div>
+                    <div class="flow-item attention">
+                        <span class="flow-item-icon">🌟</span>
+                        <span class="flow-item-text" data-lang-de>Influencer Aktivität</span>
+                        <span class="flow-item-text" data-lang-en>Influencer Activity</span>
+                    </div>
+                    <div class="flow-item attention">
+                        <span class="flow-item-icon">🔥</span>
+                        <span class="flow-item-text" data-lang-de>Viralität & Hype</span>
+                        <span class="flow-item-text" data-lang-en>Virality & Hype</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-center">
+                <span class="flow-arrow">⚡</span>
+                <div class="correlation-badge">
+                    <span data-lang-de>Wechselwirkung</span>
+                    <span data-lang-en>Interaction</span>
+                </div>
+                <span class="flow-arrow">⚡</span>
+            </div>
+            
+            <div class="flow-column capital">
+                <h3>
+                    <span data-lang-de>💰 Kapital</span>
+                    <span data-lang-en>💰 Capital</span>
+                </h3>
+                <div class="flow-items">
+                    <div class="flow-item capital">
+                        <span class="flow-item-icon">🏦</span>
+                        <span class="flow-item-text" data-lang-de>Institutionelle Investments</span>
+                        <span class="flow-item-text" data-lang-en>Institutional Investments</span>
+                    </div>
+                    <div class="flow-item capital">
+                        <span class="flow-item-icon">📊</span>
+                        <span class="flow-item-text" data-lang-de>Handelsvolumen</span>
+                        <span class="flow-item-text" data-lang-en>Trading Volume</span>
+                    </div>
+                    <div class="flow-item capital">
+                        <span class="flow-item-icon">🐋</span>
+                        <span class="flow-item-text" data-lang-de>Whale Bewegungen</span>
+                        <span class="flow-item-text" data-lang-en>Whale Movements</span>
+                    </div>
+                    <div class="flow-item capital">
+                        <span class="flow-item-icon">💎</span>
+                        <span class="flow-item-text" data-lang-de>Market Cap Änderungen</span>
+                        <span class="flow-item-text" data-lang-en>Market Cap Changes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Real-Time Tracker -->
+    <section class="tracker-section">
+        <h2 style="font-family: 'Orbitron', sans-serif; text-align: center; margin-bottom: 30px; color: var(--accent-purple);">
+            <span data-lang-de>📡 Echtzeit Aufmerksamkeit vs Kapital</span>
+            <span data-lang-en>📡 Real-Time Attention vs Capital</span>
+        </h2>
+        <div class="tracker-grid">
+            <div class="tracker-card">
+                <div class="tracker-header">
+                    <span class="tracker-coin">₿</span>
+                    <span class="tracker-name">Bitcoin (BTC)</span>
+                </div>
+                <div class="tracker-bars">
+                    <div class="bar-group">
+                        <label data-lang-de>Aufmerksamkeit</label>
+                        <label data-lang-en>Attention</label>
+                        <div class="bar-container">
+                            <div class="bar-fill attention-bar" style="width: 85%;"></div>
+                        </div>
+                    </div>
+                    <div class="bar-group">
+                        <label data-lang-de>Kapitalfluss</label>
+                        <label data-lang-en>Capital Flow</label>
+                        <div class="bar-container">
+                            <div class="bar-fill capital-bar" style="width: 78%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tracker-card">
+                <div class="tracker-header">
+                    <span class="tracker-coin">Ξ</span>
+                    <span class="tracker-name">Ethereum (ETH)</span>
+                </div>
+                <div class="tracker-bars">
+                    <div class="bar-group">
+                        <label data-lang-de>Aufmerksamkeit</label>
+                        <label data-lang-en>Attention</label>
+                        <div class="bar-container">
+                            <div class="bar-fill attention-bar" style="width: 72%;"></div>
+                        </div>
+                    </div>
+                    <div class="bar-group">
+                        <label data-lang-de>Kapitalfluss</label>
+                        <label data-lang-en>Capital Flow</label>
+                        <div class="bar-container">
+                            <div class="bar-fill capital-bar" style="width: 68%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tracker-card">
+                <div class="tracker-header">
+                    <span class="tracker-coin">◎</span>
+                    <span class="tracker-name">Solana (SOL)</span>
+                </div>
+                <div class="tracker-bars">
+                    <div class="bar-group">
+                        <label data-lang-de>Aufmerksamkeit</label>
+                        <label data-lang-en>Attention</label>
+                        <div class="bar-container">
+                            <div class="bar-fill attention-bar" style="width: 92%;"></div>
+                        </div>
+                    </div>
+                    <div class="bar-group">
+                        <label data-lang-de>Kapitalfluss</label>
+                        <label data-lang-en>Capital Flow</label>
+                        <div class="bar-container">
+                            <div class="bar-fill capital-bar" style="width: 65%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tracker-card">
+                <div class="tracker-header">
+                    <span class="tracker-coin">🐕</span>
+                    <span class="tracker-name">Dogecoin (DOGE)</span>
+                </div>
+                <div class="tracker-bars">
+                    <div class="bar-group">
+                        <label data-lang-de>Aufmerksamkeit</label>
+                        <label data-lang-en>Attention</label>
+                        <div class="bar-container">
+                            <div class="bar-fill attention-bar" style="width: 88%;"></div>
+                        </div>
+                    </div>
+                    <div class="bar-group">
+                        <label data-lang-de>Kapitalfluss</label>
+                        <label data-lang-en>Capital Flow</label>
+                        <div class="bar-container">
+                            <div class="bar-fill capital-bar" style="width: 42%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🔗</div>
+            <h3>
+                <span data-lang-de>Aufmerksamkeits-Kapital-Korrelation</span>
+                <span data-lang-en>Attention-Capital Correlation</span>
+            </h3>
+            <p>
+                <span data-lang-de>Der Screener zeigt dir, wie Aufmerksamkeit (Social Media, News, Influencer) und Kapital (Investitionen, Handelsvolumen) miteinander verknüpft sind.</span>
+                <span data-lang-en>The screener shows you how attention (social media, news, influencers) and capital (investments, trading volume) are linked.</span>
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📡</div>
+            <h3>
+                <span data-lang-de>Real-Time Attention vs Capital Flow</span>
+                <span data-lang-en>Real-Time Attention vs Capital Flow</span>
+            </h3>
+            <p>
+                <span data-lang-de>Sieh dir in Echtzeit an, wie Kapitalströme und Aufmerksamkeit den Markt antreiben. Welcher Coin zieht die meiste Aufmerksamkeit an?</span>
+                <span data-lang-en>Watch in real-time how capital flows and attention drive the market. Which coin is attracting the most attention?</span>
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📈</div>
+            <h3>
+                <span data-lang-de>Visualisierung von Aufmerksamkeits-Spitzen</span>
+                <span data-lang-en>Visualization of Attention Peaks</span>
+            </h3>
+            <p>
+                <span data-lang-de>Der Screener zeigt dir, wann eine Krypto-Währung besonders viel Aufmerksamkeit erhält – z.B. durch Viralität, Influencer oder Breaking News.</span>
+                <span data-lang-en>The screener shows you when a cryptocurrency is receiving high attention – through virality, influencers, or breaking news.</span>
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🐋</div>
+            <h3>
+                <span data-lang-de>Kapitalbewegungen und Auswirkungen</span>
+                <span data-lang-en>Capital Movements and Impact</span>
+            </h3>
+            <p>
+                <span data-lang-de>Wenn Großinvestoren einsteigen oder institutionelles Kapital fließt, zeigt der Screener, wie sich diese Bewegungen auf den Preis auswirken.</span>
+                <span data-lang-en>When big investors enter or institutional capital flows in, the screener shows how these movements impact the price.</span>
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔮</div>
+            <h3>
+                <span data-lang-de>Vorhersage basierend auf Aufmerksamkeitsströmen</span>
+                <span data-lang-en>Prediction Based on Attention Flows</span>
+            </h3>
+            <p>
+                <span data-lang-de>Der Screener nutzt historische Daten, um zu analysieren, wie sich Aufmerksamkeitsströme in der Vergangenheit auf den Markt ausgewirkt haben.</span>
+                <span data-lang-en>The screener uses historical data to analyze how attention flows have impacted the market in the past.</span>
+            </p>
+        </div>
+    </section>
+
+    <!-- Additional Functions -->
+    <section class="additional-section">
+        <h2>
+            <span data-lang-de>⚡ Zusätzliche Funktionen</span>
+            <span data-lang-en>⚡ Additional Features</span>
+        </h2>
+        <div class="additional-grid">
+            <div class="additional-item">
+                <span class="additional-icon">🎯</span>
+                <div class="additional-text">
+                    <h4>
+                        <span data-lang-de>Fokus-Tracking</span>
+                        <span data-lang-en>Focus Tracking</span>
+                    </h4>
+                    <p>
+                        <span data-lang-de>Verfolge, welche Coins in den Sozialen Medien und Nachrichtenquellen besonders viel Aufmerksamkeit erhalten.</span>
+                        <span data-lang-en>Track which coins are receiving the most attention on social media and news sources.</span>
+                    </p>
+                </div>
+            </div>
+            <div class="additional-item">
+                <span class="additional-icon">📊</span>
+                <div class="additional-text">
+                    <h4>
+                        <span data-lang-de>Kapitalanalyse</span>
+                        <span data-lang-en>Capital Analysis</span>
+                    </h4>
+                    <p>
+                        <span data-lang-de>Sieh dir an, wie institutionelles Kapital und Private Equity den Markt beeinflussen.</span>
+                        <span data-lang-en>See how institutional capital and private equity influence the market.</span>
+                    </p>
+                </div>
+            </div>
+            <div class="additional-item">
+                <span class="additional-icon">🔔</span>
+                <div class="additional-text">
+                    <h4>
+                        <span data-lang-de>Attention Trend Alerts</span>
+                        <span data-lang-en>Attention Trend Alerts</span>
+                    </h4>
+                    <p>
+                        <span data-lang-de>Erhalte Benachrichtigungen, wenn eine Aufmerksamkeitswelle für einen Coin einsetzt.</span>
+                        <span data-lang-en>Get notifications when an attention wave starts for a coin.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Info Section -->
+    <section class="info-section">
+        <h2>
+            <span data-lang-de>🎯 Warum der Aufmerksamkeits-vs-Kapital-Screener wichtig ist</span>
+            <span data-lang-en>🎯 Why the Attention vs Capital Screener is Important</span>
+        </h2>
+        <p data-lang-de-block>
+            Im Kryptomarkt sind <span class="highlight-capital">Kapitalströme</span> nicht die einzigen treibenden Kräfte. <span class="highlight-attention">Aufmerksamkeit</span> hat einen enormen Einfluss auf Preisschwankungen, und sie wird oft übersehen. Der Aufmerksamkeits-vs-Kapital-Screener hilft dir, diese beiden Kräfte zu verstehen und zu erkennen, wie sie den Markt bewegen. Es geht nicht nur um Geld, sondern auch um <strong>Fokus</strong> und <strong>Interesse</strong> – und der Screener zeigt dir genau, wie diese beiden Faktoren die Marktdynamik beeinflussen.
+        </p>
+        <p data-lang-en-block>
+            In the crypto market, <span class="highlight-capital">capital flows</span> are not the only driving force. <span class="highlight-attention">Attention</span> has a huge influence on price fluctuations, and it is often overlooked. The Attention vs Capital Screener helps you understand these two forces and shows you how they move the market. It's not just about money, but also about <strong>focus</strong> and <strong>interest</strong> – and the screener shows you exactly how these two factors influence market dynamics.
+        </p>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <h2>
+            <span data-lang-de>🚀 Teste den Aufmerksamkeits-vs-Kapital-Screener</span>
+            <span data-lang-en>🚀 Test the Attention vs Capital Screener</span>
+        </h2>
+        <p style="color: rgba(241,245,249,0.8); margin-bottom: 25px;">
+            <span data-lang-de>Erkenne, wie Aufmerksamkeit und Kapital den Markt formen. Sieh dir in Echtzeit an, wie diese Kräfte die Preise beeinflussen!</span>
+            <span data-lang-en>Recognize how attention and capital shape the market. See in real-time how these forces influence prices!</span>
+        </p>
+        <a href="top100.html" class="cta-btn">
+            <span data-lang-de>Jetzt starten →</span>
+            <span data-lang-en>Get Started →</span>
+        </a>
+    </section>
+</main>
+
+<footer>
+    <div class="disclaimer">
+        <div class="disclaimer-title">
+            <span data-lang-de>⚠️ Hinweis</span>
+            <span data-lang-en>⚠️ Disclaimer</span>
+        </div>
+        <p>
+            <span data-lang-de>Der Aufmerksamkeits-vs-Kapital-Screener stellt keine finanzielle Beratung oder Handelsratschläge dar. Er hilft dir dabei, die Zusammenhänge zwischen Aufmerksamkeitsströmen und Kapitalbewegungen zu verstehen, um informierte Entscheidungen zu treffen.</span>
+            <span data-lang-en>The Attention vs Capital Screener does not provide financial advice or trading recommendations. It helps you understand the connections between attention flows and capital movements to make informed decisions.</span>
+        </p>
+    </div>
+</footer>
+
+<script>
+    // Language Switching
+    function setLang(lang) {
+        document.body.classList.remove('lang-de', 'lang-en');
+        document.body.classList.add('lang-' + lang);
+        document.querySelectorAll('.lang-btn').forEach(function(btn) { btn.classList.remove('active'); });
+        event.target.classList.add('active');
+        localStorage.setItem('cryptospaces-lang', lang);
+    }
+
+    var savedLang = localStorage.getItem('cryptospaces-lang');
+    if (savedLang) {
+        document.body.classList.remove('lang-de', 'lang-en');
+        document.body.classList.add('lang-' + savedLang);
+        document.querySelectorAll('.lang-btn').forEach(function(btn) {
+            btn.classList.toggle('active', btn.textContent === savedLang.toUpperCase());
+        });
+    }
+
+    // Flow Canvas Animation
+    var canvas = document.getElementById('flowCanvas');
+    var ctx = canvas.getContext('2d');
+    
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    var flowParticles = [];
+    for (var i = 0; i < 60; i++) {
+        flowParticles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.8,
+            vy: (Math.random() - 0.5) * 0.8,
+            size: Math.random() * 4 + 1,
+            type: Math.random() > 0.5 ? 'attention' : 'capital'
+        });
+    }
+
+    function animateFlow() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        flowParticles.forEach(function(p) {
+            p.x += p.vx;
+            p.y += p.vy;
+            
+            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+            
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fillStyle = p.type === 'attention' ? 'rgba(234,179,8,0.4)' : 'rgba(139,92,246,0.4)';
+            ctx.fill();
+        });
+
+        // Draw connections
+        for (var i = 0; i < flowParticles.length; i++) {
+            for (var j = i + 1; j < flowParticles.length; j++) {
+                var dx = flowParticles[i].x - flowParticles[j].x;
+                var dy = flowParticles[i].y - flowParticles[j].y;
+                var dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 120) {
+                    ctx.beginPath();
+                    ctx.moveTo(flowParticles[i].x, flowParticles[i].y);
+                    ctx.lineTo(flowParticles[j].x, flowParticles[j].y);
+                    var color = flowParticles[i].type === flowParticles[j].type 
+                        ? (flowParticles[i].type === 'attention' ? '234,179,8' : '139,92,246')
+                        : '249,115,22';
+                    ctx.strokeStyle = 'rgba(' + color + ',' + (1 - dist / 120) * 0.15 + ')';
+                    ctx.stroke();
+                }
+            }
+        }
+        
+        requestAnimationFrame(animateFlow);
+    }
+    animateFlow();
+
+    // Animate bars on load
+    setTimeout(function() {
+        document.querySelectorAll('.bar-fill').forEach(function(bar) {
+            var width = bar.style.width;
+            bar.style.width = '0';
+            setTimeout(function() {
+                bar.style.width = width;
+            }, 100);
+        });
+    }, 500);
+</script>
+
+</body>
+</html>

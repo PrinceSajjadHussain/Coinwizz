@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LYPS - Layered Yield, Leverage & Pressure System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --space-black: #000510;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --text-light: #f1f5f9;
+            /* Original Vars */
+            --primary: #f59e0b;
+            --secondary: #ea580c;
+            --accent: #dc2626;
+            --success: #22c55e;
+            --warning: #fbbf24;
+            --danger: #ef4444;
+            --bg-dark: #0a0f1e;
+            --bg-darker: #030712;
+            --text: #f8fafc;
+        }
+        /* Unified Header Styles */
+        .unified-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0, 5, 16, 0.95) 0%, rgba(0, 5, 16, 0) 100%);
+            padding: 15px 30px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+        }
+        .unified-left { display: flex; align-items: center; gap: 20px; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+        .unified-nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .unified-nav-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            padding: 7px 12px;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: rgba(14, 165, 233, 0.05);
+            text-transform: uppercase;
+        }
+        .unified-nav-link:hover {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+        }
+        .unified-utils {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .unified-btn {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(34, 211, 238, 0.1));
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            color: var(--text-light);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .unified-btn:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(34, 211, 238, 0.2));
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+        @media (max-width: 900px) {
+            .unified-nav { display: none; }
+            .unified-header { padding: 10px 15px; }
+        }
+
+        /* Toolbar Adaptation */
+        .app-toolbar {
+            position: fixed;
+            top: 80px; left: 0; right: 0;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 90;
+            border-bottom: 1px solid rgba(245,158,11,0.2);
+            height: 60px;
+        }
+        .canvas-container { position: fixed; top: 140px !important; left: 0; right: 0; bottom: 50px; }
+        .info-panel, .layer-panel, .pressure-legend { top: 155px !important; }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--text);
+            padding-top: 80px;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.4s ease-out;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-title { font-size: 2rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 5px; margin-bottom: 8px; }
+        .loading-sub { font-size: 0.65rem; color: rgba(248,250,252,0.6); margin-bottom: 25px; letter-spacing: 2px; }
+        .progress-container { width: 280px; height: 6px; background: rgba(245,158,11,0.15); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 3px; transition: width 0.1s linear; }
+        .progress-percent { margin-top: 10px; font-size: 0.7rem; color: var(--primary); }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(245,158,11,0.2);
+        }
+        .title-wrap {}
+        .title { font-size: 1.4rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 4px; }
+        .title-sub { font-size: 0.5rem; color: rgba(248,250,252,0.5); letter-spacing: 1px; margin-top: 2px; }
+        .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn {
+            background: rgba(245,158,11,0.15);
+            border: 1px solid rgba(245,158,11,0.4);
+            color: var(--primary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: rgba(245,158,11,0.25); border-color: var(--primary); }
+        .btn.active { background: rgba(245,158,11,0.4); border-color: var(--primary); }
+        .btn-nav { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.4); color: #3b82f6; text-decoration: none; }
+        .btn-nav:hover { background: rgba(59,130,246,0.25); }
+        .btn-time { background: rgba(220,38,38,0.15); border-color: rgba(220,38,38,0.4); color: var(--accent); }
+        .btn-time.active { background: rgba(220,38,38,0.4); }
+        .divider { color: rgba(255,255,255,0.15); margin: 0 5px; }
+
+        /* Canvas */
+        .canvas-container { position: fixed; top: 60px; left: 0; right: 0; bottom: 50px; }
+        #mainCanvas { width: 100%; height: 100%; }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            padding: 10px 20px;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.6rem;
+            color: rgba(248,250,252,0.5);
+            border-top: 1px solid rgba(245,158,11,0.2);
+        }
+        .stats { display: flex; gap: 20px; }
+        .stat-val { color: var(--primary); font-weight: 600; }
+        .stat-val.danger { color: var(--danger); }
+        .stat-val.warning { color: var(--warning); }
+        .disclaimer { color: var(--warning); font-style: italic; }
+
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: rgba(10,15,30,0.95);
+            border: 1px solid rgba(245,158,11,0.5);
+            border-radius: 12px;
+            padding: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            z-index: 200;
+            min-width: 220px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .tooltip.visible { opacity: 1; }
+        .tooltip-name { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+        .tooltip-desc { font-size: 0.6rem; color: rgba(248,250,252,0.6); margin-bottom: 10px; line-height: 1.4; }
+        .tooltip-section { margin: 8px 0; padding-top: 8px; border-top: 1px solid rgba(245,158,11,0.2); }
+        .tooltip-section-title { font-size: 0.55rem; color: rgba(248,250,252,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tooltip-row { display: flex; justify-content: space-between; font-size: 0.65rem; margin: 4px 0; }
+        .tooltip-label { color: rgba(248,250,252,0.6); }
+        .tooltip-value { font-family: 'JetBrains Mono', monospace; }
+        .tooltip-meter { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+        .tooltip-meter-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+        /* Layer Panel */
+        .layer-panel {
+            position: fixed;
+            left: 15px;
+            top: 75px;
+            bottom: 60px;
+            width: 180px;
+            background: rgba(10,15,30,0.85);
+            border: 1px solid rgba(245,158,11,0.2);
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 0.55rem;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+            overflow-y: auto;
+        }
+        .layer-panel::-webkit-scrollbar { width: 4px; }
+        .layer-panel::-webkit-scrollbar-track { background: transparent; }
+        .layer-panel::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.3); border-radius: 2px; }
+        .layer-title { color: var(--primary); font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; font-size: 0.6rem; }
+        .layer-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px 0;
+            padding: 6px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .layer-item:hover { background: rgba(245,158,11,0.1); }
+        .layer-item.active { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.3); }
+        .layer-item.disabled { opacity: 0.4; }
+        .layer-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .layer-info { flex: 1; min-width: 0; }
+        .layer-name { color: rgba(248,250,252,0.9); font-size: 0.6rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .layer-status { font-size: 0.5rem; color: rgba(248,250,252,0.5); margin-top: 2px; }
+        .layer-toggle { width: 28px; height: 16px; background: rgba(75, 85, 99, 0.5); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; }
+        .layer-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; background: #6b7280; border-radius: 50%; transition: all 0.2s; }
+        .layer-toggle.on { background: rgba(245,158,11,0.5); }
+        .layer-toggle.on::after { left: 14px; background: var(--primary); }
+
+        /* Pressure Legend */
+        .pressure-legend {
+            position: fixed;
+            right: 15px;
+            top: 75px;
+            background: rgba(10,15,30,0.85);
+            border: 1px solid rgba(220,38,38,0.3);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.55rem;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+            width: 150px;
+        }
+        .pressure-title { color: var(--accent); font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; font-size: 0.6rem; }
+        .pressure-item { display: flex; align-items: center; gap: 8px; margin: 6px 0; color: rgba(248,250,252,0.7); }
+        .pressure-bar { width: 40px; height: 8px; border-radius: 4px; }
+        .pressure-label { font-size: 0.55rem; }
+    </style>
+
+    /* Unified Navigation Banner Style */
+    <style>
+        .page-link {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 5px;
+            text-decoration: none;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid rgba(100, 255, 255, 0.3);
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.15));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 0 5px rgba(100, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-link:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(8, 145, 178, 0.3));
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(100, 255, 255, 0.4);
+            border-color: rgba(100, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+<header class="unified-header">
+        <div class="unified-left">
+            <a href="index.html" class="unified-logo">CRYPTOSPACES</a>
+            <span class="page-title" style="margin-left:20px; font-family:'Orbitron'; font-weight:700; color:var(--accent-cyan);">LYPS</span>
+        </div>
+        <nav class="unified-nav">
+            <a href="top100.html" class="unified-nav-link">Top 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">Whales</a>
+            <a href="our-vision.html" class="unified-nav-link">Vision</a>
+        </nav>
+        <div class="unified-utils">
+            <a href="index.html" class="unified-btn">← Back</a>
+        </div>
+    </header>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-title">LYPS</div>
+        <div class="loading-sub">Layered Yield, Leverage & Pressure System</div>
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+    <div class="app-toolbar">
+        <div class="controls">
+            <button class="btn btn-time active" data-time="short">Kurzfristig</button>
+            <button class="btn btn-time" data-time="24h">24h</button>
+            <button class="btn btn-time" data-time="7d">7d</button>
+            <span class="divider">|</span>
+            <button class="btn" id="toggleAllLayers">Alle Layer</button>
+            <button class="btn active" id="togglePressure">Druck</button>
+            <button class="btn active" id="toggleCracks">Risse</button>
+            <span class="divider">|</span>
+            <a href="rr.html" class="page-link">RR</a>
+            <a href="ex-triv.html" class="page-link">EXTRIV</a>
+            <a href="cscs.html" class="page-link">💧 CSCS</a>
+            <a href="nft-digital.html" class="page-link">🎨 NFT</a>
+            <a href="game-vev.html" class="page-link">🎮 GAME</a>
+            <a href="misvav.html" class="page-link">⛏️ MIS</a>
+            <a href="sacorcs.html" class="page-link">SAC</a>
+            <a href="crypto-matrix-vision.html" class="page-link">Matrix</a>
+        </div>
+    </div>
+
+    <div class="layer-panel" id="layerPanel">
+        <div class="layer-title">SUBSYSTEME</div>
+        <!-- Layers will be populated by JS -->
+    </div>
+
+    <div class="pressure-legend">
+        <div class="pressure-title">DRUCKSTUFEN</div>
+        <div class="pressure-item"><div class="pressure-bar" style="background: linear-gradient(90deg, #22c55e, #4ade80);"></div><span class="pressure-label">Niedrig</span></div>
+        <div class="pressure-item"><div class="pressure-bar" style="background: linear-gradient(90deg, #fbbf24, #f59e0b);"></div><span class="pressure-label">Moderat</span></div>
+        <div class="pressure-item"><div class="pressure-bar" style="background: linear-gradient(90deg, #f97316, #ea580c);"></div><span class="pressure-label">Hoch</span></div>
+        <div class="pressure-item"><div class="pressure-bar" style="background: linear-gradient(90deg, #ef4444, #dc2626);"></div><span class="pressure-label">Kritisch</span></div>
+        <div style="margin: 10px 0; border-top: 1px solid rgba(220,38,38,0.2);"></div>
+        <div class="pressure-title">INDIKATOREN</div>
+        <div class="pressure-item"><div style="width: 12px; height: 12px; border-radius: 50%; background: rgba(239,68,68,0.5); animation: pulse 1s infinite;"></div><span class="pressure-label">Hotspot</span></div>
+        <div class="pressure-item"><div style="width: 20px; height: 2px; background: #ef4444;"></div><span class="pressure-label">Riss</span></div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-name" id="ttName">DeFi</div>
+        <div class="tooltip-desc" id="ttDesc">Leverage & Yield Pressure</div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Systemstatus</div>
+            <div class="tooltip-row"><span class="tooltip-label">Drucklevel</span><span class="tooltip-value" id="ttPressure">Hoch</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Aktivitaet</span><span class="tooltip-value" id="ttActivity">Intensiv</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Risikozone</span><span class="tooltip-value" id="ttRisk">3 aktiv</span></div>
+        </div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Druckmeter</div>
+            <div class="tooltip-meter"><div class="tooltip-meter-fill" id="ttMeter" style="width: 75%; background: linear-gradient(90deg, #f59e0b, #ef4444);"></div></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="stats">
+            <span>Aktive Layer: <span class="stat-val" id="statLayers">10</span></span>
+            <span>Gesamtdruck: <span class="stat-val warning" id="statPressure">Moderat</span></span>
+            <span>Hotspots: <span class="stat-val danger" id="statHotspots">4</span></span>
+            <span>Risse: <span class="stat-val" id="statCracks">2</span></span>
+        </div>
+        <div class="disclaimer">Simulierte Daten - Keine Anlageberatung</div>
+    </div>
+
+    <script>
+    // ==================== LAYER CONFIG ====================
+    const LAYERS = [
+        { id: 'defi', name: 'DeFi', desc: 'Leverage & Yield Pressure', color: '#8b5cf6', angle: 0, pressure: 0.75, activity: 0.8 },
+        { id: 'stablecoins', name: 'Stablecoins', desc: 'Capital Stability Reservoirs', color: '#06b6d4', angle: 36, pressure: 0.45, activity: 0.6 },
+        { id: 'nfts', name: 'NFTs', desc: 'Ownership Expansion', color: '#ec4899', angle: 72, pressure: 0.35, activity: 0.4 },
+        { id: 'gaming', name: 'Gaming/Metaverse', desc: 'Mass Behavior Loops', color: '#22c55e', angle: 108, pressure: 0.5, activity: 0.65 },
+        { id: 'mining', name: 'Mining/Staking', desc: 'Production & Security', color: '#f59e0b', angle: 144, pressure: 0.6, activity: 0.7 },
+        { id: 'data', name: 'Data/Analytics', desc: 'Market Intelligence', color: '#3b82f6', angle: 180, pressure: 0.4, activity: 0.55 },
+        { id: 'security', name: 'Security/Audits', desc: 'Risk Containment', color: '#ef4444', angle: 216, pressure: 0.7, activity: 0.5 },
+        { id: 'identity', name: 'Identity/DID', desc: 'Institutional Interface', color: '#14b8a6', angle: 252, pressure: 0.3, activity: 0.35 },
+        { id: 'regulation', name: 'Regulation', desc: 'Friction & Readiness', color: '#6b7280', angle: 288, pressure: 0.65, activity: 0.45 },
+        { id: 'media', name: 'Media/Education', desc: 'Narrative Pressure', color: '#a855f7', angle: 324, pressure: 0.55, activity: 0.75 }
+    ];
+
+    // ==================== STATE ====================
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+    const layerPanel = document.getElementById('layerPanel');
+
+    let width, height, centerX, centerY;
+    let layers = [];
+    let cracks = [];
+    let hotspots = [];
+    let particles = [];
+    let animId = null;
+    let hoveredLayer = null;
+    let showPressure = true, showCracks = true;
+    let time = 0;
+
+    // ==================== INITIALIZATION ====================
+    function resize() {
+        width = canvas.width = canvas.parentElement.clientWidth;
+        height = canvas.height = canvas.parentElement.clientHeight;
+        centerX = width / 2;
+        centerY = height / 2;
+        initLayers();
+    }
+
+    function initLayers() {
+        layers = LAYERS.map((cfg, i) => {
+            const angleRad = (cfg.angle * Math.PI) / 180;
+            const radius = Math.min(width, height) * 0.35;
+            return {
+                ...cfg,
+                enabled: true,
+                x: centerX + Math.cos(angleRad) * radius * 0.5,
+                y: centerY + Math.sin(angleRad) * radius * 0.5,
+                radius: 60 + cfg.pressure * 40,
+                pulsePhase: Math.random() * Math.PI * 2,
+                compressionWaves: [],
+                flowParticles: []
+            };
+        });
+
+        initCracks();
+        initHotspots();
+        initParticles();
+        buildLayerPanel();
+        updateStats();
+    }
+
+    function initCracks() {
+        cracks = [];
+        // Generate cracks in high-pressure zones
+        layers.filter(l => l.pressure > 0.6).forEach(layer => {
+            const numCracks = Math.floor(layer.pressure * 3);
+            for (let i = 0; i < numCracks; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const startDist = layer.radius * 0.5;
+                const length = 20 + Math.random() * 40;
+                cracks.push({
+                    layer,
+                    startX: layer.x + Math.cos(angle) * startDist,
+                    startY: layer.y + Math.sin(angle) * startDist,
+                    angle,
+                    length,
+                    width: 1 + layer.pressure * 2,
+                    flickerPhase: Math.random() * Math.PI * 2
+                });
+            }
+        });
+    }
+
+    function initHotspots() {
+        hotspots = [];
+        layers.forEach(layer => {
+            if (layer.pressure > 0.5) {
+                const numSpots = Math.floor(layer.pressure * 4);
+                for (let i = 0; i < numSpots; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = Math.random() * layer.radius * 0.8;
+                    hotspots.push({
+                        layer,
+                        x: layer.x + Math.cos(angle) * dist,
+                        y: layer.y + Math.sin(angle) * dist,
+                        size: 5 + layer.pressure * 10,
+                        pulsePhase: Math.random() * Math.PI * 2,
+                        intensity: 0.5 + Math.random() * 0.5
+                    });
+                }
+            }
+        });
+    }
+
+    function initParticles() {
+        particles = [];
+        // Create pressure flow particles between layers
+        for (let i = 0; i < 50; i++) {
+            const sourceLayer = layers[Math.floor(Math.random() * layers.length)];
+            const targetLayer = layers[Math.floor(Math.random() * layers.length)];
+            if (sourceLayer === targetLayer) continue;
+
+            particles.push({
+                source: sourceLayer,
+                target: targetLayer,
+                t: Math.random(),
+                speed: 0.002 + Math.random() * 0.003,
+                size: 2 + Math.random() * 2
+            });
+        }
+    }
+
+    function buildLayerPanel() {
+        const container = layerPanel.querySelector('.layer-title').parentElement;
+        container.innerHTML = '<div class="layer-title">SUBSYSTEME</div>';
+
+        layers.forEach(layer => {
+            const item = document.createElement('div');
+            item.className = 'layer-item active';
+            item.dataset.layerId = layer.id;
+
+            const pressureStatus = layer.pressure > 0.7 ? 'Kritisch' : layer.pressure > 0.5 ? 'Hoch' : layer.pressure > 0.3 ? 'Moderat' : 'Niedrig';
+
+            item.innerHTML = `
+                <div class="layer-dot" style="background: ${layer.color}; box-shadow: 0 0 6px ${layer.color};"></div>
+                <div class="layer-info">
+                    <div class="layer-name">${layer.name}</div>
+                    <div class="layer-status">Druck: ${pressureStatus}</div>
+                </div>
+                <div class="layer-toggle on" data-layer="${layer.id}"></div>
+            `;
+
+            item.querySelector('.layer-toggle').addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleLayer(layer.id);
+            });
+
+            item.addEventListener('mouseenter', () => {
+                hoveredLayer = layer;
+            });
+
+            item.addEventListener('mouseleave', () => {
+                if (hoveredLayer === layer) hoveredLayer = null;
+            });
+
+            container.appendChild(item);
+        });
+    }
+
+    function toggleLayer(layerId) {
+        const layer = layers.find(l => l.id === layerId);
+        if (layer) {
+            layer.enabled = !layer.enabled;
+            const item = document.querySelector(`.layer-item[data-layer-id="${layerId}"]`);
+            const toggle = document.querySelector(`.layer-toggle[data-layer="${layerId}"]`);
+            if (item) item.classList.toggle('active', layer.enabled);
+            if (item) item.classList.toggle('disabled', !layer.enabled);
+            if (toggle) toggle.classList.toggle('on', layer.enabled);
+            updateStats();
+        }
+    }
+
+    function updateStats() {
+        const activeLayers = layers.filter(l => l.enabled).length;
+        document.getElementById('statLayers').textContent = activeLayers;
+
+        const avgPressure = layers.filter(l => l.enabled).reduce((sum, l) => sum + l.pressure, 0) / (activeLayers || 1);
+        const pressureEl = document.getElementById('statPressure');
+        if (avgPressure > 0.65) {
+            pressureEl.textContent = 'Kritisch';
+            pressureEl.className = 'stat-val danger';
+        } else if (avgPressure > 0.45) {
+            pressureEl.textContent = 'Hoch';
+            pressureEl.className = 'stat-val warning';
+        } else {
+            pressureEl.textContent = 'Moderat';
+            pressureEl.className = 'stat-val';
+        }
+
+        document.getElementById('statHotspots').textContent = hotspots.filter(h => h.layer.enabled).length;
+        document.getElementById('statCracks').textContent = cracks.filter(c => c.layer.enabled).length;
+    }
+
+    // ==================== UPDATE ====================
+    function update() {
+        time += 0.016;
+
+        layers.forEach(layer => {
+            if (!layer.enabled) return;
+            layer.pulsePhase += 0.02 + layer.activity * 0.02;
+
+            // Update compression waves
+            if (Math.random() < layer.pressure * 0.02) {
+                layer.compressionWaves.push({
+                    radius: 0,
+                    maxRadius: layer.radius * 1.5,
+                    alpha: 0.5
+                });
+            }
+            layer.compressionWaves = layer.compressionWaves.filter(wave => {
+                wave.radius += 1 + layer.pressure * 2;
+                wave.alpha *= 0.97;
+                return wave.alpha > 0.05;
+            });
+        });
+
+        // Update hotspots
+        hotspots.forEach(h => {
+            h.pulsePhase += 0.05 + h.intensity * 0.03;
+        });
+
+        // Update cracks
+        cracks.forEach(c => {
+            c.flickerPhase += 0.1;
+        });
+
+        // Update particles
+        particles.forEach(p => {
+            if (!p.source.enabled || !p.target.enabled) return;
+            p.t += p.speed;
+            if (p.t > 1) p.t = 0;
+        });
+    }
+
+    // ==================== DRAWING ====================
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Background pressure field
+        drawBackgroundField();
+
+        // Draw inter-layer pressure flows
+        drawPressureFlows();
+
+        // Draw layers
+        layers.forEach(layer => {
+            if (layer.enabled) drawLayer(layer);
+        });
+
+        // Draw pressure overlay
+        if (showPressure) {
+            drawPressureOverlay();
+        }
+
+        // Draw cracks
+        if (showCracks) {
+            drawCracks();
+        }
+
+        // Draw hotspots
+        drawHotspots();
+
+        // Draw center pressure core
+        drawPressureCore();
+    }
+
+    function drawBackgroundField() {
+        const bgGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(width, height) * 0.6);
+        bgGrad.addColorStop(0, 'rgba(245,158,11,0.05)');
+        bgGrad.addColorStop(0.4, 'rgba(220,38,38,0.03)');
+        bgGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, width, height);
+    }
+
+    function drawPressureFlows() {
+        particles.forEach(p => {
+            if (!p.source.enabled || !p.target.enabled) return;
+
+            const x = p.source.x + (p.target.x - p.source.x) * p.t;
+            const y = p.source.y + (p.target.y - p.source.y) * p.t;
+
+            ctx.beginPath();
+            ctx.arc(x, y, p.size, 0, Math.PI * 2);
+
+            const grad = ctx.createRadialGradient(x, y, 0, x, y, p.size * 2);
+            grad.addColorStop(0, 'rgba(245,158,11,0.6)');
+            grad.addColorStop(1, 'transparent');
+            ctx.fillStyle = grad;
+            ctx.fill();
+        });
+    }
+
+    function drawLayer(layer) {
+        const pulse = 1 + Math.sin(layer.pulsePhase) * 0.1 * layer.activity;
+        const radius = layer.radius * pulse;
+
+        // Compression waves
+        layer.compressionWaves.forEach(wave => {
+            ctx.beginPath();
+            ctx.arc(layer.x, layer.y, wave.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(${hexToRgb(layer.color)}, ${wave.alpha * 0.3})`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        });
+
+        // Layer glow
+        const glowGrad = ctx.createRadialGradient(layer.x, layer.y, radius * 0.3, layer.x, layer.y, radius * 1.5);
+        glowGrad.addColorStop(0, layer.color + '40');
+        glowGrad.addColorStop(0.5, layer.color + '15');
+        glowGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = glowGrad;
+        ctx.beginPath();
+        ctx.arc(layer.x, layer.y, radius * 1.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Layer body
+        const bodyGrad = ctx.createRadialGradient(layer.x - radius * 0.2, layer.y - radius * 0.2, 0, layer.x, layer.y, radius);
+        bodyGrad.addColorStop(0, layer.color);
+        bodyGrad.addColorStop(0.6, layer.color + 'aa');
+        bodyGrad.addColorStop(1, '#0a0f1e');
+        ctx.fillStyle = bodyGrad;
+        ctx.beginPath();
+        ctx.arc(layer.x, layer.y, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Pressure ring
+        const pressureColor = getPressureColor(layer.pressure);
+        ctx.strokeStyle = pressureColor + '80';
+        ctx.lineWidth = 3 + layer.pressure * 4;
+        ctx.beginPath();
+        ctx.arc(layer.x, layer.y, radius + 5, 0, Math.PI * 2 * layer.pressure);
+        ctx.stroke();
+
+        // Layer label
+        ctx.font = "bold 10px 'Orbitron', sans-serif";
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(layer.name, layer.x, layer.y - 5);
+
+        ctx.font = "8px 'JetBrains Mono', monospace";
+        ctx.fillStyle = 'rgba(248,250,252,0.6)';
+        ctx.fillText(layer.desc.split(' ')[0], layer.x, layer.y + 10);
+
+        // Hover effect
+        if (hoveredLayer === layer) {
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(layer.x, layer.y, radius + 12, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    }
+
+    function drawPressureOverlay() {
+        // Draw pressure connections between adjacent layers
+        for (let i = 0; i < layers.length; i++) {
+            const layerA = layers[i];
+            const layerB = layers[(i + 1) % layers.length];
+            if (!layerA.enabled || !layerB.enabled) continue;
+
+            const combinedPressure = (layerA.pressure + layerB.pressure) / 2;
+            const pressureColor = getPressureColor(combinedPressure);
+
+            // Draw pressure arc between layers
+            ctx.beginPath();
+            ctx.moveTo(layerA.x, layerA.y);
+
+            const midX = (layerA.x + layerB.x) / 2;
+            const midY = (layerA.y + layerB.y) / 2;
+            const pullToCenter = 0.3 + combinedPressure * 0.3;
+            const ctrlX = midX + (centerX - midX) * pullToCenter;
+            const ctrlY = midY + (centerY - midY) * pullToCenter;
+
+            ctx.quadraticCurveTo(ctrlX, ctrlY, layerB.x, layerB.y);
+            ctx.strokeStyle = pressureColor + '30';
+            ctx.lineWidth = 2 + combinedPressure * 4;
+            ctx.stroke();
+        }
+    }
+
+    function drawCracks() {
+        cracks.forEach(crack => {
+            if (!crack.layer.enabled) return;
+
+            const flicker = 0.5 + Math.sin(crack.flickerPhase) * 0.3;
+            const endX = crack.startX + Math.cos(crack.angle) * crack.length;
+            const endY = crack.startY + Math.sin(crack.angle) * crack.length;
+
+            // Main crack line
+            ctx.beginPath();
+            ctx.moveTo(crack.startX, crack.startY);
+
+            // Jagged path
+            const segments = 5;
+            for (let i = 1; i <= segments; i++) {
+                const t = i / segments;
+                const x = crack.startX + (endX - crack.startX) * t;
+                const y = crack.startY + (endY - crack.startY) * t;
+                const jitter = (Math.random() - 0.5) * 8;
+                ctx.lineTo(x + jitter, y + jitter);
+            }
+
+            ctx.strokeStyle = `rgba(239, 68, 68, ${flicker})`;
+            ctx.lineWidth = crack.width;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Crack glow
+            ctx.shadowColor = '#ef4444';
+            ctx.shadowBlur = 10;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        });
+    }
+
+    function drawHotspots() {
+        hotspots.forEach(h => {
+            if (!h.layer.enabled) return;
+
+            const pulse = 1 + Math.sin(h.pulsePhase) * 0.3;
+            const size = h.size * pulse;
+
+            // Hotspot glow
+            const glowGrad = ctx.createRadialGradient(h.x, h.y, 0, h.x, h.y, size * 2);
+            glowGrad.addColorStop(0, `rgba(239, 68, 68, ${h.intensity * 0.6})`);
+            glowGrad.addColorStop(0.5, `rgba(239, 68, 68, ${h.intensity * 0.2})`);
+            glowGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = glowGrad;
+            ctx.beginPath();
+            ctx.arc(h.x, h.y, size * 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Hotspot core
+            ctx.beginPath();
+            ctx.arc(h.x, h.y, size * 0.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(239, 68, 68, ${h.intensity})`;
+            ctx.fill();
+        });
+    }
+
+    function drawPressureCore() {
+        const avgPressure = layers.filter(l => l.enabled).reduce((sum, l) => sum + l.pressure, 0) / (layers.filter(l => l.enabled).length || 1);
+        const pulse = 1 + Math.sin(time * 2) * 0.15;
+        const coreSize = 30 + avgPressure * 20;
+
+        // Core glow
+        const coreGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, coreSize * 2 * pulse);
+        const pressureColor = getPressureColor(avgPressure);
+        coreGrad.addColorStop(0, pressureColor + '60');
+        coreGrad.addColorStop(0.5, pressureColor + '20');
+        coreGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = coreGrad;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, coreSize * 2 * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Core body
+        const bodyGrad = ctx.createRadialGradient(centerX - 10, centerY - 10, 0, centerX, centerY, coreSize);
+        bodyGrad.addColorStop(0, pressureColor);
+        bodyGrad.addColorStop(0.7, '#1e1b4b');
+        bodyGrad.addColorStop(1, '#0a0f1e');
+        ctx.fillStyle = bodyGrad;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, coreSize * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rotating pressure rings
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(time * 0.3);
+        ctx.strokeStyle = pressureColor + '50';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, coreSize + 8, 0, Math.PI * 1.3);
+        ctx.stroke();
+        ctx.rotate(Math.PI);
+        ctx.beginPath();
+        ctx.arc(0, 0, coreSize + 8, 0, Math.PI * 0.8);
+        ctx.stroke();
+        ctx.restore();
+
+        // Label
+        ctx.font = "bold 9px 'Orbitron', sans-serif";
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('CORE', centerX, centerY);
+    }
+
+    // ==================== HELPERS ====================
+    function getPressureColor(pressure) {
+        if (pressure > 0.7) return '#ef4444';
+        if (pressure > 0.5) return '#f97316';
+        if (pressure > 0.3) return '#fbbf24';
+        return '#22c55e';
+    }
+
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '255, 255, 255';
+    }
+
+    // ==================== INTERACTION ====================
+    function findLayer(mx, my) {
+        const rect = canvas.getBoundingClientRect();
+        const x = mx - rect.left, y = my - rect.top;
+
+        for (let layer of layers) {
+            if (!layer.enabled) continue;
+            if (Math.hypot(x - layer.x, y - layer.y) <= layer.radius * 1.2) return layer;
+        }
+        return null;
+    }
+
+    function showTooltip(layer, x, y) {
+        document.getElementById('ttName').textContent = layer.name;
+        document.getElementById('ttDesc').textContent = layer.desc;
+
+        const pressureLevel = layer.pressure > 0.7 ? 'Kritisch' : layer.pressure > 0.5 ? 'Hoch' : layer.pressure > 0.3 ? 'Moderat' : 'Niedrig';
+        document.getElementById('ttPressure').textContent = pressureLevel;
+        document.getElementById('ttPressure').style.color = getPressureColor(layer.pressure);
+
+        const activityLevel = layer.activity > 0.7 ? 'Intensiv' : layer.activity > 0.4 ? 'Aktiv' : 'Ruhig';
+        document.getElementById('ttActivity').textContent = activityLevel;
+
+        const riskZones = hotspots.filter(h => h.layer === layer).length;
+        document.getElementById('ttRisk').textContent = riskZones + ' aktiv';
+
+        const meter = document.getElementById('ttMeter');
+        meter.style.width = (layer.pressure * 100) + '%';
+        meter.style.background = `linear-gradient(90deg, #22c55e, ${getPressureColor(layer.pressure)})`;
+
+        tooltip.style.left = (x + 15) + 'px';
+        tooltip.style.top = (y + 15) + 'px';
+        tooltip.classList.add('visible');
+    }
+
+    canvas.addEventListener('mousemove', e => {
+        const layer = findLayer(e.clientX, e.clientY);
+        hoveredLayer = layer;
+        canvas.style.cursor = layer ? 'pointer' : 'default';
+        if (layer) {
+            showTooltip(layer, e.clientX, e.clientY);
+        } else {
+            tooltip.classList.remove('visible');
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        hoveredLayer = null;
+        tooltip.classList.remove('visible');
+    });
+
+    // ==================== CONTROLS ====================
+    document.querySelectorAll('.btn-time').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.btn-time').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            // Randomize pressure values for different timeframes
+            layers.forEach(l => {
+                l.pressure = 0.2 + Math.random() * 0.7;
+                l.activity = 0.3 + Math.random() * 0.6;
+            });
+            initCracks();
+            initHotspots();
+            buildLayerPanel();
+            updateStats();
+        });
+    });
+
+    document.getElementById('toggleAllLayers').addEventListener('click', function() {
+        const allEnabled = layers.every(l => l.enabled);
+        layers.forEach(l => l.enabled = !allEnabled);
+        buildLayerPanel();
+        updateStats();
+        this.classList.toggle('active', !allEnabled);
+    });
+
+    document.getElementById('togglePressure').addEventListener('click', function() {
+        showPressure = !showPressure;
+        this.classList.toggle('active', showPressure);
+    });
+
+    document.getElementById('toggleCracks').addEventListener('click', function() {
+        showCracks = !showCracks;
+        this.classList.toggle('active', showCracks);
+    });
+
+    // ==================== ANIMATION ====================
+    function animate() {
+        update();
+        draw();
+        animId = requestAnimationFrame(animate);
+    }
+
+    // ==================== INIT ====================
+    const overlay = document.getElementById('loadingOverlay');
+    const progressBar = document.getElementById('progressBar');
+    const progressPercent = document.getElementById('progressPercent');
+
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 8 + Math.random() * 12;
+            if (progress > 90) progress = 90;
+            progressBar.style.width = progress + '%';
+            progressPercent.textContent = Math.round(progress) + '%';
+        }
+    }, 60);
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    setTimeout(() => {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressPercent.textContent = '100%';
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            animate();
+        }, 200);
+    }, 400);
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cancelAnimationFrame(animId);
+        } else {
+            animate();
+        }
+    });
+    </script>
+</body>
+</html>

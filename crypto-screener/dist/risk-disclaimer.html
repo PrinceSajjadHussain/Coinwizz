@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk & Legal Disclaimer | Cryptospaces</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Page-specific styles */
+        .legal-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .legal-section {
+            margin-bottom: 50px;
+        }
+        
+        .legal-section h2 {
+            color: var(--primary-color, #e94560);
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(233, 69, 96, 0.2);
+        }
+        
+        .legal-section h3 {
+            color: var(--text-color, #ffffff);
+            font-size: 1.3rem;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .legal-section p, .legal-section li {
+            color: var(--text-secondary, #a0a0a0);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .legal-section ul {
+            padding-left: 25px;
+        }
+        
+        .legal-section li {
+            margin-bottom: 10px;
+        }
+        
+        .warning-box {
+            background: rgba(233, 69, 96, 0.1);
+            border-left: 4px solid var(--primary-color, #e94560);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .warning-box p {
+            color: var(--text-color, #ffffff);
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        .language-divider {
+            text-align: center;
+            margin: 60px 0;
+            position: relative;
+        }
+        
+        .language-divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .language-label {
+            background: var(--bg-color, #0f0f23);
+            padding: 0 20px;
+            color: var(--text-secondary, #a0a0a0);
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .footer-links {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 30px 20px;
+            margin-top: 60px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .footer-links-container {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .footer-links h4 {
+            color: var(--text-color, #ffffff);
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .footer-links a {
+            color: var(--primary-color, #e94560);
+            text-decoration: none;
+            margin: 0 15px;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--text-color, #ffffff);
+        }
+        
+        /* CryptoSpaces Dropdown */
+        .cryptospaces-dropdown {
+            position: relative;
+        }
+        .cryptospaces-toggle {
+            background: rgba(251,191,36,0.15);
+            border: 1px solid rgba(251,191,36,0.4);
+            color: #fbbf24;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .cryptospaces-toggle:hover { background: rgba(251,191,36,0.25); }
+        .cryptospaces-toggle .chevron { font-size: 0.65rem; transition: transform 0.2s; }
+        .cryptospaces-dropdown.open .chevron { transform: rotate(180deg); }
+        .cryptospaces-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: rgba(15,15,35,0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 10px;
+            min-width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-5px);
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+        .cryptospaces-dropdown.open .cryptospaces-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .cryptospaces-menu a {
+            display: block;
+            padding: 12px 16px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(251,191,36,0.1);
+            transition: all 0.15s;
+        }
+        .cryptospaces-menu a:last-child { border-bottom: none; }
+        .cryptospaces-menu a:hover {
+            background: rgba(251,191,36,0.1);
+            color: #fbbf24;
+            padding-left: 20px;
+        }
+        .cryptospaces-menu a.active { color: #fbbf24; background: rgba(251,191,36,0.08); }
+        .cryptospaces-menu a.welcome-2026 {
+            background: linear-gradient(90deg, rgba(251,191,36,0.2), rgba(168,85,247,0.2));
+            color: #fbbf24;
+            font-weight: 700;
+        }
+        .cryptospaces-menu a.welcome-2026:hover {
+            background: linear-gradient(90deg, rgba(251,191,36,0.3), rgba(168,85,247,0.3));
+            color: #fcd34d;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+<div style="position:fixed;top:10px;right:10px;z-index:9999;display:flex;gap:8px;">
+<a href="index.html" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);color:#3b82f6;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Home</a>
+<a href="financial-galaxy.html" style="background:rgba(34,211,238,0.2);border:1px solid rgba(34,211,238,0.4);color:#22d3ee;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Financial Galaxy</a>
+</div>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">📈</span>
+                <span class="logo-text">Cryptospaces</span>
+            </a>
+        </div>
+        
+        <div class="header-center">
+            <div class="views-dropdown" id="viewsDropdown">
+                <button class="views-toggle" id="viewsToggle">
+                    <span>Views</span>
+                    <span class="chevron">▼</span>
+                </button>
+                <div class="views-menu">
+                    <a href="index.html">Charts</a>
+                    <a href="about.html">About</a>
+                </div>
+            </div>
+            
+            <div class="cryptospaces-dropdown" id="cryptospacesDropdown">
+                <button class="cryptospaces-toggle" id="cryptospacesToggle">
+                    <span>CryptoSpaces</span>
+                    <span class="chevron">▼</span>
+                </button>
+                <div class="cryptospaces-menu">
+        <a href="magic-coins-today.html" style="color: #a855f7;">✨ Magic Coins</a>
+                    <a href="our-vision.html">Our Vision</a>
+                    <a href="impressum.html">Impressum</a>
+                    <a href="datenschutz.html">Datenschutz</a>
+                    <a href="agb.html">AGB</a>
+                    <a href="widerruf.html">Widerruf</a>
+                    <a href="risk-disclaimer.html" class="active">Risk Disclaimer</a>
+                    <a href="preise.html">Preise</a>
+                    <a href="welcome-2026.html" class="welcome-2026">★ Welcome 2026</a>
+                    <a href="lifetime.html">LIFETIME ACCESS</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <div class="settings-dropdown" id="settingsDropdown">
+                <button class="settings-toggle" id="settingsToggle">
+                    <span class="settings-icon">⚙️</span>
+                </button>
+                <div class="settings-menu">
+                    <div class="settings-group">
+                        <label>Theme</label>
+                        <select id="themeSelect">
+                            <option value="dark">Dark</option>
+                            <option value="light">Light</option>
+                        </select>
+                    </div>
+                    <div class="settings-group">
+                        <label>Currency</label>
+                        <select id="currencySelect">
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="GBP">GBP</option>
+                            <option value="JPY">JPY</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <section class="hero">
+            <h1>Risk & Legal Disclaimer</h1>
+            <p>Wichtige Hinweise zu Risiken und rechtlichen Rahmenbedingungen</p>
+        </section>
+
+        <div class="legal-content">
+            <!-- German Section -->
+            <div class="legal-section" id="german">
+                <h2>Allgemeine Risikohinweise</h2>
+                
+                <h3>1. Keine Anlageberatung</h3>
+                <p>Die auf dieser Website bereitgestellten Informationen, Analysen und Tools dienen ausschließlich zu Informations- und Bildungszwecken. Sie stellen keine Anlageberatung, keine Aufforderung zum Kauf oder Verkauf von Kryptowährungen oder anderen Finanzinstrumenten dar. Die Inhalte sind nicht auf die individuellen Umstände einer bestimmten Person zugeschnitten.</p>
+                
+                <div class="warning-box">
+                    <p>⚠️ Investitionen in Kryptowährungen und andere digitale Assets sind mit erheblichen Risiken verbunden und können zum vollständigen Verlust des eingesetzten Kapitals führen.</p>
+                </div>
+                
+                <h3>2. Marktrisiken</h3>
+                <p>Die Kurse von Kryptowährungen unterliegen erheblichen Schwankungen. Diese Volatilität kann innerhalb kurzer Zeiträume zu erheblichen Gewinnen, aber auch zu erheblichen Verlusten führen. Vergangene Wertentwicklungen sind keine Garantie für zukünftige Ergebnisse. Die Kurse können durch verschiedene Faktoren beeinflusst werden, einschließlich:</p>
+                <ul>
+                    <li>Marktsentiment und Spekulation</li>
+                    <li>Regulatorische Änderungen in verschiedenen Jurisdiktionen</li>
+                    <li>Technologische Entwicklungen und Updates</li>
+                    <li> macroeconomic Faktoren und geopolitische Ereignisse</li>
+                    <li>Liquidität und Handelsvolumen</li>
+                </ul>
+                
+                <h3>3. Technologierisiken</h3>
+                <p>Die zugrunde liegende Technologie von Kryptowährungen, insbesondere Blockchain-Technologie, ist noch relativ jung und kann Risiken bergen. Dazu gehören:</p>
+                <ul>
+                    <li>Software-Fehler oder Sicherheitslücken in Wallets und Börsen</li>
+                    <li>51%-Angriffe bei Proof-of-Work-Blockchains</li>
+                    <li>Smart-Contract-Sicherheitslücken</li>
+                    <li>Verlust oder Diebstahl von privaten Schlüsseln</li>
+                </ul>
+                
+                <h3>4. Regulatorische Risiken</h3>
+                <p>Der regulatorische Rahmen für Kryptowährungen ist in vielen Ländern noch nicht vollständig geklärt und kann sich schnell ändern. Regulatorische Maßnahmen können den Wert, die Nutzbarkeit oder sogar die Legalität bestimmter Kryptowährungen erheblich beeinträchtigen.</p>
+                
+                <h3>5. Haftungsbeschränkung</h3>
+                <p>Cryptospaces und seine Betreiber übernehmen keine Haftung für:</p>
+                <ul>
+                    <li>Verluste, die direkt oder indirekt aus der Nutzung dieser Website oder der hier bereitgestellten Informationen entstehen</li>
+                    <li>Entscheidungen, die auf Grundlage der bereitgestellten Informationen getroffen werden</li>
+                    <li>Technische Störungen, Ausfälle oder Verzögerungen</li>
+                    <li>Dritte, die über Links auf dieser Website erreichbar sind</li>
+                </ul>
+                
+                <p>Die Nutzung dieser Website erfolgt ausschließlich auf eigene Gefahr und eigenes Risiko des Nutzers.</p>
+                
+                <h3>6. Disclaimer für KI-generierte Inhalte</h3>
+                <p>Bestimmte Inhalte auf dieser Website können durch künstliche Intelligenz generiert oder unterstützt worden sein. Obwohl wir uns bemühen, genaue und aktuelle Informationen bereitzustellen, können wir nicht garantieren, dass alle von KI generierten Inhalte vollständig korrekt, vollständig oder aktuell sind. Nutzer sollten alle wichtigen Informationen durch zusätzliche, unabhängige Quellen verifizieren.</p>
+                
+                <p>Letzte Aktualisierung: Januar 2026</p>
+            </div>
+            
+            <div class="language-divider">
+                <span class="language-label">—— English Version Below ——</span>
+            </div>
+            
+            <!-- English Section -->
+            <div class="legal-section" id="english">
+                <h2>General Risk Disclosure</h2>
+                
+                <h3>1. No Investment Advice</h3>
+                <p>The information, analyses, and tools provided on this website are for informational and educational purposes only. They do not constitute investment advice, nor do they constitute an invitation to buy or sell cryptocurrencies or other financial instruments. The content is not tailored to the specific circumstances of any particular person.</p>
+                
+                <div class="warning-box">
+                    <p>⚠️ Investments in cryptocurrencies and other digital assets involve significant risks and may result in the complete loss of your invested capital.</p>
+                </div>
+                
+                <h3>2. Market Risks</h3>
+                <p>Cryptocurrency prices are subject to significant fluctuations. This volatility can lead to substantial gains or substantial losses within short periods. Past performance is not indicative of future results. Prices can be influenced by various factors, including:</p>
+                <ul>
+                    <li>Market sentiment and speculation</li>
+                    <li>Regulatory changes in different jurisdictions</li>
+                    <li>Technological developments and updates</li>
+                    <li>Macroeconomic factors and geopolitical events</li>
+                    <li>Liquidity and trading volume</li>
+                </ul>
+                
+                <h3>3. Technology Risks</h3>
+                <p>The underlying technology of cryptocurrencies, particularly blockchain technology, is relatively new and may involve risks. These include:</p>
+                <ul>
+                    <li>Software bugs or security vulnerabilities in wallets and exchanges</li>
+                    <li>51% attacks on Proof-of-Work blockchains</li>
+                    <li>Smart contract security vulnerabilities</li>
+                    <li>Loss or theft of private keys</li>
+                </ul>
+                
+                <h3>4. Regulatory Risks</h3>
+                <p>The regulatory framework for cryptocurrencies is not yet fully clarified in many countries and may change rapidly. Regulatory measures can significantly affect the value, usability, or even legality of certain cryptocurrencies.</p>
+                
+                <h3>5. Limitation of Liability</h3>
+                <p>Cryptospaces and its operators accept no liability for:</p>
+                <ul>
+                    <li>Losses arising directly or indirectly from the use of this website or the information provided herein</li>
+                    <li>Decisions made based on the information provided</li>
+                    <li>Technical malfunctions, failures, or delays</li>
+                    <li>Third parties accessible through links on this website</li>
+                </ul>
+                
+                <p>Use of this website is at the user's own risk and discretion.</p>
+                
+                <h3>6. AI-Generated Content Disclaimer</h3>
+                <p>Certain content on this website may have been generated or assisted by artificial intelligence. While we strive to provide accurate and up-to-date information, we cannot guarantee that all AI-generated content is completely correct, complete, or current. Users should verify all important information through additional, independent sources.</p>
+                
+                <p>Last updated: January 2026</p>
+            </div>
+            
+            <!-- Footer Links -->
+            <div class="footer-links">
+                <div class="footer-links-container">
+                    <h4>Rechtliche Dokumente / Legal Documents</h4>
+                    <p>
+                        <a href="impressum.html">Impressum</a> |
+                        <a href="datenschutz.html">Datenschutz</a> |
+                        <a href="agb.html">AGB</a> |
+                        <a href="widerruf.html">Widerrufsbelehrung</a> |
+                        <a href="risk-disclaimer.html">Risk Disclaimer</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 Cryptospaces. Alle Rechte vorbehalten.</p>
+    </footer>
+
+    <script>
+        // Settings Dropdown
+        const settingsDropdown = document.getElementById('settingsDropdown');
+        const settingsToggle = document.getElementById('settingsToggle');
+        
+        settingsToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            settingsDropdown.classList.toggle('active');
+        });
+        
+        // Views Dropdown
+        const viewsDropdown = document.getElementById('viewsDropdown');
+        const viewsToggle = document.getElementById('viewsToggle');
+        
+        viewsToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            viewsDropdown.classList.toggle('active');
+        });
+        
+        // CryptoSpaces Dropdown
+        const cryptospacesDropdown = document.getElementById('cryptospacesDropdown');
+        const cryptospacesToggle = document.getElementById('cryptospacesToggle');
+        
+        cryptospacesToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cryptospacesDropdown.classList.toggle('active');
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+            settingsDropdown.classList.remove('active');
+            viewsDropdown.classList.remove('active');
+            cryptospacesDropdown.classList.remove('active');
+        });
+        
+        // Theme switching
+        const themeSelect = document.getElementById('themeSelect');
+        themeSelect.addEventListener('change', (e) => {
+            document.documentElement.setAttribute('data-theme', e.target.value);
+        });
+        
+        // Currency switching (placeholder functionality)
+        const currencySelect = document.getElementById('currencySelect');
+        currencySelect.addEventListener('change', (e) => {
+            console.log('Currency changed to:', e.target.value);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Orbit System - Simulation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+    <style>
+        :root {
+            --header-height: 60px;
+            --toolbar-height: 50px;
+            --total-header-height: calc(var(--header-height) + var(--toolbar-height));
+            --primary-color: #ffd700; /* Gold for Orbit */
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, #0f172a 0%, #030712 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: #f8fafc;
+            padding-top: var(--total-header-height) !important;
+        }
+
+        /* Unified Header Styles */
+        .unified-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+
+        .unified-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .unified-logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, var(--primary-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .unified-nav {
+            display: flex;
+            gap: 8px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .unified-nav-link {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .unified-nav-link:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Sub-Toolbar for Controls */
+        .sub-toolbar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            height: var(--toolbar-height);
+            background: rgba(10, 10, 15, 0.6);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 999;
+        }
+
+        .sub-toolbar .title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 0.05em;
+        }
+
+        .sub-toolbar .controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .btn {
+            background: rgba(59,130,246,0.2);
+            border: 1px solid rgba(59,130,246,0.5);
+            color: #3b82f6;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: rgba(59,130,246,0.3); }
+        .btn.active { background: rgba(59,130,246,0.5); }
+        select {
+            background: rgba(30,41,59,0.8);
+            border: 1px solid rgba(59,130,246,0.4);
+            color: #f8fafc;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.7rem;
+        }
+        .canvas-container {
+            position: fixed;
+            top: var(--total-header-height); left: 0; right: 0; bottom: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #orbitCanvas { max-width: 100%; max-height: 100%; }
+        .footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            padding: 10px 20px;
+            background: rgba(10,10,18,0.9);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: rgba(248,250,252,0.5);
+        }
+        .stats { display: flex; gap: 20px; }
+        .stat-val { color: #3b82f6; }
+        .disclaimer { color: #ef4444; font-style: italic; }
+        .tooltip {
+            position: fixed;
+            background: rgba(15,23,42,0.95);
+            border: 1px solid rgba(59,130,246,0.5);
+            border-radius: 10px;
+            padding: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            z-index: 200;
+            min-width: 150px;
+        }
+        .tooltip.visible { opacity: 1; }
+        .tooltip-sym { font-size: 1rem; color: #3b82f6; font-weight: 700; }
+        .tooltip-change { font-size: 1.1rem; font-weight: 700; margin: 5px 0; }
+        .tooltip-change.pos { color: #22c55e; }
+        .tooltip-change.neg { color: #ef4444; }
+        .tooltip-ring { font-size: 0.65rem; color: rgba(248,250,252,0.6); }
+        
+        /* Dropdown */
+        .dropdown { position: relative; display: inline-block; }
+        .universe-menu {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            background: rgba(15,23,42,0.95);
+            border: 1px solid rgba(59,130,246,0.4);
+            border-radius: 10px;
+            padding: 8px;
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .dropdown.open .universe-menu { opacity: 1; visibility: visible; }
+        .universe-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            color: #f8fafc;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+        .universe-menu a:hover { background: rgba(59,130,246,0.15); }
+        .universe-menu a.active { background: rgba(59,130,246,0.25); color: #3b82f6; }
+    </style>
+</head>
+<body>
+    <!-- Unified Header -->
+    <header class="unified-header">
+        <div class="unified-left">
+            <div class="unified-logo">CRYPTOSPACES</div>
+        </div>
+        <nav class="unified-nav">
+            <a href="top100.html" class="unified-nav-link">TOP 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">WHALES</a>
+            <a href="our-vision.html" class="unified-nav-link">VISION</a>
+        </nav>
+        <div class="unified-utils">
+        </div>
+    </header>
+
+    <!-- Sub-Toolbar -->
+    <div class="sub-toolbar">
+         <div class="title" style="color: #3b82f6;">ORBIT SYSTEM</div>
+         <div class="controls">
+            <select id="coinCount">
+                <option value="10">10 Coins</option>
+                <option value="25" selected>25 Coins</option>
+                <option value="50">50 Coins</option>
+                <option value="100">100 Coins ⚠️</option>
+            </select>
+            <button class="btn active" id="labelToggle">% Labels</button>
+            <button class="btn" id="rerollBtn">🎲 Re-roll</button>
+            <a href="index.html" class="btn">← Zurück</a>
+         </div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="orbitCanvas"></canvas>
+    </div>
+
+    <div class="footer">
+        <div class="stats">
+            <span>Bubbles: <span class="stat-val" id="statCount">25</span></span>
+            <span>Core: <span class="stat-val" id="statCore">-</span></span>
+            <span>Top: <span class="stat-val" id="statTop">-</span></span>
+        </div>
+        <div class="disclaimer">⚠️ Simulation – keine Live-Daten</div>
+    </div>
+
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-sym" id="ttSym">BTC</div>
+        <div class="tooltip-change pos" id="ttChange">+0%</div>
+        <div class="tooltip-ring" id="ttRing">Ring 1</div>
+    </div>
+
+    <script>
+    const SYMBOLS = ['BTC','ETH','SOL','BNB','XRP','ADA','AVAX','DOT','LINK','TRX','MATIC','LTC','BCH','ATOM','XMR','ETC','OP','ARB','INJ','SUI','APT','NEAR','FIL','UNI','DOGE','SHIB','PEPE','WIF','BONK','RENDER','FET','GRT','STX','SEI','TIA','JUP','ONDO','AAVE','MKR','CRV'];
+    
+    // Ring config with labels
+    const RING_CONFIG = [
+        { radius: 0,    label: '≥500%',      color: '#fbbf24', speed: 0.0003 },
+        { radius: 0.2,  label: '300–500%',   color: '#ef4444', speed: 0.0005 },
+        { radius: 0.35, label: '200–300%',   color: '#f97316', speed: 0.0007 },
+        { radius: 0.5,  label: '100–200%',   color: '#eab308', speed: 0.0009 },
+        { radius: 0.65, label: '50–100%',    color: '#22c55e', speed: 0.0011 },
+        { radius: 0.8,  label: '10–50%',     color: '#3b82f6', speed: 0.0013 },
+        { radius: 0.92, label: '<10%',       color: '#6b7280', speed: 0.0015 }
+    ];
+
+    const RINGS = [
+        { min: 500, color: '#fbbf24', glow: 0.8, name: 'Core', speed: 0.0003 },
+        { min: 300, color: '#ef4444', glow: 0.5, name: 'Ring 1', speed: 0.0006 },
+        { min: 200, color: '#f97316', glow: 0.4, name: 'Ring 2', speed: 0.0009 },
+        { min: 100, color: '#eab308', glow: 0.3, name: 'Ring 3', speed: 0.0012 },
+        { min: 50, color: '#22c55e', glow: 0.2, name: 'Ring 4', speed: 0.0015 },
+        { min: 10, color: '#3b82f6', glow: 0.15, name: 'Ring 5', speed: 0.0018 },
+        { min: -999, color: '#6b7280', glow: 0.1, name: 'Outer', speed: 0.002 }
+    ];
+
+    const canvas = document.getElementById('orbitCanvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+    
+    let bubbles = [];
+    let centerX, centerY, maxRadius;
+    let animId = null;
+    let hoveredBubble = null;
+    let showLabels = true;
+    let ringAngles = [0, 0, 0, 0, 0, 0, 0];
+
+    function resize() {
+        const container = document.querySelector('.canvas-container');
+        const size = Math.min(container.clientWidth, container.clientHeight) - 20;
+        canvas.width = size;
+        canvas.height = size;
+        centerX = size / 2;
+        centerY = size / 2;
+        maxRadius = size / 2 - 25;
+    }
+
+    function getRing(perf) {
+        for (let r of RINGS) if (perf >= r.min) return r;
+        return RINGS[RINGS.length - 1];
+    }
+
+    function getOrbitRadius(perf) {
+        if (perf >= 500) return 0;
+        if (perf >= 300) return maxRadius * 0.2;
+        if (perf >= 200) return maxRadius * 0.35;
+        if (perf >= 100) return maxRadius * 0.5;
+        if (perf >= 50) return maxRadius * 0.65;
+        if (perf >= 10) return maxRadius * 0.8;
+        return maxRadius * 0.92;
+    }
+
+    function generateData(count) {
+        const shuffled = [...SYMBOLS].sort(() => Math.random() - 0.5).slice(0, count);
+        const data = shuffled.map((sym, i) => {
+            let perf;
+            if (i === 0) perf = 600 + Math.random() * 600;
+            else if (i < 3) perf = 300 + Math.random() * 200;
+            else if (i < 6) perf = 150 + Math.random() * 150;
+            else if (i < 12) perf = 50 + Math.random() * 100;
+            else perf = -10 + Math.random() * 60;
+            return { symbol: sym, perf: perf, size: 8 + Math.random() * 18 };
+        });
+        return data.sort((a, b) => b.perf - a.perf);
+    }
+
+    function initBubbles(count) {
+        const data = generateData(count);
+        bubbles = [];
+        
+        const ringGroups = {};
+        data.forEach(d => {
+            const ring = getRing(d.perf);
+            if (!ringGroups[ring.name]) ringGroups[ring.name] = [];
+            ringGroups[ring.name].push(d);
+        });
+
+        data.forEach((d, i) => {
+            const ring = getRing(d.perf);
+            const orbitR = getOrbitRadius(d.perf);
+            const group = ringGroups[ring.name];
+            const idxInRing = group.indexOf(d);
+            const angleStep = (Math.PI * 2) / group.length;
+            const angle = angleStep * idxInRing + Math.random() * 0.3;
+            
+            bubbles.push({
+                ...d,
+                ring,
+                orbitRadius: orbitR + (Math.random() - 0.5) * 15,
+                angle,
+                speed: ring.speed * (0.8 + Math.random() * 0.4),
+                x: centerX,
+                y: centerY,
+                isCore: i === 0
+            });
+        });
+
+        document.getElementById('statCount').textContent = count;
+        document.getElementById('statCore').textContent = bubbles[0]?.symbol || '-';
+        document.getElementById('statTop').textContent = bubbles[0]?.perf.toFixed(0) + '%' || '-';
+    }
+
+    function drawTextOnArc(text, radius, angle, color) {
+        if (radius < 20) return;
+        
+        const fontSize = Math.max(9, Math.min(14, radius * 0.08));
+        ctx.font = `bold ${fontSize}px 'JetBrains Mono', monospace`;
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.6;
+        
+        const textLen = text.length;
+        const arcLen = fontSize * 0.7 * textLen;
+        const startAngle = angle - (arcLen / radius) / 2;
+        
+        for (let i = 0; i < textLen; i++) {
+            const charAngle = startAngle + (i * fontSize * 0.7) / radius;
+            const x = centerX + Math.cos(charAngle) * radius;
+            const y = centerY + Math.sin(charAngle) * radius;
+            
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(charAngle + Math.PI / 2);
+            ctx.fillText(text[i], 0, 0);
+            ctx.restore();
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    function update() {
+        RING_CONFIG.forEach((ring, i) => {
+            ringAngles[i] += ring.speed;
+        });
+        
+        bubbles.forEach(b => {
+            b.angle += b.speed;
+            if (b.isCore) {
+                b.x = centerX + Math.sin(b.angle * 0.5) * 3;
+                b.y = centerY + Math.cos(b.angle * 0.5) * 3;
+            } else {
+                b.x = centerX + Math.cos(b.angle) * b.orbitRadius;
+                b.y = centerY + Math.sin(b.angle) * b.orbitRadius;
+            }
+        });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw orbit rings with rotating labels
+        RING_CONFIG.forEach((ring, i) => {
+            if (ring.radius === 0) return;
+            
+            const r = maxRadius * ring.radius;
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
+            ctx.strokeStyle = ring.color + '20';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            if (showLabels) {
+                drawTextOnArc(ring.label, r + 8, ringAngles[i], ring.color);
+                drawTextOnArc(ring.label, r + 8, ringAngles[i] + Math.PI, ring.color);
+            }
+        });
+
+        // Core glow
+        const coreGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 30);
+        coreGrad.addColorStop(0, 'rgba(251,191,36,0.3)');
+        coreGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = coreGrad;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 30, 0, Math.PI * 2);
+        ctx.fill();
+        
+        if (showLabels) {
+            ctx.font = 'bold 10px JetBrains Mono';
+            ctx.fillStyle = 'rgba(251,191,36,0.5)';
+            ctx.textAlign = 'center';
+            ctx.fillText('≥500%', centerX, centerY + 45);
+        }
+
+        // Draw bubbles (outer first)
+        [...bubbles].reverse().forEach(b => {
+            if (b.ring.glow > 0.2) {
+                ctx.beginPath();
+                const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.size * 2);
+                grad.addColorStop(0, b.ring.color + '60');
+                grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad;
+                ctx.arc(b.x, b.y, b.size * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.beginPath();
+            const bubGrad = ctx.createRadialGradient(b.x - b.size * 0.3, b.y - b.size * 0.3, 0, b.x, b.y, b.size);
+            bubGrad.addColorStop(0, b.ring.color);
+            bubGrad.addColorStop(1, '#000');
+            ctx.fillStyle = bubGrad;
+            ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            if (b.size > 10) {
+                ctx.fillStyle = '#fff';
+                ctx.font = `bold ${Math.max(7, b.size * 0.45)}px Orbitron`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(b.symbol, b.x, b.y);
+            }
+            
+            if (hoveredBubble === b) {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.size + 3, 0, Math.PI * 2);
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        });
+    }
+
+    function animate() {
+        update();
+        draw();
+        animId = requestAnimationFrame(animate);
+    }
+
+    function findBubble(mx, my) {
+        const rect = canvas.getBoundingClientRect();
+        const x = mx - rect.left, y = my - rect.top;
+        for (let b of bubbles) {
+            const d = Math.hypot(x - b.x, y - b.y);
+            if (d <= b.size) return b;
+        }
+        return null;
+    }
+
+    canvas.addEventListener('mousemove', e => {
+        const b = findBubble(e.clientX, e.clientY);
+        hoveredBubble = b;
+        canvas.style.cursor = b ? 'pointer' : 'default';
+        if (b) {
+            document.getElementById('ttSym').textContent = b.symbol;
+            const ch = document.getElementById('ttChange');
+            ch.textContent = (b.perf >= 0 ? '+' : '') + b.perf.toFixed(1) + '%';
+            ch.className = 'tooltip-change ' + (b.perf >= 0 ? 'pos' : 'neg');
+            document.getElementById('ttRing').textContent = b.ring.name;
+            tooltip.style.left = (e.clientX + 15) + 'px';
+            tooltip.style.top = (e.clientY + 15) + 'px';
+            tooltip.classList.add('visible');
+        } else {
+            tooltip.classList.remove('visible');
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        hoveredBubble = null;
+        tooltip.classList.remove('visible');
+    });
+
+    document.getElementById('coinCount').addEventListener('change', e => {
+        initBubbles(parseInt(e.target.value));
+    });
+
+    document.getElementById('rerollBtn').addEventListener('click', () => {
+        initBubbles(parseInt(document.getElementById('coinCount').value));
+    });
+
+    document.getElementById('labelToggle').addEventListener('click', function() {
+        showLabels = !showLabels;
+        this.classList.toggle('active', showLabels);
+    });
+
+    // Init
+    resize();
+    window.addEventListener('resize', resize);
+    initBubbles(25);
+    animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Narrative-Screener | CryptoSpaces</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --space-black: #000510;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --accent-purple: #8b5cf6;
+            --accent-gold: #fbbf24;
+            --text-light: #f1f5f9;
+            --gradient-narrative: linear-gradient(135deg, #8b5cf6, #06b6d4, #fbbf24);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--space-black);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Language Toggle */
+        [data-lang-de], [data-lang-en] { display: none; }
+        body.lang-de [data-lang-de] { display: inline; }
+        body.lang-en [data-lang-en] { display: inline; }
+        body.lang-de [data-lang-de-block] { display: block; }
+        body.lang-en [data-lang-en-block] { display: block; }
+        [data-lang-de-block], [data-lang-en-block] { display: none; }
+
+        .lang-switch {
+            display: flex;
+            gap: 5px;
+            background: rgba(15,23,42,0.8);
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid rgba(139,92,246,0.3);
+        }
+        .lang-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            background: transparent;
+            color: rgba(241,245,249,0.5);
+        }
+        .lang-btn.active {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            color: white;
+            box-shadow: 0 0 10px rgba(139,92,246,0.4);
+        }
+        .lang-btn:hover:not(.active) {
+            color: var(--text-light);
+            background: rgba(139,92,246,0.2);
+        }
+
+        /* Animated Background */
+        .narrative-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .narrative-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(139,92,246,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(6,182,212,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(251,191,36,0.05) 0%, transparent 60%);
+            animation: bgPulse 8s ease-in-out infinite alternate;
+        }
+        @keyframes bgPulse {
+            0% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        .story-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .story-particle {
+            position: absolute;
+            font-size: 1.2rem;
+            opacity: 0.15;
+            animation: floatStory 20s linear infinite;
+        }
+        @keyframes floatStory {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.2; }
+            90% { opacity: 0.2; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Unified Header */
+        .unified-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0, 5, 16, 0.95) 0%, rgba(0, 5, 16, 0) 100%);
+            padding: 15px 30px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        .unified-left { display: flex; align-items: center; gap: 20px; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+        .unified-nav { display: flex; gap: 12px; align-items: center; }
+        .unified-nav-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            padding: 7px 12px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: rgba(139, 92, 246, 0.05);
+            text-transform: uppercase;
+        }
+        .unified-nav-link:hover {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            position: relative;
+            z-index: 10;
+            padding: 100px 30px 50px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 40px 20px;
+        }
+        .hero-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bookFloat 3s ease-in-out infinite;
+        }
+        @keyframes bookFloat {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+        .hero-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-narrative);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 40px rgba(139,92,246,0.3);
+        }
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--accent-cyan);
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        .hero-description {
+            font-size: 1.1rem;
+            color: rgba(241,245,249,0.8);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+        .hero-description em {
+            color: var(--accent-gold);
+            font-style: normal;
+            font-weight: 600;
+        }
+
+        /* Feature Cards */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+        .feature-card {
+            background: linear-gradient(145deg, rgba(15,23,42,0.8), rgba(30,27,75,0.6));
+            border: 1px solid rgba(139,92,246,0.25);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-narrative);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(139,92,246,0.5);
+            box-shadow: 0 15px 40px rgba(139,92,246,0.2);
+        }
+        .feature-card:hover::before { opacity: 1; }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .feature-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--accent-gold);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .feature-text {
+            font-size: 0.95rem;
+            color: rgba(241,245,249,0.75);
+            line-height: 1.7;
+        }
+
+        /* Interactive Demo Section */
+        .demo-section {
+            background: linear-gradient(145deg, rgba(15,23,42,0.9), rgba(30,27,75,0.7));
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+        .demo-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .demo-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--accent-cyan);
+            margin-bottom: 10px;
+        }
+        .demo-subtitle {
+            color: rgba(241,245,249,0.6);
+            font-size: 0.9rem;
+        }
+
+        /* Narrative Timeline */
+        .narrative-timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--accent-purple), var(--accent-cyan), var(--accent-gold));
+            transform: translateX(-50%);
+        }
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .timeline-item:nth-child(odd) { flex-direction: row; }
+        .timeline-item:nth-child(even) { flex-direction: row-reverse; }
+        .timeline-content {
+            width: 45%;
+            background: rgba(15,23,42,0.8);
+            border: 1px solid rgba(139,92,246,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .timeline-content:hover {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 20px rgba(139,92,246,0.2);
+        }
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 16px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            border: 3px solid var(--space-black);
+            box-shadow: 0 0 15px rgba(251,191,36,0.5);
+            z-index: 10;
+        }
+        .timeline-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent-cyan);
+            margin-bottom: 8px;
+        }
+        .timeline-event {
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+        .timeline-impact {
+            font-size: 0.85rem;
+            color: rgba(241,245,249,0.6);
+        }
+        .timeline-sentiment {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        .sentiment-bullish { background: rgba(34,197,94,0.2); color: #22c55e; }
+        .sentiment-bearish { background: rgba(239,68,68,0.2); color: #ef4444; }
+        .sentiment-neutral { background: rgba(148,163,184,0.2); color: #94a3b8; }
+
+        /* Trending Keywords */
+        .keywords-section {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(139,92,246,0.2);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 50px;
+        }
+        .keywords-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--accent-gold);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .keywords-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+        .keyword-tag {
+            background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(6,182,212,0.2));
+            border: 1px solid rgba(139,92,246,0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .keyword-tag:hover {
+            background: linear-gradient(135deg, rgba(139,92,246,0.4), rgba(6,182,212,0.4));
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(139,92,246,0.3);
+        }
+        .keyword-tag.hot { border-color: var(--accent-gold); }
+        .keyword-tag.hot::before { content: '🔥'; }
+        .keyword-count {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: var(--accent-cyan);
+        }
+
+        /* Psychology Meter */
+        .psychology-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+        .psych-card {
+            background: linear-gradient(145deg, rgba(15,23,42,0.8), rgba(30,27,75,0.6));
+            border: 1px solid rgba(139,92,246,0.2);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+        }
+        .psych-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            margin-bottom: 15px;
+        }
+        .psych-meter {
+            height: 12px;
+            background: rgba(100,116,139,0.3);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .psych-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s ease;
+        }
+        .psych-fill.fear { background: linear-gradient(90deg, #ef4444, #f97316); }
+        .psych-fill.greed { background: linear-gradient(90deg, #22c55e, #84cc16); }
+        .psych-fill.fomo { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+        .psych-fill.hope { background: linear-gradient(90deg, #3b82f6, #8b5cf6); }
+        .psych-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+        .psych-label {
+            font-size: 0.8rem;
+            color: rgba(241,245,249,0.5);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 50px 20px;
+            background: linear-gradient(145deg, rgba(139,92,246,0.1), rgba(6,182,212,0.1));
+            border-radius: 20px;
+            border: 1px solid rgba(139,92,246,0.3);
+            margin-bottom: 50px;
+        }
+        .cta-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            background: var(--gradient-narrative);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+        .cta-text {
+            color: rgba(241,245,249,0.8);
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            color: white;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 25px rgba(139,92,246,0.4);
+        }
+        .cta-button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 40px rgba(139,92,246,0.5);
+        }
+
+        /* Why Section */
+        .why-section {
+            background: rgba(15,23,42,0.6);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+            border: 1px solid rgba(251,191,36,0.2);
+        }
+        .why-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            color: var(--accent-gold);
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .why-text {
+            font-size: 1.05rem;
+            color: rgba(241,245,249,0.8);
+            line-height: 1.9;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .why-highlight {
+            display: block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: var(--accent-cyan);
+            margin-top: 25px;
+            font-weight: 600;
+        }
+
+        /* Footer Disclaimer */
+        .footer-disclaimer {
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid rgba(139,92,246,0.2);
+            margin-top: 30px;
+        }
+        .disclaimer-text {
+            font-size: 0.75rem;
+            color: rgba(241,245,249,0.4);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .disclaimer-text strong {
+            color: var(--accent-gold);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .unified-nav { display: none; }
+            .hero-title { font-size: 1.8rem; }
+            .timeline-line { left: 20px; }
+            .timeline-item { flex-direction: column !important; align-items: flex-start; padding-left: 50px; }
+            .timeline-content { width: 100%; }
+            .timeline-dot { left: 20px; }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .feature-card, .timeline-item, .psych-card {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+        .feature-card:nth-child(4) { animation-delay: 0.4s; }
+        .feature-card:nth-child(5) { animation-delay: 0.5s; }
+        .timeline-item:nth-child(1) { animation-delay: 0.2s; }
+        .timeline-item:nth-child(2) { animation-delay: 0.4s; }
+        .timeline-item:nth-child(3) { animation-delay: 0.6s; }
+        .timeline-item:nth-child(4) { animation-delay: 0.8s; }
+    </style>
+</head>
+<body class="lang-de">
+    <!-- Animated Background -->
+    <div class="narrative-bg">
+        <div class="story-particles" id="storyParticles"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="unified-header">
+        <div class="unified-left">
+            <a href="index.html" class="unified-logo">CRYPTOSPACES</a>
+        </div>
+        <nav class="unified-nav">
+            <a href="index.html" class="unified-nav-link">🏠 Home</a>
+            <a href="top100.html" class="unified-nav-link">📊 Top 100</a>
+            <a href="dashboard.html" class="unified-nav-link">📈 Dashboard</a>
+            <a href="our-vision.html" class="unified-nav-link">🔮 Vision</a>
+            <div class="lang-switch">
+                <button class="lang-btn active" data-lang="de">DE</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-icon">📖</div>
+            <h1 class="hero-title">Narrative-Screener</h1>
+            <p class="hero-subtitle">
+                <span data-lang-de>Die Geschichte hinter jedem Coin</span>
+                <span data-lang-en>The Story Behind Every Coin</span>
+            </p>
+            <p class="hero-description">
+                <span data-lang-de>
+                    In der Welt der Kryptowährungen geht es nicht nur um Zahlen und Diagramme. 
+                    <em>Es geht um Geschichten.</em><br><br>
+                    Jeder Coin hat seine eigene Geschichte – und diese Geschichten beeinflussen den Markt stärker, 
+                    als viele glauben. Der Narrative-Screener von CryptoSpaces macht unsichtbare Markteinflüsse 
+                    sichtbar und hilft dir, das große Ganze zu verstehen.
+                </span>
+                <span data-lang-en>
+                    In the world of cryptocurrencies, it's not just about numbers and charts. 
+                    <em>It's about stories.</em><br><br>
+                    Every coin has its own story – and these stories influence the market more than many believe. 
+                    The Narrative-Screener by CryptoSpaces makes invisible market influences visible 
+                    and helps you understand the big picture.
+                </span>
+            </p>
+        </section>
+
+        <!-- Feature Cards -->
+        <section class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🔍</span>
+                <h3 class="feature-title">
+                    <span data-lang-de>Die Story hinter dem Coin</span>
+                    <span data-lang-en>The Story Behind the Coin</span>
+                </h3>
+                <p class="feature-text">
+                    <span data-lang-de>
+                        Der Narrative-Screener analysiert aktuelle Nachrichten, Social-Media-Trends, 
+                        Foren-Diskussionen und On-Chain-Daten, um die Hintergründe jeder Preisbewegung 
+                        zu entschlüsseln. Erfahre, welche Ereignisse den Coin antreiben.
+                    </span>
+                    <span data-lang-en>
+                        The Narrative-Screener analyzes current news, social media trends, 
+                        forum discussions and on-chain data to decode the background of every price movement. 
+                        Discover which events are driving the coin.
+                    </span>
+                </p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">⚡</span>
+                <h3 class="feature-title">
+                    <span data-lang-de>Live-Narrative-Analyse</span>
+                    <span data-lang-en>Live Narrative Analysis</span>
+                </h3>
+                <p class="feature-text">
+                    <span data-lang-de>
+                        Beobachte in Echtzeit, wie sich Narrative entwickeln und welche Geschichten 
+                        aktuell dominieren. Welche Memes, Tweets oder Ankündigungen beeinflussen 
+                        den Markt? Der Narrative-Screener zeigt es dir sofort.
+                    </span>
+                    <span data-lang-en>
+                        Watch in real-time how narratives develop and which stories currently dominate. 
+                        Which memes, tweets or announcements are influencing the market? 
+                        The Narrative-Screener shows you immediately.
+                    </span>
+                </p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🧠</span>
+                <h3 class="feature-title">
+                    <span data-lang-de>Marktpsychologie sichtbar machen</span>
+                    <span data-lang-en>Visualize Market Psychology</span>
+                </h3>
+                <p class="feature-text">
+                    <span data-lang-de>
+                        Oft wird ein Coin nicht aufgrund von Zahlen, sondern aufgrund der emotionalen 
+                        Dynamik von Anlegern bewegt. Erkenne und visualisiere, wie Marktfurcht, 
+                        Hoffnung oder FOMO den Preis beeinflussen.
+                    </span>
+                    <span data-lang-en>
+                        Often a coin is moved not by numbers, but by the emotional dynamics of investors. 
+                        Recognize and visualize how market fear, hope or FOMO influence the price.
+                    </span>
+                </p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🔮</span>
+                <h3 class="feature-title">
+                    <span data-lang-de>Einblick in die Zukunft</span>
+                    <span data-lang-en>Insight into the Future</span>
+                </h3>
+                <p class="feature-text">
+                    <span data-lang-de>
+                        Durch die Analyse von Trends und Mustern aus der Vergangenheit kann der 
+                        Narrative-Screener mögliche zukünftige Entwicklungen identifizieren. 
+                        Vorausschauende Erkennung von potenziellen Marktauslösern.
+                    </span>
+                    <span data-lang-en>
+                        By analyzing trends and patterns from the past, the Narrative-Screener 
+                        can identify possible future developments. 
+                        Forward-looking detection of potential market triggers.
+                    </span>
+                </p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">📊</span>
+                <h3 class="feature-title">
+                    <span data-lang-de>Visualisierung von Coin-Narrativen</span>
+                    <span data-lang-en>Visualization of Coin Narratives</span>
+                </h3>
+                <p class="feature-text">
+                    <span data-lang-de>
+                        Alle gesammelten Daten werden in leicht verständliche Visualisierungen 
+                        umgewandelt. Sieh sofort, welche Narrative den Coin aktuell dominieren 
+                        und wie sich die Geschichte entwickeln könnte.
+                    </span>
+                    <span data-lang-en>
+                        All collected data is converted into easy-to-understand visualizations. 
+                        See immediately which narratives currently dominate the coin 
+                        and how the story might develop.
+                    </span>
+                </p>
+            </div>
+        </section>
+
+        <!-- Interactive Demo: Timeline -->
+        <section class="demo-section">
+            <div class="demo-header">
+                <h2 class="demo-title">
+                    <span data-lang-de>📅 Live-Narrative-Timeline</span>
+                    <span data-lang-en>📅 Live Narrative Timeline</span>
+                </h2>
+                <p class="demo-subtitle">
+                    <span data-lang-de>Verfolge die Ereignisse, die den Markt bewegen</span>
+                    <span data-lang-en>Track the events that move the market</span>
+                </p>
+            </div>
+            <div class="narrative-timeline">
+                <div class="timeline-line"></div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-time">
+                            <span data-lang-de>Vor 2 Stunden</span>
+                            <span data-lang-en>2 hours ago</span>
+                        </div>
+                        <div class="timeline-event">🐦 Elon Musk <span data-lang-de>erwähnt</span><span data-lang-en>mentions</span> $DOGE <span data-lang-de>in Tweet</span><span data-lang-en>in tweet</span></div>
+                        <div class="timeline-impact">
+                            <span data-lang-de>+15% Volumen-Spike innerhalb von 30 Minuten</span>
+                            <span data-lang-en>+15% volume spike within 30 minutes</span>
+                        </div>
+                        <span class="timeline-sentiment sentiment-bullish">📈 Bullish</span>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-time">
+                            <span data-lang-de>Vor 5 Stunden</span>
+                            <span data-lang-en>5 hours ago</span>
+                        </div>
+                        <div class="timeline-event">📰 SEC <span data-lang-de>kündigt neue Regulierung an</span><span data-lang-en>announces new regulation</span></div>
+                        <div class="timeline-impact">
+                            <span data-lang-de>Marktweite Unsicherheit, BTC -3%</span>
+                            <span data-lang-en>Market-wide uncertainty, BTC -3%</span>
+                        </div>
+                        <span class="timeline-sentiment sentiment-bearish">📉 Bearish</span>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-time">
+                            <span data-lang-de>Vor 12 Stunden</span>
+                            <span data-lang-en>12 hours ago</span>
+                        </div>
+                        <div class="timeline-event">🤝 Ethereum <span data-lang-de>kündigt Layer-2 Partnerschaft an</span><span data-lang-en>announces Layer-2 partnership</span></div>
+                        <div class="timeline-impact">
+                            <span data-lang-de>ETH-Ökosystem zeigt erhöhte Aktivität</span>
+                            <span data-lang-en>ETH ecosystem shows increased activity</span>
+                        </div>
+                        <span class="timeline-sentiment sentiment-bullish">📈 Bullish</span>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-time">
+                            <span data-lang-de>Vor 1 Tag</span>
+                            <span data-lang-en>1 day ago</span>
+                        </div>
+                        <div class="timeline-event">🐋 Whale <span data-lang-de>bewegt 10.000 BTC zu Exchange</span><span data-lang-en>moves 10,000 BTC to exchange</span></div>
+                        <div class="timeline-impact">
+                            <span data-lang-de>Markt beobachtet potenzielle Verkäufe</span>
+                            <span data-lang-en>Market watching potential sales</span>
+                        </div>
+                        <span class="timeline-sentiment sentiment-neutral">⚖️ Neutral</span>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trending Keywords -->
+        <section class="keywords-section">
+            <h2 class="keywords-title">🔥 Trending Keywords</h2>
+            <div class="keywords-cloud">
+                <span class="keyword-tag hot">#Bitcoin <span class="keyword-count">45.2K</span></span>
+                <span class="keyword-tag hot">#ETF <span class="keyword-count">32.1K</span></span>
+                <span class="keyword-tag">#Solana <span class="keyword-count">28.7K</span></span>
+                <span class="keyword-tag hot">#Halving <span class="keyword-count">25.3K</span></span>
+                <span class="keyword-tag">#DeFi <span class="keyword-count">18.9K</span></span>
+                <span class="keyword-tag">#NFT <span class="keyword-count">15.4K</span></span>
+                <span class="keyword-tag">#Layer2 <span class="keyword-count">12.8K</span></span>
+                <span class="keyword-tag hot">#Airdrop <span class="keyword-count">11.2K</span></span>
+                <span class="keyword-tag">#Staking <span class="keyword-count">9.6K</span></span>
+                <span class="keyword-tag">#Memecoin <span class="keyword-count">8.4K</span></span>
+            </div>
+        </section>
+
+        <!-- Psychology Meters -->
+        <section class="psychology-section">
+            <div class="psych-card">
+                <h3 class="psych-title">😨 Fear Index</h3>
+                <div class="psych-meter">
+                    <div class="psych-fill fear" style="width: 35%;"></div>
+                </div>
+                <div class="psych-value">35</div>
+                <div class="psych-label">
+                    <span data-lang-de>Moderate Angst</span>
+                    <span data-lang-en>Moderate Fear</span>
+                </div>
+            </div>
+            <div class="psych-card">
+                <h3 class="psych-title">🤑 Greed Index</h3>
+                <div class="psych-meter">
+                    <div class="psych-fill greed" style="width: 62%;"></div>
+                </div>
+                <div class="psych-value">62</div>
+                <div class="psych-label">
+                    <span data-lang-de>Erhöhte Gier</span>
+                    <span data-lang-en>Elevated Greed</span>
+                </div>
+            </div>
+            <div class="psych-card">
+                <h3 class="psych-title">🚀 FOMO Level</h3>
+                <div class="psych-meter">
+                    <div class="psych-fill fomo" style="width: 78%;"></div>
+                </div>
+                <div class="psych-value">78</div>
+                <div class="psych-label">
+                    <span data-lang-de>Hohe FOMO</span>
+                    <span data-lang-en>High FOMO</span>
+                </div>
+            </div>
+            <div class="psych-card">
+                <h3 class="psych-title">💫 Hope Index</h3>
+                <div class="psych-meter">
+                    <div class="psych-fill hope" style="width: 55%;"></div>
+                </div>
+                <div class="psych-value">55</div>
+                <div class="psych-label">
+                    <span data-lang-de>Moderate Hoffnung</span>
+                    <span data-lang-en>Moderate Hope</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why Section -->
+        <section class="why-section">
+            <h2 class="why-title">
+                <span data-lang-de>Warum der Narrative-Screener wichtig ist</span>
+                <span data-lang-en>Why the Narrative-Screener Matters</span>
+            </h2>
+            <p class="why-text">
+                <span data-lang-de>
+                    Im Kryptomarkt, wo Emotionen und Marktnarrative oft die entscheidende Rolle spielen, 
+                    reicht es nicht mehr aus, nur Zahlen zu betrachten. Wer den Zukunftshorizont eines 
+                    Coins verstehen will, muss wissen, welche Geschichte dahintersteckt. 
+                    <br><br>
+                    Der Narrative-Screener ist nicht nur ein weiterer Coin-Screener, sondern ein 
+                    <strong>Geschichtenerzähler</strong>, der dir hilft, die Strategie hinter der 
+                    Preisbewegung zu entschlüsseln.
+                    <span class="why-highlight">Versteh den Coin, nicht nur den Preis.</span>
+                </span>
+                <span data-lang-en>
+                    In the crypto market, where emotions and market narratives often play the decisive role, 
+                    it's no longer enough to just look at numbers. If you want to understand the future horizon 
+                    of a coin, you need to know the story behind it. 
+                    <br><br>
+                    The Narrative-Screener is not just another coin screener, but a 
+                    <strong>storyteller</strong> that helps you decode the strategy behind 
+                    price movements.
+                    <span class="why-highlight">Understand the coin, not just the price.</span>
+                </span>
+            </p>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <h2 class="cta-title">
+                <span data-lang-de>Bereit für die Wahrheit?</span>
+                <span data-lang-en>Ready for the Truth?</span>
+            </h2>
+            <p class="cta-text">
+                <span data-lang-de>
+                    Teste den Narrative-Screener jetzt und entdecke die Geschichten hinter den Coins, 
+                    die du beobachtest.
+                </span>
+                <span data-lang-en>
+                    Try the Narrative-Screener now and discover the stories behind the coins 
+                    you're watching.
+                </span>
+            </p>
+            <a href="top100.html" class="cta-button">
+                <span data-lang-de>🚀 Jetzt entdecken</span>
+                <span data-lang-en>🚀 Discover Now</span>
+            </a>
+        </section>
+
+        <!-- Footer Disclaimer -->
+        <footer class="footer-disclaimer">
+            <p class="disclaimer-text">
+                <span data-lang-de>
+                    <strong>⚠️ Hinweis:</strong> Der Narrative-Screener bietet dir keine Kaufempfehlungen 
+                    oder finanziellen Ratschläge, sondern eine transparente Darstellung von historischen 
+                    und aktuellen Markterzählungen. Alle dargestellten Informationen dienen ausschließlich 
+                    der Analyse und Visualisierung, ohne Garantie oder Performance-Versprechen.
+                </span>
+                <span data-lang-en>
+                    <strong>⚠️ Disclaimer:</strong> The Narrative-Screener does not provide purchase recommendations 
+                    or financial advice, but a transparent representation of historical and current market narratives. 
+                    All information presented is for analysis and visualization purposes only, 
+                    without guarantee or performance promises.
+                </span>
+            </p>
+        </footer>
+    </main>
+
+    <script>
+        // Language Switcher
+        const langBtns = document.querySelectorAll('.lang-btn');
+        langBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const lang = btn.dataset.lang;
+                document.body.classList.remove('lang-de', 'lang-en');
+                document.body.classList.add('lang-' + lang);
+                langBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                localStorage.setItem('cryptospaces-lang', lang);
+            });
+        });
+
+        // Load saved language
+        const savedLang = localStorage.getItem('cryptospaces-lang');
+        if (savedLang) {
+            document.body.classList.remove('lang-de', 'lang-en');
+            document.body.classList.add('lang-' + savedLang);
+            langBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === savedLang);
+            });
+        }
+
+        // Create floating story particles
+        const particles = document.getElementById('storyParticles');
+        const icons = ['📖', '📰', '💬', '🐦', '📊', '💡', '🔮', '⚡', '🧠', '📈'];
+        
+        for (let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'story-particle';
+            particle.textContent = icons[Math.floor(Math.random() * icons.length)];
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 15) + 's';
+            particles.appendChild(particle);
+        }
+
+        // Animate psychology meters on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const fills = entry.target.querySelectorAll('.psych-fill');
+                    fills.forEach(fill => {
+                        const width = fill.style.width;
+                        fill.style.width = '0%';
+                        setTimeout(() => {
+                            fill.style.width = width;
+                        }, 200);
+                    });
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.psychology-section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

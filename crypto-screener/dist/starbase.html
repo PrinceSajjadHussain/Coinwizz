@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STARBASE | Live Market State</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --space-black: #000510;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --text-light: #f1f5f9;
+            /* Original Vars */
+            --accent: #06b6d4;
+            --positive: #22c55e;
+            --negative: #ef4444;
+            --neutral: rgba(6,182,212,0.4);
+            --text: #f8fafc;
+            --text-muted: rgba(248,250,252,0.4);
+        }
+        /* Unified Header Styles */
+        .unified-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0, 5, 16, 0.95) 0%, rgba(0, 5, 16, 0) 100%);
+            padding: 15px 30px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+        }
+        .unified-left { display: flex; align-items: center; gap: 20px; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+        .unified-nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .unified-nav-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            padding: 7px 12px;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: rgba(14, 165, 233, 0.05);
+            text-transform: uppercase;
+        }
+        .unified-nav-link:hover {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+        }
+        .unified-utils {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .unified-btn {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(34, 211, 238, 0.1));
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            color: var(--text-light);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .unified-btn:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(34, 211, 238, 0.2));
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+        .unified-btn.active {
+            background: rgba(14, 165, 233, 0.3);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+        @media (max-width: 900px) {
+            .unified-nav { display: none; }
+            .unified-header { padding: 10px 15px; }
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: #000;
+            min-height: 100vh;
+            color: var(--text);
+            overflow: hidden;
+            padding-top: 80px;
+        }
+
+        /* Viewport frame */
+        .viewport {
+            position: fixed;
+            top: 85px; left: 12px; right: 12px; bottom: 12px;
+            border: 1px solid rgba(6,182,212,0.25);
+            border-radius: 6px;
+            background: radial-gradient(ellipse at center, #020617 0%, #000 100%);
+            overflow: hidden;
+        }
+
+        /* Stars */
+        .stars {
+            position: absolute;
+            width: 100%; height: 100%;
+            pointer-events: none;
+        }
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.15;
+        }
+
+        /* Header */
+        .header {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(6,182,212,0.15);
+            z-index: 100;
+        }
+        .title { font-size: 1rem; font-weight: 900; color: var(--accent); letter-spacing: 4px; }
+        .title-sub { font-size: 0.4rem; color: var(--text-muted); letter-spacing: 2px; margin-top: 2px; }
+        .btn-back {
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.25);
+            color: #3b82f6;
+            padding: 6px 14px;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 0.5rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-back:hover { background: rgba(59,130,246,0.2); }
+
+        /* 50% Reference line */
+        .reference-line {
+            position: absolute;
+            left: 80px; right: 80px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 1px;
+            background: var(--neutral);
+            z-index: 10;
+        }
+        .reference-label {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.55rem;
+            color: var(--neutral);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 1px;
+        }
+
+        /* Bubble area */
+        .bubble-area {
+            position: absolute;
+            top: 70px; left: 80px; right: 80px; bottom: 40px;
+        }
+
+        /* Cryptobubble */
+        .cryptobubble {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: top 1.5s ease-out;
+            will-change: top;
+            cursor: pointer;
+        }
+        .bubble-core {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.08), transparent 60%);
+            border: 1.5px solid;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: border-color 0.5s, box-shadow 0.5s;
+        }
+        .bubble-core::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: radial-gradient(circle, currentColor, transparent 70%);
+            opacity: 0.08;
+        }
+        .bubble-logo { font-size: 1rem; font-weight: 900; }
+        .bubble-symbol { margin-top: 6px; font-size: 0.5rem; font-weight: 700; letter-spacing: 1px; opacity: 0.7; }
+        .bubble-pct { margin-top: 3px; font-size: 0.55rem; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+        .bubble-pct.pos { color: var(--positive); }
+        .bubble-pct.neg { color: var(--negative); }
+
+        /* Info panel (Mouseover) */
+        .info-panel {
+            position: absolute;
+            width: 180px;
+            background: rgba(2,6,23,0.92);
+            border: 1px solid rgba(6,182,212,0.3);
+            border-radius: 8px;
+            padding: 12px;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease-out;
+            backdrop-filter: blur(10px);
+        }
+        .info-panel.visible { opacity: 1; pointer-events: auto; }
+        .info-panel::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(6,182,212,0.4));
+        }
+
+        .info-header { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(6,182,212,0.15); }
+        .info-name { font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; }
+        .info-price { font-size: 0.8rem; font-weight: 900; margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+        .info-pct { font-size: 0.6rem; margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+        .info-pct.pos { color: var(--positive); }
+        .info-pct.neg { color: var(--negative); }
+        .info-status { font-size: 0.45rem; color: var(--text-muted); margin-top: 4px; letter-spacing: 1px; }
+
+        /* Mini chart */
+        .info-chart { margin: 10px 0; height: 50px; position: relative; }
+        .info-chart canvas { width: 100%; height: 100%; }
+        .info-chart-label { font-size: 0.4rem; color: var(--text-muted); text-align: right; margin-top: 2px; }
+
+        /* Metrics */
+        .info-metrics { font-size: 0.5rem; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 4px; color: var(--text-muted); }
+        .info-val { color: var(--text); font-family: 'JetBrains Mono', monospace; }
+
+        /* Countdown bar */
+        .info-countdown { height: 2px; background: rgba(6,182,212,0.2); margin-top: 10px; border-radius: 1px; overflow: hidden; }
+        .info-countdown-bar { height: 100%; background: var(--accent); transition: width 0.1s linear; }
+
+        /* Footer */
+        .footer {
+            position: absolute;
+            bottom: 10px; left: 80px; right: 80px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.45rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .footer span { color: var(--accent); }
+    </style>
+</head>
+<body>
+<header class="unified-header">
+        <div class="unified-left">
+            <a href="index.html" class="unified-logo">CRYPTOSPACES</a>
+            <span class="page-title" style="margin-left:20px; font-family:'Orbitron'; font-weight:700; color:var(--accent-cyan);">STARBASE</span>
+        </div>
+        <nav class="unified-nav">
+            <a href="top100.html" class="unified-nav-link">Top 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">Whales</a>
+            <a href="our-vision.html" class="unified-nav-link">Vision</a>
+        </nav>
+        <div class="unified-utils">
+            <a href="index.html" class="unified-btn">← Back</a>
+        </div>
+    </header>
+    <div class="viewport" id="viewport">
+        <div class="stars" id="stars"></div>
+        
+        <!-- Header Removed -->
+
+        <div class="reference-line"></div>
+        <div class="reference-label">50 %</div>
+
+        <div class="bubble-area" id="bubbleArea"></div>
+
+        <!-- Info Panel (single, reusable) -->
+        <div class="info-panel" id="infoPanel">
+            <div class="info-header">
+                <div class="info-name" id="infoName">-</div>
+                <div class="info-price" id="infoPrice">$0.00</div>
+                <div class="info-pct" id="infoPct">0.00%</div>
+                <div class="info-status" id="infoStatus">NEUTRAL</div>
+            </div>
+            <div class="info-chart">
+                <canvas id="infoChart"></canvas>
+                <div class="info-chart-label">Letzte 30 Min</div>
+            </div>
+            <div class="info-metrics">
+                <div class="info-row"><span>Volumen</span><span class="info-val" id="infoVol">-</span></div>
+                <div class="info-row"><span>Buy/Sell</span><span class="info-val" id="infoBuySell">-</span></div>
+                <div class="info-row"><span>Momentum</span><span class="info-val" id="infoMom">-</span></div>
+            </div>
+            <div class="info-countdown"><div class="info-countdown-bar" id="infoCountdown"></div></div>
+        </div>
+
+        <div class="footer">
+            <div>Coins: <span id="coinCount">0</span></div>
+            <div>Referenz: <span>24h Change</span></div>
+            <div>Update: <span id="updateTime">--:--:--</span></div>
+        </div>
+    </div>
+
+    <script>
+        const COINS = [
+            { symbol: 'BTC', name: 'Bitcoin', color: '#f7931a' },
+            { symbol: 'ETH', name: 'Ethereum', color: '#627eea' },
+            { symbol: 'SOL', name: 'Solana', color: '#00ffa3' },
+            { symbol: 'XRP', name: 'Ripple', color: '#00aae4' },
+            { symbol: 'ADA', name: 'Cardano', color: '#0033ad' },
+            { symbol: 'DOGE', name: 'Dogecoin', color: '#c3a634' },
+            { symbol: 'DOT', name: 'Polkadot', color: '#e6007a' },
+            { symbol: 'AVAX', name: 'Avalanche', color: '#e84142' },
+            { symbol: 'LINK', name: 'Chainlink', color: '#2a5ada' },
+            { symbol: 'MATIC', name: 'Polygon', color: '#8247e5' },
+            { symbol: 'UNI', name: 'Uniswap', color: '#ff007a' },
+            { symbol: 'ATOM', name: 'Cosmos', color: '#6f7390' },
+            { symbol: 'LTC', name: 'Litecoin', color: '#bfbbbb' },
+            { symbol: 'NEAR', name: 'Near', color: '#00c08b' },
+            { symbol: 'ARB', name: 'Arbitrum', color: '#28a0f0' }
+        ];
+
+        let bubbles = [];
+        let activeInfoIndex = -1;
+        let infoTimeout = null;
+        let countdownInterval = null;
+        const INFO_DURATION = 15000; // 15 seconds
+
+        // Generate stars
+        function generateStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = 1 + Math.random() * 1.5;
+                star.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${size}px;height:${size}px;opacity:${0.1+Math.random()*0.15};`;
+                container.appendChild(star);
+            }
+        }
+
+        // Create bubbles
+        function createBubbles() {
+            const area = document.getElementById('bubbleArea');
+            const areaWidth = area.clientWidth;
+            
+            COINS.forEach((coin, i) => {
+                const el = document.createElement('div');
+                el.className = 'cryptobubble';
+                el.id = `bubble-${i}`;
+                el.dataset.index = i;
+                
+                const baseX = (i / COINS.length) * (areaWidth - 80) + 20;
+                const offsetX = (Math.random() - 0.5) * 30;
+                el.style.left = (baseX + offsetX) + 'px';
+                
+                el.innerHTML = `
+                    <div class="bubble-core" style="border-color: ${coin.color}; color: ${coin.color};">
+                        <span class="bubble-logo" style="color: ${coin.color};">${coin.symbol.charAt(0)}</span>
+                    </div>
+                    <div class="bubble-symbol" style="color: ${coin.color};">${coin.symbol}</div>
+                    <div class="bubble-pct" id="pct-${i}">0.00%</div>
+                `;
+                
+                // Mouseover events
+                el.addEventListener('mouseenter', () => showInfo(i));
+                el.addEventListener('mouseleave', hideInfo);
+                
+                area.appendChild(el);
+                
+                bubbles.push({
+                    coin,
+                    el,
+                    pctChange: (Math.random() - 0.5) * 10,
+                    price: coin.symbol === 'BTC' ? 45000 + Math.random() * 5000 : 10 + Math.random() * 500,
+                    volume: 50 + Math.random() * 100,
+                    buyRatio: 0.4 + Math.random() * 0.2,
+                    momentum: Math.random(),
+                    priceHistory: []
+                });
+                
+                // Initialize price history
+                for (let j = 0; j < 30; j++) {
+                    bubbles[i].priceHistory.push(bubbles[i].price * (0.98 + Math.random() * 0.04));
+                }
+            });
+            
+            document.getElementById('coinCount').textContent = COINS.length;
+        }
+
+        // Show info panel
+        function showInfo(index) {
+            if (activeInfoIndex === index) return;
+            
+            clearTimeout(infoTimeout);
+            clearInterval(countdownInterval);
+            
+            activeInfoIndex = index;
+            const b = bubbles[index];
+            const panel = document.getElementById('infoPanel');
+            const bubbleEl = b.el;
+            const area = document.getElementById('bubbleArea');
+            
+            // Position panel
+            const bubbleRect = bubbleEl.getBoundingClientRect();
+            const areaRect = area.getBoundingClientRect();
+            let left = bubbleRect.right - areaRect.left + 25;
+            let top = bubbleRect.top - areaRect.top + (bubbleRect.height / 2) - 100;
+            
+            // Keep within bounds
+            if (left + 200 > areaRect.width) left = bubbleRect.left - areaRect.left - 205;
+            top = Math.max(10, Math.min(areaRect.height - 220, top));
+            
+            panel.style.left = (80 + left) + 'px';
+            panel.style.top = (70 + top) + 'px';
+            
+            // Populate data
+            document.getElementById('infoName').textContent = `${b.coin.name} (${b.coin.symbol})`;
+            document.getElementById('infoName').style.color = b.coin.color;
+            document.getElementById('infoPrice').textContent = '$' + b.price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
+            const pctEl = document.getElementById('infoPct');
+            const sign = b.pctChange >= 0 ? '+' : '';
+            pctEl.textContent = sign + b.pctChange.toFixed(2) + '%';
+            pctEl.className = 'info-pct ' + (b.pctChange >= 0 ? 'pos' : 'neg');
+            
+            const status = b.pctChange > 2 ? 'STEIGEND' : b.pctChange < -2 ? 'FALLEND' : 'NEUTRAL';
+            document.getElementById('infoStatus').textContent = status;
+            
+            document.getElementById('infoVol').textContent = b.volume.toFixed(1) + 'M';
+            document.getElementById('infoBuySell').textContent = Math.round(b.buyRatio * 100) + '/' + Math.round((1-b.buyRatio)*100);
+            document.getElementById('infoMom').textContent = b.momentum > 0.6 ? 'Stark' : b.momentum > 0.4 ? 'Normal' : 'Schwach';
+            
+            // Draw mini chart
+            drawMiniChart(b);
+            
+            panel.classList.add('visible');
+            
+            // Start countdown
+            let remaining = INFO_DURATION;
+            const countdownBar = document.getElementById('infoCountdown');
+            countdownBar.style.width = '100%';
+            
+            countdownInterval = setInterval(() => {
+                remaining -= 100;
+                countdownBar.style.width = (remaining / INFO_DURATION * 100) + '%';
+            }, 100);
+            
+            infoTimeout = setTimeout(hideInfo, INFO_DURATION);
+        }
+
+        // Hide info panel
+        function hideInfo() {
+            clearTimeout(infoTimeout);
+            clearInterval(countdownInterval);
+            document.getElementById('infoPanel').classList.remove('visible');
+            activeInfoIndex = -1;
+        }
+
+        // Draw mini chart
+        function drawMiniChart(bubble) {
+            const canvas = document.getElementById('infoChart');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 156;
+            canvas.height = 50;
+            
+            const history = bubble.priceHistory;
+            const min = Math.min(...history);
+            const max = Math.max(...history);
+            const range = max - min || 1;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = bubble.pctChange >= 0 ? '#22c55e' : '#ef4444';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            
+            history.forEach((price, i) => {
+                const x = (i / (history.length - 1)) * canvas.width;
+                const y = canvas.height - ((price - min) / range) * (canvas.height - 10) - 5;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            
+            ctx.stroke();
+            
+            // Gradient fill
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            ctx.closePath();
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, bubble.pctChange >= 0 ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+        }
+
+        // Update market data
+        function updateMarketData() {
+            bubbles.forEach(b => {
+                const delta = (Math.random() - 0.5) * 0.4;
+                b.pctChange += delta;
+                b.pctChange = Math.max(-15, Math.min(15, b.pctChange));
+                
+                b.price *= (1 + (Math.random() - 0.5) * 0.002);
+                b.volume += (Math.random() - 0.5) * 2;
+                b.volume = Math.max(10, Math.min(200, b.volume));
+                b.buyRatio += (Math.random() - 0.5) * 0.02;
+                b.buyRatio = Math.max(0.3, Math.min(0.7, b.buyRatio));
+                b.momentum += (Math.random() - 0.5) * 0.05;
+                b.momentum = Math.max(0, Math.min(1, b.momentum));
+                
+                // Update price history
+                b.priceHistory.shift();
+                b.priceHistory.push(b.price);
+            });
+        }
+
+        // Position bubbles
+        function positionBubbles() {
+            const area = document.getElementById('bubbleArea');
+            const areaHeight = area.clientHeight;
+            const centerY = areaHeight / 2;
+            const maxPct = 15;
+            
+            bubbles.forEach((b, i) => {
+                const normalizedPct = b.pctChange / maxPct;
+                const offset = -normalizedPct * (centerY - 50);
+                const top = centerY + offset - 40;
+                
+                b.el.style.top = Math.max(10, Math.min(areaHeight - 100, top)) + 'px';
+                
+                const pctEl = document.getElementById(`pct-${i}`);
+                const sign = b.pctChange >= 0 ? '+' : '';
+                pctEl.textContent = sign + b.pctChange.toFixed(2) + '%';
+                pctEl.className = 'bubble-pct ' + (b.pctChange >= 0 ? 'pos' : 'neg');
+                
+                const core = b.el.querySelector('.bubble-core');
+                const intensity = Math.min(0.3, Math.abs(b.pctChange) / 30);
+                core.style.boxShadow = `0 0 ${10 + Math.abs(b.pctChange)}px rgba(${b.pctChange >= 0 ? '34,197,94' : '239,68,68'}, ${intensity})`;
+            });
+            
+            // Update active info panel if visible
+            if (activeInfoIndex >= 0) {
+                const b = bubbles[activeInfoIndex];
+                document.getElementById('infoPrice').textContent = '$' + b.price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                const pctEl = document.getElementById('infoPct');
+                const sign = b.pctChange >= 0 ? '+' : '';
+                pctEl.textContent = sign + b.pctChange.toFixed(2) + '%';
+                pctEl.className = 'info-pct ' + (b.pctChange >= 0 ? 'pos' : 'neg');
+                const status = b.pctChange > 2 ? 'STEIGEND' : b.pctChange < -2 ? 'FALLEND' : 'NEUTRAL';
+                document.getElementById('infoStatus').textContent = status;
+                drawMiniChart(b);
+            }
+        }
+
+        function updateTime() {
+            document.getElementById('updateTime').textContent = new Date().toTimeString().split(' ')[0];
+        }
+
+        function update() {
+            updateMarketData();
+            positionBubbles();
+            updateTime();
+        }
+
+        // Initialize
+        generateStars();
+        createBubbles();
+        positionBubbles();
+        updateTime();
+        setInterval(update, 2000);
+    </script>
+</body>
+</html>

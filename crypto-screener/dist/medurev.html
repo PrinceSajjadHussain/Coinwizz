@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEDUREV - Media, Education & Research View | Narrative & Sentiment System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #a855f7;
+            --secondary: #7c3aed;
+            --accent: #c084fc;
+            --media: #ec4899;
+            --education: #3b82f6;
+            --research: #22c55e;
+            --influencer: #f59e0b;
+            --sentiment-pos: #22c55e;
+            --sentiment-neg: #ef4444;
+            --sentiment-neutral: #6b7280;
+            --bg-dark: #0a0f1e;
+            --bg-darker: #030712;
+            --text: #f8fafc;
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--text);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.4s ease-out;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-title { font-size: 2rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--media)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 5px; margin-bottom: 8px; }
+        .loading-sub { font-size: 0.65rem; color: rgba(248,250,252,0.6); margin-bottom: 25px; letter-spacing: 2px; text-align: center; }
+        .progress-container { width: 280px; height: 6px; background: rgba(168,85,247,0.15); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--media)); border-radius: 3px; transition: width 0.1s linear; }
+        .progress-percent { margin-top: 10px; font-size: 0.7rem; color: var(--primary); }
+
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(3,7,18,0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .back-btn {
+            background: rgba(59,130,246,0.2);
+            border: 1px solid rgba(59,130,246,0.4);
+            color: #3b82f6;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.7rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: rgba(59,130,246,0.3); }
+        .nav-link {
+            background: rgba(251,191,36,0.15);
+            border: 1px solid rgba(251,191,36,0.4);
+            color: #fbbf24;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .nav-link:hover { background: rgba(251,191,36,0.25); }
+        .title { font-size: 1rem; font-weight: 700; color: #fbbf24; letter-spacing: 2px; }
+        .title-sub { font-size: 0.5rem; color: rgba(248,250,252,0.5); letter-spacing: 1px; margin-top: 2px; }
+        .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn {
+            background: rgba(168,85,247,0.15);
+            border: 1px solid rgba(168,85,247,0.4);
+            color: var(--accent);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: rgba(168,85,247,0.25); border-color: var(--accent); }
+        .btn.active { background: rgba(168,85,247,0.4); border-color: var(--accent); }
+        .btn-nav { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.4); color: #3b82f6; text-decoration: none; }
+        .btn-nav:hover { background: rgba(59,130,246,0.25); }
+        .divider { color: rgba(255,255,255,0.15); margin: 0 5px; }
+
+        .canvas-container { position: fixed; top: 60px; left: 0; right: 0; bottom: 50px; }
+        #mainCanvas { width: 100%; height: 100%; }
+
+        .footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            padding: 10px 20px;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.6rem;
+            color: rgba(248,250,252,0.5);
+            border-top: 1px solid rgba(168,85,247,0.3);
+        }
+        .stats { display: flex; gap: 20px; }
+        .stat-val { color: var(--accent); font-weight: 600; }
+        .stat-val.media { color: var(--media); }
+        .stat-val.positive { color: var(--sentiment-pos); }
+        .stat-val.negative { color: var(--sentiment-neg); }
+        .disclaimer { color: var(--influencer); font-style: italic; }
+
+        .tooltip {
+            position: fixed;
+            background: rgba(10,15,30,0.95);
+            border: 1px solid rgba(168,85,247,0.5);
+            border-radius: 12px;
+            padding: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            z-index: 200;
+            min-width: 260px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .tooltip.visible { opacity: 1; }
+        .tooltip-name { font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+        .tooltip-desc { font-size: 0.6rem; color: rgba(248,250,252,0.6); margin-bottom: 10px; line-height: 1.5; }
+        .tooltip-section { margin: 8px 0; padding-top: 8px; border-top: 1px solid rgba(168,85,247,0.2); }
+        .tooltip-section-title { font-size: 0.55rem; color: rgba(248,250,252,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tooltip-row { display: flex; justify-content: space-between; font-size: 0.65rem; margin: 4px 0; }
+        .tooltip-label { color: rgba(248,250,252,0.6); }
+        .tooltip-value { font-family: 'JetBrains Mono', monospace; }
+        .tooltip-meter { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 6px; overflow: hidden; display: flex; }
+        .tooltip-meter-pos { height: 100%; background: var(--sentiment-pos); }
+        .tooltip-meter-neg { height: 100%; background: var(--sentiment-neg); }
+
+        .info-panel {
+            position: fixed;
+            left: 15px;
+            top: 75px;
+            width: 220px;
+            background: rgba(10,15,30,0.9);
+            border: 1px solid rgba(168,85,247,0.3);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.6rem;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+            max-height: calc(100vh - 150px);
+            overflow-y: auto;
+        }
+        .info-panel::-webkit-scrollbar { width: 4px; }
+        .info-panel::-webkit-scrollbar-thumb { background: rgba(168,85,247,0.3); border-radius: 2px; }
+        .info-title { color: var(--accent); font-weight: 700; margin-bottom: 10px; letter-spacing: 1px; font-size: 0.7rem; border-bottom: 1px solid rgba(168,85,247,0.2); padding-bottom: 8px; }
+        .info-concept { margin-bottom: 12px; }
+        .info-concept-title { color: var(--media); font-size: 0.65rem; font-weight: 600; margin-bottom: 4px; }
+        .info-concept-text { color: rgba(248,250,252,0.7); font-size: 0.55rem; line-height: 1.5; }
+        .info-divider { height: 1px; background: rgba(168,85,247,0.15); margin: 12px 0; }
+        .info-quote { font-style: italic; color: rgba(248,250,252,0.5); font-size: 0.55rem; line-height: 1.4; padding: 8px; background: rgba(168,85,247,0.1); border-radius: 6px; border-left: 2px solid var(--primary); }
+
+        .legend-panel {
+            position: fixed;
+            right: 15px;
+            top: 75px;
+            background: rgba(10,15,30,0.9);
+            border: 1px solid rgba(236,72,153,0.3);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.55rem;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+            width: 180px;
+        }
+        .legend-title { color: var(--media); font-weight: 700; margin-bottom: 10px; letter-spacing: 1px; font-size: 0.65rem; }
+        .legend-item { display: flex; align-items: center; gap: 10px; margin: 8px 0; color: rgba(248,250,252,0.8); }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .legend-label { font-size: 0.55rem; }
+        .legend-divider { height: 1px; background: rgba(236,72,153,0.2); margin: 10px 0; }
+        .legend-signal { margin-top: 10px; }
+        .legend-signal-title { color: var(--research); font-size: 0.6rem; font-weight: 600; margin-bottom: 6px; }
+        .legend-signal-item { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 0.5rem; color: rgba(248,250,252,0.6); }
+
+        .sentiment-bar {
+            position: fixed;
+            right: 15px;
+            bottom: 70px;
+            width: 180px;
+            background: rgba(10,15,30,0.9);
+            border: 1px solid rgba(168,85,247,0.3);
+            border-radius: 10px;
+            padding: 12px;
+            z-index: 90;
+        }
+        .sentiment-title { font-size: 0.6rem; color: var(--accent); margin-bottom: 8px; font-weight: 600; }
+        .sentiment-meter { height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden; display: flex; margin-bottom: 6px; }
+        .sentiment-meter-pos { background: linear-gradient(90deg, #22c55e, #4ade80); transition: width 0.5s; }
+        .sentiment-meter-neg { background: linear-gradient(90deg, #f87171, #ef4444); transition: width 0.5s; }
+        .sentiment-labels { display: flex; justify-content: space-between; font-size: 0.5rem; color: rgba(248,250,252,0.5); }
+    </style>
+
+
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-title">MEDUREV</div>
+        <div class="loading-sub">Media, Education & Research View<br>Narrative & Sentiment System</div>
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="back-btn">← HOME</a>
+            <div class="title-wrap">
+                <div class="title">MEDUREV</div>
+                <div class="title-sub">NARRATIVE & SENTIMENT SYSTEM</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="controls">
+                <button class="btn active" id="toggleMedia">📡 Media</button>
+                <button class="btn active" id="toggleEducation">📚 Education</button>
+                <button class="btn active" id="toggleResearch">🔬 Research</button>
+                <button class="btn active" id="toggleInfluencers">⚡ Influencers</button>
+                <span class="divider">|</span>
+                <button class="btn active" id="toggleWaves">Waves</button>
+                <button class="btn" id="toggleEcho">Echo</button>
+            </div>
+            <span class="divider">|</span>
+            <a href="financial-galaxy.html" class="nav-link">Financial Galaxy</a>
+            <a href="reletav.html" class="nav-link">RELETAV</a>
+            <a href="crypto-matrix-vision.html" class="nav-link">Matrix Vision</a>
+            <a href="lyps.html" class="nav-link">🔥 LYPS</a>
+        </div>
+    </header>
+
+    <div class="info-panel">
+        <div class="info-title">PURPOSE OF THIS VIEW</div>
+        <div class="info-concept">
+            <div class="info-concept-title">Core Concept</div>
+            <div class="info-concept-text">Narratives precede capital.<br>Attention precedes price.<br><br>Before money moves,<br>stories move.</div>
+        </div>
+        <div class="info-divider"></div>
+        <div class="info-concept">
+            <div class="info-concept-title">Visual Metaphor</div>
+            <div class="info-concept-text">Signal waves where Media = amplification nodes, Education = context layers, Research = stabilizers, and Influencers = acceleration vectors.</div>
+        </div>
+        <div class="info-divider"></div>
+        <div class="info-quote">"Information is not neutral. It bends behavior."</div>
+        <div class="info-divider"></div>
+        <div class="info-concept">
+            <div class="info-concept-title">Key Insight</div>
+            <div class="info-concept-text">Sentiment peaks before price peaks.<br><br>Not all signals are equal.<br>Some distort. Some anchor.</div>
+        </div>
+    </div>
+
+    <div class="legend-panel">
+        <div class="legend-title">SIGNAL NODES</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--media); box-shadow: 0 0 8px var(--media);"></div><span class="legend-label">Media Amplifier</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--education); box-shadow: 0 0 8px var(--education);"></div><span class="legend-label">Education Layer</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--research); box-shadow: 0 0 8px var(--research);"></div><span class="legend-label">Research Anchor</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--influencer); box-shadow: 0 0 8px var(--influencer);"></div><span class="legend-label">Influencer Vector</span></div>
+        <div class="legend-divider"></div>
+        <div class="legend-signal">
+            <div class="legend-signal-title">KEY SIGNALS</div>
+            <div class="legend-signal-item"><span style="color: var(--sentiment-pos);">↑</span> Convergence → Momentum</div>
+            <div class="legend-signal-item"><span style="color: var(--sentiment-neg);">↓</span> Divergence → Instability</div>
+            <div class="legend-signal-item"><span style="color: var(--influencer);">⚠</span> Echo → Overcrowding</div>
+            <div class="legend-signal-item"><span style="color: var(--sentiment-neutral);">○</span> Decay → Attention loss</div>
+        </div>
+    </div>
+
+    <div class="sentiment-bar">
+        <div class="sentiment-title">MARKET SENTIMENT</div>
+        <div class="sentiment-meter">
+            <div class="sentiment-meter-pos" id="sentimentPos" style="width: 62%;"></div>
+            <div class="sentiment-meter-neg" id="sentimentNeg" style="width: 38%;"></div>
+        </div>
+        <div class="sentiment-labels">
+            <span>Bullish <span id="bullishPct">62%</span></span>
+            <span><span id="bearishPct">38%</span> Bearish</span>
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-name" id="ttName">Signal Node</div>
+        <div class="tooltip-desc" id="ttDesc">Narrative amplification source</div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Status</div>
+            <div class="tooltip-row"><span class="tooltip-label">Reach</span><span class="tooltip-value" id="ttReach">High</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Sentiment</span><span class="tooltip-value" id="ttSentiment">Positive</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Echo Factor</span><span class="tooltip-value" id="ttEcho">2.4x</span></div>
+        </div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Sentiment Split</div>
+            <div class="tooltip-meter">
+                <div class="tooltip-meter-pos" id="ttMeterPos" style="width: 65%;"></div>
+                <div class="tooltip-meter-neg" id="ttMeterNeg" style="width: 35%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="stats">
+            <span>Media Nodes: <span class="stat-val media" id="statMedia">8</span></span>
+            <span>Narratives Active: <span class="stat-val" id="statNarratives">12</span></span>
+            <span>Bullish Signals: <span class="stat-val positive" id="statPositive">62%</span></span>
+            <span>Echo Zones: <span class="stat-val negative" id="statEcho">3</span></span>
+        </div>
+        <div class="disclaimer">This is not media monitoring. It is perception dynamics.</div>
+    </div>
+
+    <script>
+    // ==================== CONFIG ====================
+    const SIGNAL_NODES = [
+        { id: 'crypto-news', name: 'Crypto News', desc: 'Major crypto media outlets', type: 'media', x: 0.25, y: 0.3, size: 55, reach: 0.9, sentiment: 0.6 },
+        { id: 'twitter-ct', name: 'Crypto Twitter', desc: 'Social sentiment hub', type: 'media', x: 0.5, y: 0.25, size: 70, reach: 0.95, sentiment: 0.55 },
+        { id: 'youtube', name: 'YouTube Crypto', desc: 'Video content creators', type: 'influencer', x: 0.75, y: 0.3, size: 60, reach: 0.85, sentiment: 0.65 },
+        { id: 'reddit', name: 'Reddit Forums', desc: 'Community discussions', type: 'media', x: 0.2, y: 0.5, size: 50, reach: 0.75, sentiment: 0.5 },
+        { id: 'university', name: 'Academic Research', desc: 'Peer-reviewed studies', type: 'research', x: 0.35, y: 0.55, size: 45, reach: 0.4, sentiment: 0.5 },
+        { id: 'courses', name: 'Education Platforms', desc: 'Structured learning', type: 'education', x: 0.5, y: 0.45, size: 50, reach: 0.6, sentiment: 0.55 },
+        { id: 'analysts', name: 'Research Analysts', desc: 'Professional analysis', type: 'research', x: 0.65, y: 0.55, size: 55, reach: 0.7, sentiment: 0.45 },
+        { id: 'kols', name: 'Key Opinion Leaders', desc: 'Influencer accounts', type: 'influencer', x: 0.8, y: 0.5, size: 65, reach: 0.88, sentiment: 0.7 },
+        { id: 'podcasts', name: 'Podcasts', desc: 'Long-form discussions', type: 'education', x: 0.3, y: 0.7, size: 45, reach: 0.55, sentiment: 0.6 },
+        { id: 'telegram', name: 'Telegram Groups', desc: 'Private communities', type: 'media', x: 0.55, y: 0.7, size: 55, reach: 0.65, sentiment: 0.58 },
+        { id: 'discord', name: 'Discord Servers', desc: 'Project communities', type: 'media', x: 0.7, y: 0.75, size: 50, reach: 0.6, sentiment: 0.62 },
+        { id: 'think-tanks', name: 'Think Tanks', desc: 'Policy research', type: 'research', x: 0.45, y: 0.8, size: 40, reach: 0.35, sentiment: 0.48 }
+    ];
+
+    const NARRATIVES = [
+        { name: 'Bull Market Return', strength: 0.8, sentiment: 0.75, sources: ['twitter-ct', 'kols', 'youtube'] },
+        { name: 'Institutional Adoption', strength: 0.7, sentiment: 0.65, sources: ['crypto-news', 'analysts', 'think-tanks'] },
+        { name: 'Regulatory Concerns', strength: 0.6, sentiment: 0.35, sources: ['crypto-news', 'reddit', 'analysts'] },
+        { name: 'DeFi Renaissance', strength: 0.55, sentiment: 0.7, sources: ['twitter-ct', 'discord', 'telegram'] },
+        { name: 'AI + Crypto', strength: 0.75, sentiment: 0.8, sources: ['youtube', 'kols', 'podcasts'] }
+    ];
+
+    // ==================== STATE ====================
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+
+    let width, height, centerX, centerY;
+    let nodes = [];
+    let waves = [];
+    let echoZones = [];
+    let connections = [];
+    let animId = null;
+    let hoveredNode = null;
+    let time = 0;
+    let showMedia = true, showEducation = true, showResearch = true, showInfluencers = true;
+    let showWaves = true, showEcho = false;
+    let globalSentiment = 0.62;
+
+    const COLORS = {
+        media: '#ec4899',
+        education: '#3b82f6',
+        research: '#22c55e',
+        influencer: '#f59e0b'
+    };
+
+    // ==================== INITIALIZATION ====================
+    function resize() {
+        width = canvas.width = canvas.parentElement.clientWidth;
+        height = canvas.height = canvas.parentElement.clientHeight;
+        centerX = width / 2;
+        centerY = height / 2;
+        initSystem();
+    }
+
+    function initSystem() {
+        nodes = SIGNAL_NODES.map(cfg => ({
+            ...cfg,
+            absX: cfg.x * width,
+            absY: cfg.y * height,
+            absSize: cfg.size * (Math.min(width, height) / 900),
+            pulsePhase: Math.random() * Math.PI * 2,
+            wavePhase: Math.random() * Math.PI * 2,
+            signalStrength: 0.5 + Math.random() * 0.5
+        }));
+
+        initWaves();
+        initConnections();
+        initEchoZones();
+        updateStats();
+        updateSentimentBar();
+    }
+
+    function initWaves() {
+        waves = [];
+        nodes.forEach(node => {
+            for (let i = 0; i < 3; i++) {
+                waves.push({
+                    node,
+                    radius: Math.random() * node.absSize * 2,
+                    maxRadius: node.absSize * 4 * node.reach,
+                    alpha: 0.3,
+                    speed: 0.8 + node.reach * 0.5
+                });
+            }
+        });
+    }
+
+    function initConnections() {
+        connections = [];
+        NARRATIVES.forEach(narrative => {
+            for (let i = 0; i < narrative.sources.length - 1; i++) {
+                const from = nodes.find(n => n.id === narrative.sources[i]);
+                const to = nodes.find(n => n.id === narrative.sources[i + 1]);
+                if (from && to) {
+                    connections.push({
+                        from, to,
+                        narrative: narrative.name,
+                        strength: narrative.strength,
+                        sentiment: narrative.sentiment,
+                        particles: []
+                    });
+                }
+            }
+        });
+
+        // Initialize particles
+        connections.forEach(conn => {
+            const numParticles = Math.floor(conn.strength * 6) + 2;
+            for (let i = 0; i < numParticles; i++) {
+                conn.particles.push({
+                    t: Math.random(),
+                    speed: 0.003 + conn.strength * 0.004,
+                    size: 2 + Math.random() * 2
+                });
+            }
+        });
+    }
+
+    function initEchoZones() {
+        echoZones = [
+            { x: 0.6, y: 0.35, radius: 80, intensity: 0.7 },
+            { x: 0.35, y: 0.6, radius: 60, intensity: 0.5 },
+            { x: 0.75, y: 0.65, radius: 70, intensity: 0.6 }
+        ].map(z => ({
+            ...z,
+            absX: z.x * width,
+            absY: z.y * height,
+            absRadius: z.radius * (Math.min(width, height) / 900),
+            pulsePhase: Math.random() * Math.PI * 2
+        }));
+    }
+
+    function updateStats() {
+        const mediaNodes = nodes.filter(n => n.type === 'media').length;
+        const activeNarratives = NARRATIVES.length;
+        const avgSentiment = Math.round(globalSentiment * 100);
+        const echoCount = echoZones.length;
+
+        document.getElementById('statMedia').textContent = mediaNodes;
+        document.getElementById('statNarratives').textContent = activeNarratives;
+        document.getElementById('statPositive').textContent = avgSentiment + '%';
+        document.getElementById('statEcho').textContent = echoCount;
+    }
+
+    function updateSentimentBar() {
+        const bullish = Math.round(globalSentiment * 100);
+        const bearish = 100 - bullish;
+
+        document.getElementById('sentimentPos').style.width = bullish + '%';
+        document.getElementById('sentimentNeg').style.width = bearish + '%';
+        document.getElementById('bullishPct').textContent = bullish + '%';
+        document.getElementById('bearishPct').textContent = bearish + '%';
+    }
+
+    // ==================== UPDATE ====================
+    function update() {
+        time += 0.016;
+
+        // Fluctuate global sentiment
+        globalSentiment = 0.55 + Math.sin(time * 0.3) * 0.15 + Math.sin(time * 0.7) * 0.08;
+        if (Math.random() < 0.02) updateSentimentBar();
+
+        nodes.forEach(node => {
+            node.pulsePhase += 0.02 + node.reach * 0.01;
+            node.wavePhase += 0.015;
+            node.signalStrength = 0.5 + Math.sin(node.pulsePhase) * 0.3;
+        });
+
+        // Update waves
+        waves.forEach(wave => {
+            wave.radius += wave.speed;
+            wave.alpha = 0.3 * (1 - wave.radius / wave.maxRadius);
+            if (wave.radius > wave.maxRadius) {
+                wave.radius = 0;
+                wave.alpha = 0.3;
+            }
+        });
+
+        // Update echo zones
+        echoZones.forEach(zone => {
+            zone.pulsePhase += 0.02;
+        });
+
+        // Update connection particles
+        connections.forEach(conn => {
+            conn.particles.forEach(p => {
+                p.t += p.speed;
+                if (p.t > 1) p.t = 0;
+            });
+        });
+    }
+
+    // ==================== DRAWING ====================
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        drawBackgroundWaves();
+
+        if (showEcho) {
+            drawEchoZones();
+        }
+
+        drawConnections();
+
+        if (showWaves) {
+            drawSignalWaves();
+        }
+
+        drawNodes();
+
+        drawCentralNarrative();
+    }
+
+    function drawBackgroundWaves() {
+        // Ambient wave pattern
+        ctx.strokeStyle = 'rgba(168, 85, 247, 0.03)';
+        ctx.lineWidth = 1;
+
+        for (let i = 0; i < 8; i++) {
+            const phase = time * 0.5 + i * 0.5;
+            ctx.beginPath();
+            for (let x = 0; x < width; x += 5) {
+                const y = height * 0.5 + Math.sin(x * 0.01 + phase) * 50 + Math.sin(x * 0.02 + phase * 1.5) * 30 + i * 40 - 160;
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+    }
+
+    function drawEchoZones() {
+        echoZones.forEach(zone => {
+            const pulse = 1 + Math.sin(zone.pulsePhase) * 0.15;
+            const radius = zone.absRadius * pulse;
+
+            // Echo warning zone
+            for (let i = 3; i >= 0; i--) {
+                const ringRadius = radius * (1 - i * 0.2);
+                const alpha = zone.intensity * 0.15 * (1 - i * 0.2);
+
+                const grad = ctx.createRadialGradient(zone.absX, zone.absY, 0, zone.absX, zone.absY, ringRadius);
+                grad.addColorStop(0, `rgba(245, 158, 11, ${alpha})`);
+                grad.addColorStop(0.7, `rgba(239, 68, 68, ${alpha * 0.5})`);
+                grad.addColorStop(1, 'transparent');
+
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(zone.absX, zone.absY, ringRadius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Echo label
+            ctx.font = "8px 'Orbitron', sans-serif";
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.6)';
+            ctx.textAlign = 'center';
+            ctx.fillText('ECHO ZONE', zone.absX, zone.absY);
+        });
+    }
+
+    function drawSignalWaves() {
+        waves.forEach(wave => {
+            if (!shouldShowNode(wave.node)) return;
+            if (wave.alpha < 0.02) return;
+
+            ctx.beginPath();
+            ctx.arc(wave.node.absX, wave.node.absY, wave.radius, 0, Math.PI * 2);
+
+            const color = COLORS[wave.node.type];
+            ctx.strokeStyle = color + Math.floor(wave.alpha * 255).toString(16).padStart(2, '0');
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        });
+    }
+
+    function drawConnections() {
+        connections.forEach(conn => {
+            if (!shouldShowNode(conn.from) || !shouldShowNode(conn.to)) return;
+
+            const from = conn.from;
+            const to = conn.to;
+
+            // Connection line
+            const sentimentColor = conn.sentiment > 0.5 ? 
+                `rgba(34, 197, 94, ${0.2 + conn.strength * 0.3})` : 
+                `rgba(239, 68, 68, ${0.2 + conn.strength * 0.3})`;
+
+            ctx.beginPath();
+            ctx.moveTo(from.absX, from.absY);
+
+            const midX = (from.absX + to.absX) / 2;
+            const midY = (from.absY + to.absY) / 2;
+            const perpX = -(to.absY - from.absY) * 0.1;
+            const perpY = (to.absX - from.absX) * 0.1;
+
+            ctx.quadraticCurveTo(midX + perpX, midY + perpY, to.absX, to.absY);
+            ctx.strokeStyle = sentimentColor;
+            ctx.lineWidth = 1 + conn.strength * 3;
+            ctx.stroke();
+
+            // Particles
+            const particleColor = conn.sentiment > 0.5 ? '#22c55e' : '#ef4444';
+            conn.particles.forEach(p => {
+                const t = p.t;
+                const x = (1-t)*(1-t)*from.absX + 2*(1-t)*t*(midX + perpX) + t*t*to.absX;
+                const y = (1-t)*(1-t)*from.absY + 2*(1-t)*t*(midY + perpY) + t*t*to.absY;
+
+                ctx.beginPath();
+                ctx.arc(x, y, p.size, 0, Math.PI * 2);
+                const grad = ctx.createRadialGradient(x, y, 0, x, y, p.size * 2);
+                grad.addColorStop(0, particleColor);
+                grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad;
+                ctx.fill();
+            });
+        });
+    }
+
+    function drawNodes() {
+        nodes.forEach(node => {
+            if (!shouldShowNode(node)) return;
+
+            const pulse = 1 + Math.sin(node.pulsePhase) * 0.08;
+            const size = node.absSize * pulse;
+            const color = COLORS[node.type];
+
+            // Signal strength glow
+            const glowIntensity = node.signalStrength;
+            const glowGrad = ctx.createRadialGradient(node.absX, node.absY, size * 0.3, node.absX, node.absY, size * 2);
+            glowGrad.addColorStop(0, color + Math.floor(glowIntensity * 100).toString(16).padStart(2, '0'));
+            glowGrad.addColorStop(0.5, color + '20');
+            glowGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = glowGrad;
+            ctx.beginPath();
+            ctx.arc(node.absX, node.absY, size * 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Node body
+            const bodyGrad = ctx.createRadialGradient(node.absX - size * 0.2, node.absY - size * 0.2, 0, node.absX, node.absY, size);
+            bodyGrad.addColorStop(0, color);
+            bodyGrad.addColorStop(0.5, color + 'cc');
+            bodyGrad.addColorStop(1, '#0a0f1e');
+            ctx.fillStyle = bodyGrad;
+            ctx.beginPath();
+            ctx.arc(node.absX, node.absY, size, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Sentiment indicator ring
+            const sentimentColor = node.sentiment > 0.55 ? '#22c55e' : node.sentiment < 0.45 ? '#ef4444' : '#6b7280';
+            ctx.strokeStyle = sentimentColor + '80';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(node.absX, node.absY, size + 5, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * node.sentiment);
+            ctx.stroke();
+
+            // Type icon
+            let icon = '📡';
+            if (node.type === 'education') icon = '📚';
+            else if (node.type === 'research') icon = '🔬';
+            else if (node.type === 'influencer') icon = '⚡';
+
+            ctx.font = `${size * 0.45}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(icon, node.absX, node.absY - 5);
+
+            // Label
+            ctx.font = "bold 8px 'Orbitron', sans-serif";
+            ctx.fillStyle = '#fff';
+            ctx.fillText(node.name, node.absX, node.absY + size + 12);
+
+            // Hover effect
+            if (hoveredNode === node) {
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(node.absX, node.absY, size + 10, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        });
+    }
+
+    function drawCentralNarrative() {
+        const hubSize = 45;
+        const pulse = 1 + Math.sin(time * 2) * 0.1;
+
+        // Central narrative hub
+        const hubGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, hubSize * 2.5 * pulse);
+        hubGrad.addColorStop(0, 'rgba(168, 85, 247, 0.4)');
+        hubGrad.addColorStop(0.5, 'rgba(236, 72, 153, 0.2)');
+        hubGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = hubGrad;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, hubSize * 2.5 * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Core
+        const coreGrad = ctx.createRadialGradient(centerX - 10, centerY - 10, 0, centerX, centerY, hubSize);
+        coreGrad.addColorStop(0, '#c084fc');
+        coreGrad.addColorStop(0.6, '#7c3aed');
+        coreGrad.addColorStop(1, '#0a0f1e');
+        ctx.fillStyle = coreGrad;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, hubSize * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rotating signal arcs
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        for (let i = 0; i < 4; i++) {
+            ctx.rotate(time * 0.4 + i * Math.PI / 2);
+            ctx.strokeStyle = 'rgba(192, 132, 252, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, 0, hubSize + 12, 0, Math.PI * 0.6);
+            ctx.stroke();
+        }
+        ctx.restore();
+
+        // Labels
+        ctx.font = "bold 10px 'Orbitron', sans-serif";
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.fillText('NARRATIVE', centerX, centerY - 5);
+        ctx.font = "8px 'Orbitron', sans-serif";
+        ctx.fillStyle = 'rgba(248,250,252,0.6)';
+        ctx.fillText('CORE', centerX, centerY + 8);
+    }
+
+    function shouldShowNode(node) {
+        if (node.type === 'media' && !showMedia) return false;
+        if (node.type === 'education' && !showEducation) return false;
+        if (node.type === 'research' && !showResearch) return false;
+        if (node.type === 'influencer' && !showInfluencers) return false;
+        return true;
+    }
+
+    // ==================== INTERACTION ====================
+    function findNode(mx, my) {
+        const rect = canvas.getBoundingClientRect();
+        const x = mx - rect.left, y = my - rect.top;
+
+        for (let node of nodes) {
+            if (!shouldShowNode(node)) continue;
+            if (Math.hypot(x - node.absX, y - node.absY) <= node.absSize * 1.2) return node;
+        }
+        return null;
+    }
+
+    function showTooltipFor(node, x, y) {
+        document.getElementById('ttName').textContent = node.name;
+        document.getElementById('ttDesc').textContent = node.desc;
+
+        const reachLevel = node.reach > 0.8 ? 'Very High' : node.reach > 0.6 ? 'High' : node.reach > 0.4 ? 'Medium' : 'Low';
+        document.getElementById('ttReach').textContent = reachLevel;
+        document.getElementById('ttReach').style.color = COLORS[node.type];
+
+        const sentimentLabel = node.sentiment > 0.6 ? 'Bullish' : node.sentiment < 0.4 ? 'Bearish' : 'Neutral';
+        document.getElementById('ttSentiment').textContent = sentimentLabel;
+        document.getElementById('ttSentiment').style.color = node.sentiment > 0.55 ? '#22c55e' : node.sentiment < 0.45 ? '#ef4444' : '#6b7280';
+
+        const echoFactor = (1 + node.reach * 2).toFixed(1) + 'x';
+        document.getElementById('ttEcho').textContent = echoFactor;
+
+        const bullish = Math.round(node.sentiment * 100);
+        document.getElementById('ttMeterPos').style.width = bullish + '%';
+        document.getElementById('ttMeterNeg').style.width = (100 - bullish) + '%';
+
+        tooltip.style.left = (x + 15) + 'px';
+        tooltip.style.top = (y + 15) + 'px';
+        tooltip.classList.add('visible');
+    }
+
+    canvas.addEventListener('mousemove', e => {
+        const node = findNode(e.clientX, e.clientY);
+        hoveredNode = node;
+        canvas.style.cursor = node ? 'pointer' : 'default';
+        if (node) {
+            showTooltipFor(node, e.clientX, e.clientY);
+        } else {
+            tooltip.classList.remove('visible');
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        hoveredNode = null;
+        tooltip.classList.remove('visible');
+    });
+
+    // ==================== CONTROLS ====================
+    document.getElementById('toggleMedia').addEventListener('click', function() {
+        showMedia = !showMedia;
+        this.classList.toggle('active', showMedia);
+    });
+
+    document.getElementById('toggleEducation').addEventListener('click', function() {
+        showEducation = !showEducation;
+        this.classList.toggle('active', showEducation);
+    });
+
+    document.getElementById('toggleResearch').addEventListener('click', function() {
+        showResearch = !showResearch;
+        this.classList.toggle('active', showResearch);
+    });
+
+    document.getElementById('toggleInfluencers').addEventListener('click', function() {
+        showInfluencers = !showInfluencers;
+        this.classList.toggle('active', showInfluencers);
+    });
+
+    document.getElementById('toggleWaves').addEventListener('click', function() {
+        showWaves = !showWaves;
+        this.classList.toggle('active', showWaves);
+    });
+
+    document.getElementById('toggleEcho').addEventListener('click', function() {
+        showEcho = !showEcho;
+        this.classList.toggle('active', showEcho);
+    });
+
+    // ==================== ANIMATION ====================
+    function animate() {
+        update();
+        draw();
+        animId = requestAnimationFrame(animate);
+    }
+
+    // ==================== INIT ====================
+    const overlay = document.getElementById('loadingOverlay');
+    const progressBar = document.getElementById('progressBar');
+    const progressPercent = document.getElementById('progressPercent');
+
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 8 + Math.random() * 12;
+            if (progress > 90) progress = 90;
+            progressBar.style.width = progress + '%';
+            progressPercent.textContent = Math.round(progress) + '%';
+        }
+    }, 60);
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    setTimeout(() => {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressPercent.textContent = '100%';
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            animate();
+        }, 200);
+    }, 400);
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cancelAnimationFrame(animId);
+        } else {
+            animate();
+        }
+    });
+    </script>
+</body>
+</html>

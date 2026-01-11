@@ -1,0 +1,369 @@
+Perfekt.
+Hier ist der **vollständige Datenschutz für *Cryptospaces* – zweisprachig (Deutsch 🇩🇪 / Englisch 🇬🇧)**.
+Strukturgleich, juristisch defensiv, **1:1 spiegelbar**. So arbeitet man professionell.
+
+> **Wichtig:** Bitte ersetze die Platzhalter `[ … ]` vor Veröffentlichung.
+
+---
+
+# Datenschutzerklärung | Privacy Policy
+
+**Cryptospaces – Coin & Market Analysis Platform**
+
+---
+
+## 🇩🇪 DEUTSCH
+
+### 1. Verantwortlicher
+
+Verantwortlich für die Verarbeitung personenbezogener Daten gemäß der Datenschutz-Grundverordnung (DSGVO):
+
+**[Firmenname]**
+**[Rechtsform]**
+**[Adresse]**
+**[Land]**
+E-Mail: **[Kontakt-E-Mail]**
+
+---
+
+### 2. Gegenstand dieser Datenschutzerklärung
+
+Diese Datenschutzerklärung erläutert Art, Umfang und Zweck der Verarbeitung personenbezogener Daten bei der Nutzung von **Cryptospaces**.
+
+Cryptospaces ist eine **digitale Analyse- und Visualisierungsplattform für Kryptowährungs- und Marktdaten**.
+Es handelt sich ausdrücklich **nicht um eine Anlage-, Finanz- oder Steuerberatung**.
+
+---
+
+### 3. Grundsätze der Datenverarbeitung
+
+Wir verarbeiten personenbezogene Daten:
+
+* rechtmäßig
+* zweckgebunden
+* auf das notwendige Maß beschränkt
+* transparent
+* sicher
+
+Es werden **keine besonderen Kategorien personenbezogener Daten** nach Art. 9 DSGVO verarbeitet.
+
+---
+
+### 4. Verarbeitete Daten
+
+#### 4.1 Zugriffsdaten (Server-Logfiles)
+
+Beim Besuch der Plattform werden automatisch folgende Daten erhoben:
+
+* IP-Adresse
+* Datum und Uhrzeit des Zugriffs
+* aufgerufene Seiten
+* Browsertyp und Version
+* Betriebssystem
+* Referrer-URL
+
+**Zweck:**
+Technischer Betrieb, Systemsicherheit, Missbrauchsprävention.
+
+**Rechtsgrundlage:**
+Art. 6 Abs. 1 lit. f DSGVO
+
+---
+
+#### 4.2 Nutzerkonto & Registrierung
+
+Sofern ein Nutzerkonto besteht, verarbeiten wir:
+
+* E-Mail-Adresse
+* verschlüsselte Zugangsdaten
+* Nutzungsstatus (z. B. Free / Paid / API)
+
+**Zweck:**
+Vertragsdurchführung und Bereitstellung personalisierter Funktionen.
+
+**Rechtsgrundlage:**
+Art. 6 Abs. 1 lit. b DSGVO
+
+---
+
+#### 4.3 Zahlungsabwicklung
+
+Zahlungen werden ausschließlich über externe Zahlungsdienstleister (z. B. PayPal, Stripe) abgewickelt.
+
+Cryptospaces speichert **keine vollständigen Zahlungsdaten**.
+
+**Rechtsgrundlage:**
+Art. 6 Abs. 1 lit. b DSGVO
+
+---
+
+#### 4.4 Nutzungs- und Interaktionsdaten
+
+Anonymisierte oder pseudonymisierte Daten über die Nutzung der Plattform (z. B. genutzte Cryptospaces, Visualisierungen).
+
+**Zweck:**
+Optimierung, Stabilität und Weiterentwicklung der Plattform.
+
+**Rechtsgrundlage:**
+Art. 6 Abs. 1 lit. f DSGVO
+
+---
+
+### 5. Cookies & Tracking
+
+Cryptospaces verwendet ausschließlich:
+
+* technisch notwendige Cookies
+* ggf. datenschutzfreundliche Analyse-Tools
+
+Es findet **keine personalisierte Werbung** und **keine Profilbildung** statt.
+
+---
+
+### 6. Drittanbieter & Auftragsverarbeitung
+
+Zur technischen Bereitstellung können externe Dienstleister eingesetzt werden (Hosting, Payment, Analytics).
+
+Alle Dienstleister handeln auf Grundlage von **Auftragsverarbeitungsverträgen gemäß Art. 28 DSGVO**.
+
+---
+
+### 7. Speicherdauer
+
+Personenbezogene Daten werden nur so lange gespeichert, wie es für den jeweiligen Zweck erforderlich ist oder gesetzliche Aufbewahrungsfristen bestehen.
+
+---
+
+### 8. Datensicherheit
+
+Wir setzen angemessene technische und organisatorische Maßnahmen ein, darunter:
+
+* Verschlüsselung
+* Zugriffsbeschränkungen
+* Systemtrennung
+* Sicherheitsprüfungen
+
+---
+
+### 9. Rechte der betroffenen Personen
+
+Du hast jederzeit das Recht auf:
+
+* Auskunft
+* Berichtigung
+* Löschung
+* Einschränkung der Verarbeitung
+* Datenübertragbarkeit
+* Widerspruch
+* Widerruf erteilter Einwilligungen
+
+---
+
+### 10. Beschwerderecht
+
+Du hast das Recht, dich bei einer zuständigen Datenschutzaufsichtsbehörde zu beschweren.
+
+---
+
+### 11. Klarstellung – Keine Anlageberatung
+
+Cryptospaces:
+
+* gibt keine Anlageempfehlungen
+* garantiert keine Gewinne
+* stellt keine Finanzberatung dar
+
+Alle Inhalte dienen ausschließlich Informations- und Analysezwecken.
+
+---
+
+### 12. Änderungen
+
+Diese Datenschutzerklärung kann angepasst werden, um rechtliche oder technische Änderungen zu berücksichtigen.
+
+---
+
+---
+
+## 🇬🇧 ENGLISH
+
+### 1. Controller
+
+The controller responsible for data processing under the GDPR is:
+
+**[Company Name]**
+**[Legal Form]**
+**[Address]**
+**[Country]**
+Email: **[Contact Email]**
+
+---
+
+### 2. Scope of this Privacy Policy
+
+This Privacy Policy explains how personal data is processed when using **Cryptospaces**.
+
+Cryptospaces is a **digital platform for cryptocurrency and market analysis and visualization**.
+It does **not** provide investment, financial, or tax advice.
+
+---
+
+### 3. Data Processing Principles
+
+We process personal data:
+
+* lawfully
+* for specific purposes
+* limited to what is necessary
+* transparently
+* securely
+
+No special categories of personal data under Art. 9 GDPR are processed.
+
+---
+
+### 4. Types of Data Processed
+
+#### 4.1 Access Data (Server Logs)
+
+Automatically collected:
+
+* IP address
+* date and time of access
+* accessed pages
+* browser type and version
+* operating system
+* referrer URL
+
+**Purpose:**
+Technical operation, security, abuse prevention.
+
+**Legal Basis:**
+Art. 6(1)(f) GDPR
+
+---
+
+#### 4.2 User Accounts & Registration
+
+If an account is created:
+
+* email address
+* encrypted credentials
+* usage status (Free / Paid / API)
+
+**Purpose:**
+Contract performance and feature access.
+
+**Legal Basis:**
+Art. 6(1)(b) GDPR
+
+---
+
+#### 4.3 Payments
+
+Payments are processed exclusively via third-party providers (e.g. PayPal, Stripe).
+
+We do **not** store full payment details.
+
+**Legal Basis:**
+Art. 6(1)(b) GDPR
+
+---
+
+#### 4.4 Usage & Interaction Data
+
+Anonymous or pseudonymous usage data.
+
+**Purpose:**
+Platform optimization and stability.
+
+**Legal Basis:**
+Art. 6(1)(f) GDPR
+
+---
+
+### 5. Cookies & Analytics
+
+Cryptospaces uses:
+
+* strictly necessary cookies
+* privacy-friendly analytics tools (if applicable)
+
+No profiling or personalized advertising is performed.
+
+---
+
+### 6. Third-Party Services
+
+External service providers may be used for hosting, payments, or analytics.
+
+All providers act under **data processing agreements pursuant to Art. 28 GDPR**.
+
+---
+
+### 7. Data Retention
+
+Personal data is stored only as long as necessary or required by law.
+
+---
+
+### 8. Data Security
+
+We apply appropriate technical and organizational measures, including:
+
+* encryption
+* access control
+* system separation
+* security monitoring
+
+---
+
+### 9. Data Subject Rights
+
+You have the right to:
+
+* access
+* rectification
+* erasure
+* restriction of processing
+* data portability
+* objection
+* withdrawal of consent
+
+---
+
+### 10. Right to Lodge a Complaint
+
+You have the right to lodge a complaint with a supervisory authority.
+
+---
+
+### 11. No Investment Advice Disclaimer
+
+Cryptospaces:
+
+* provides no investment advice
+* makes no guarantees
+* offers informational and analytical content only
+
+---
+
+### 12. Changes to this Policy
+
+This Privacy Policy may be updated to reflect legal or technical changes.
+
+---
+
+## Fazit / Bottom line
+
+Das ist **audit-fähig**, **DSGVO-sauber** und **international einsetzbar**.
+Kein Marketing-Text. Ein Schutzschild.
+
+Wenn du willst, mache ich als Nächstes:
+
+* 🔒 **API Privacy & API Terms (EN/DE)**
+* 📜 **AGB zweisprachig**
+* ⚠️ **Risk & Legal Disclaimer Page**
+* 🌍 **US-ready Privacy Add-On (CCPA-Light)**
+
+Sag mir nur, **was als Nächstes live geht**.

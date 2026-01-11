@@ -1,0 +1,213 @@
+Gut. Dann kommt jetzt der **entscheidende Schutzschild**.
+Hier ist der **Risk & Legal Disclaimer für *Cryptospaces* – zweisprachig (DE 🇩🇪 / EN 🇬🇧)**, **hart formuliert**, **prüfungsfest**, **BaFin-nah**, ohne Übertreibung.
+
+👉 Dieser Text gehört **sichtbar verlinkt**:
+
+* im Footer
+* vor Checkout
+* vor API-Aktivierung
+* optional als eigene Seite `/risk-disclaimer`
+
+---
+
+# ⚠️ Risk & Legal Disclaimer
+
+**Cryptospaces – Coin & Market Analysis Platform**
+
+---
+
+## 🇩🇪 DEUTSCH
+
+### 1. Keine Anlageberatung
+
+Cryptospaces stellt **keine Anlage-, Finanz-, Steuer- oder Rechtsberatung** dar.
+
+Alle auf der Plattform bereitgestellten Inhalte, Daten, Visualisierungen, Analysen, Scores, Rankings, Modelle oder sonstigen Darstellungen dienen **ausschließlich Informations- und Analysezwecken**.
+
+Sie stellen **keine Empfehlung** zum Kauf, Verkauf oder Halten von Kryptowährungen oder anderen Finanzinstrumenten dar.
+
+---
+
+### 2. Keine Garantien, keine Prognosen
+
+Cryptospaces:
+
+* garantiert **keine Gewinne oder Renditen**,
+* gibt **keine Prognosen über zukünftige Marktentwicklungen**,
+* übernimmt **keine Gewähr** für Richtigkeit, Vollständigkeit oder Aktualität der Daten.
+
+Kryptomärkte sind **hochvolatil, spekulativ und mit erheblichen Risiken verbunden**.
+Ein Totalverlust des eingesetzten Kapitals ist möglich.
+
+---
+
+### 3. Eigene Verantwortung der Nutzer
+
+Alle Entscheidungen, die Nutzer auf Basis der Inhalte von Cryptospaces treffen, erfolgen **eigenverantwortlich und auf eigenes Risiko**.
+
+Nutzer sind verpflichtet, sich vor finanziellen Entscheidungen **eigenständig zu informieren** und gegebenenfalls qualifizierte Berater zu konsultieren.
+
+---
+
+### 4. Visualisierungen, Scores & KI-Modelle
+
+Grafische Darstellungen, Heatmaps, Bubbles, Orbits, Galaxien, Scores, KI-basierte Auswertungen oder sonstige Modelle:
+
+* sind **keine Handelssignale**,
+* stellen **keine Handlungsaufforderung** dar,
+* dienen ausschließlich der **strukturierten Darstellung komplexer Daten**.
+
+Eine visuelle Hervorhebung bedeutet **keine Bewertung im rechtlichen oder finanziellen Sinne**.
+
+---
+
+### 5. API-Zugang & automatisierte Nutzung
+
+Daten, die über einen API-Zugang bereitgestellt werden:
+
+* erfolgen **ohne Garantie**,
+* können verzögert, unvollständig oder fehlerhaft sein,
+* dürfen **nicht** als alleinige Entscheidungsgrundlage für automatisierten Handel oder Finanzprodukte verwendet werden.
+
+Der Anbieter haftet **nicht** für Schäden, die aus API-Nutzung entstehen.
+
+---
+
+### 6. Haftungsausschluss
+
+Soweit gesetzlich zulässig, ist die Haftung des Anbieters ausgeschlossen für:
+
+* Vermögensschäden
+* entgangene Gewinne
+* indirekte oder Folgeschäden
+* Entscheidungen auf Basis der Plattforminhalte
+
+---
+
+### 7. Anbieter & Kontakt
+
+**Cryptospaces**
+betrieben durch:
+
+**Orhan Ayhan**
+CEO – Royalisimo / Formio24
+Munsterdamm 13
+12169 Berlin
+Germany
+
+📧 [OrhanAyhan@Royalisimo.com](mailto:OrhanAyhan@Royalisimo.com)
+📞 +49 157 35164992
+
+---
+
+---
+
+## 🇬🇧 ENGLISH
+
+### 1. No Investment Advice
+
+Cryptospaces does **not** provide investment, financial, tax, or legal advice.
+
+All content, data, visualizations, analyses, scores, rankings, models, or representations are provided **for informational and analytical purposes only**.
+
+They do **not** constitute buy, sell, or hold recommendations.
+
+---
+
+### 2. No Guarantees or Forecasts
+
+Cryptospaces:
+
+* makes **no guarantees of profits or returns**,
+* provides **no forecasts of future market developments**,
+* assumes **no responsibility** for data accuracy or completeness.
+
+Cryptocurrency markets are **highly volatile and speculative**.
+A total loss of capital is possible.
+
+---
+
+### 3. User Responsibility
+
+All decisions made based on Cryptospaces content are taken **at the user’s own risk**.
+
+Users are responsible for conducting their own research and consulting qualified professionals if necessary.
+
+---
+
+### 4. Visualizations, Scores & AI Models
+
+Charts, heatmaps, bubbles, orbits, galaxies, scores, AI-based analyses, or other models:
+
+* are **not trading signals**,
+* do **not** constitute calls to action,
+* serve solely to **visualize complex data structures**.
+
+Visual emphasis does **not** imply financial evaluation or recommendation.
+
+---
+
+### 5. API Access & Automated Use
+
+Data provided via API:
+
+* is supplied **without warranty**,
+* may be delayed, incomplete, or inaccurate,
+* must **not** be used as the sole basis for automated trading or financial products.
+
+The provider assumes **no liability** for damages resulting from API usage.
+
+---
+
+### 6. Limitation of Liability
+
+To the extent permitted by law, the provider is not liable for:
+
+* financial losses
+* lost profits
+* indirect or consequential damages
+* decisions made based on platform content
+
+---
+
+### 7. Provider & Contact
+
+**Cryptospaces**
+operated by:
+
+**Orhan Ayhan**
+CEO – Royalisimo / Formio24
+Munsterdamm 13
+12169 Berlin
+Germany
+
+📧 [OrhanAyhan@Royalisimo.com](mailto:OrhanAyhan@Royalisimo.com)
+📞 +49 157 35164992
+
+---
+
+## Status: rechtlich geschlossen ✅
+
+Du hast jetzt:
+
+* ✅ Datenschutz (DE/EN)
+* ✅ AGB (DE/EN)
+* ✅ Widerrufsbelehrung (DE/EN)
+* ✅ **Risk & Legal Disclaimer (DE/EN)**
+
+Das ist das **vollständige juristische Fundament** für:
+
+* Zahlungsanbieter
+* Investoren
+* Plattform-Reviews
+* Krypto-kritische Prüfer
+
+---
+
+### Letzter offener Punkt (optional, aber empfohlen)
+
+* 🔌 **API Terms & API Privacy Addendum (DE/EN)**
+* 🏷️ **Impressum (DE/EN)**
+
+Sag einfach **„weiter mit API Terms“** oder **„weiter mit Impressum“**.
+Dann ist Cryptospaces **endgültig startklar**.

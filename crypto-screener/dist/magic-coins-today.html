@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Coins - Today's Picks | CryptoSpaces</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-blue: #3b82f6;
+            --secondary-blue: #06b6d4;
+            --magic-purple: #a855f7;
+            --magic-gold: #fbbf24;
+            --dark-bg: #0f172a;
+            --darker-bg: #020617;
+            --text-light: #f8fafc;
+            --glow-magic: rgba(168, 85, 247, 0.6);
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(circle at center, #1e1b4b 0%, var(--darker-bg) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Re-use Header Styles from Index (Simplified for this file) */
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, transparent 100%);
+        }
+        .title {
+            font-size: 1.5rem; font-weight: 700;
+            background: linear-gradient(90deg, var(--magic-purple), var(--secondary-blue));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px var(--glow-magic);
+        }
+        .header-left { display: flex; align-items: center; gap: 30px; }
+        .back-link {
+            text-decoration: none; color: rgba(248,250,252,0.7); font-size: 0.8rem;
+            display: flex; align-items: center; gap: 8px; transition: color 0.3s;
+        }
+        .back-link:hover { color: var(--magic-gold); }
+
+        /* Magic Room Container */
+        .magic-room {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-top: 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 3D Gift Boxes Container */
+        .boxes-stage {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            perspective: 1000px;
+            margin-bottom: 50px;
+            padding: 20px;
+        }
+
+        /* The Box Itself */
+        .magic-box-container {
+            width: 120px; height: 120px;
+            position: relative;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: transform 0.5s ease;
+        }
+        .magic-box-container:hover { transform: translateY(-10px) rotateY(10deg); }
+        .magic-box-container.opened { pointer-events: none; }
+
+        .box-cube {
+            width: 100%; height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            animation: floatBox 4s ease-in-out infinite;
+        }
+        .magic-box-container:nth-child(2) .box-cube { animation-delay: 0.5s; }
+        .magic-box-container:nth-child(3) .box-cube { animation-delay: 1s; }
+        .magic-box-container:nth-child(4) .box-cube { animation-delay: 1.5s; }
+        .magic-box-container:nth-child(5) .box-cube { animation-delay: 2s; }
+
+        @keyframes floatBox {
+            0%, 100% { transform: translateY(0) rotateX(0); }
+            50% { transform: translateY(-15px) rotateX(5deg); }
+        }
+
+        .face {
+            position: absolute; width: 120px; height: 120px;
+            background: rgba(30, 27, 75, 0.9);
+            border: 2px solid var(--magic-purple);
+            box-shadow: 0 0 15px var(--glow-magic);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; color: var(--magic-gold);
+            backface-visibility: hidden; /* Important for hiding inside */
+        }
+        .face.front  { transform: translateZ(60px); }
+        .face.back   { transform: rotateY(180deg) translateZ(60px); }
+        .face.right  { transform: rotateY(90deg) translateZ(60px); }
+        .face.left   { transform: rotateY(-90deg) translateZ(60px); }
+        .face.top    { transform: rotateX(90deg) translateZ(60px); background: var(--magic-purple); opacity: 0.8; }
+        .face.bottom { transform: rotateX(-90deg) translateZ(60px); }
+
+        /* Lid (Deckel) Animation */
+        .magic-box-container.opened .face.top {
+            transform: rotateX(120deg) translateZ(60px) translateY(-60px);
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+        .magic-box-container.opened .face {
+            border-color: var(--magic-gold);
+            box-shadow: 0 0 30px var(--magic-gold);
+            opacity: 0; /* Fade out box */
+            transition: opacity 0.5s ease 0.2s;
+        }
+
+        /* Coin Reveal */
+        .coin-reveal {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 140px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--magic-gold);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.4);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+        }
+        .magic-box-container.opened .coin-reveal {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .coin-img { width: 40px; height: 40px; border-radius: 50%; margin-bottom: 8px; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        .coin-symbol { color: var(--magic-gold); font-size: 1.2rem; font-weight: 900; }
+        .coin-price { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; margin: 5px 0; }
+        .coin-change { font-size: 0.8rem; font-weight: bold; }
+        .change-up { color: #22c55e; } .change-down { color: #ef4444; }
+        .magic-score {
+            margin-top: 8px; font-size: 0.7rem; color: var(--magic-purple);
+            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 5px;
+        }
+
+        /* Story Text Area */
+        .story-container {
+            width: 100%; max-width: 800px;
+            min-height: 100px;
+            margin-top: 20px;
+            text-align: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.8);
+            opacity: 0; transition: opacity 1s;
+        }
+        .story-container.visible { opacity: 1; }
+
+        /* Wand Button */
+        .wand-btn {
+            margin-top: 40px;
+            background: linear-gradient(135deg, #4c1d95, #7c3aed);
+            border: 2px solid #a78bfa;
+            color: white;
+            padding: 15px 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(124, 58, 237, 0.5);
+            transition: all 0.3s;
+            display: flex; align-items: center; gap: 15px;
+        }
+        .wand-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(124, 58, 237, 0.8);
+        }
+        .wand-btn:disabled {
+            filter: grayscale(1); cursor: not-allowed; transform: none;
+        }
+        .wand-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Footer */
+        .footer-legal {
+            position: absolute; bottom: 20px; left: 0; right: 0;
+            text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.3);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        /* Particles */
+        #particles-js { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+        /* Refresh Button */
+        .refresh-btn {
+            margin-top: 20px;
+            background: transparent; border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.5);
+            padding: 8px 16px; border-radius: 20px;
+            font-size: 0.8rem; cursor: pointer;
+            display: none;
+        }
+        .refresh-btn.visible { display: inline-block; }
+        .refresh-btn:hover { color: white; border-color: white; }
+
+        /* ==================== MYSTERY HOVER EFFECTS (V2.0) ==================== */
+        
+        /* Base Layer Logic */
+        .magic-box-container .effect-layer {
+            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; /* Large canvas */
+            pointer-events: none; z-index: -1; 
+            display: block; opacity: 0;
+            transition: opacity 0.5s ease;
+            transform: translateZ(-10px); /* Keep behind box */
+        }
+        
+        /* Activate on Hover (if not opened) OR Preview Mode */
+        .magic-box-container:hover:not(.opened) .effect-layer,
+        .magic-box-container.active-preview .effect-layer {
+            opacity: 1;
+        }
+
+        /* Tooltip Hint */
+        .hover-hint {
+            position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%);
+            font-size: 0.7rem; color: var(--magic-gold); white-space: nowrap;
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
+            font-family: 'Orbitron', sans-serif; letter-spacing: 1px;
+            background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 4px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            z-index: 20;
+        }
+        .magic-box-container:hover:not(.opened) .hover-hint {
+            opacity: 1; animation: fadeHint 0.8s forwards;
+        }
+        @keyframes fadeHint { 0% { transform: translateX(-50%) translateY(10px); opacity: 0; } 20% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 1; } }
+
+        /* --- A: ENERGY FOUNTAIN --- */
+        .fx-fountain::before { /* The Beam */
+            content: ''; position: absolute; bottom: 50%; left: 50%; transform: translateX(-50%);
+            width: 80px; height: 0;
+            background: linear-gradient(to top, rgba(168, 85, 247, 0.8), rgba(59, 130, 246, 0) 80%);
+            filter: blur(8px);
+            animation: fountainBeam 2.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+        }
+        .fx-fountain::after { /* The Rings */
+            content: ''; position: absolute; bottom: 40%; left: 50%; transform: translateX(-50%) rotateX(70deg);
+            width: 100px; height: 100px;
+            border: 2px solid rgba(168, 85, 247, 0.6);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+            opacity: 0;
+            animation: fountainRings 2.2s linear infinite;
+        }
+        @keyframes fountainBeam { 
+            0% { height: 0; opacity: 0; } 
+            10% { height: 350px; opacity: 1; } 
+            80% { opacity: 0.8; } 
+            100% { height: 350px; opacity: 0; } 
+        }
+        @keyframes fountainRings { 
+            0% { transform: translateX(-50%) rotateX(70deg) scale(0.2); opacity: 0; } 
+            20% { opacity: 1; } 
+            100% { transform: translateX(-50%) rotateX(70deg) translateY(-200px) scale(1.5); opacity: 0; } 
+        }
+
+        /* --- B: ROCKET THRUSTER --- */
+        .fx-rocket::after { /* Flame */
+            content: ''; position: absolute; top: 60%; left: 50%; transform: translateX(-50%);
+            width: 40px; height: 60px;
+            background: conic-gradient(from 180deg at 50% 0%, transparent 45%, #f97316 48%, #fff 50%, #f97316 52%, transparent 55%);
+            filter: blur(4px);
+            opacity: 0;
+            transform-origin: top center;
+            animation: rocketFlame 1.8s ease-out infinite;
+        }
+        .fx-rocket::before { /* Smoke/Glow on ground */
+            content: ''; position: absolute; top: 110%; left: 50%; transform: translateX(-50%);
+            width: 100px; height: 20px;
+            background: radial-gradient(ellipse, rgba(249, 115, 22, 0.6), transparent 70%);
+            opacity: 0;
+            animation: rocketGround 1.8s ease-out infinite;
+        }
+        .magic-box-container:hover .fx-rocket ~ .box-cube, 
+        .magic-box-container.active-preview .fx-rocket ~ .box-cube {
+            animation: rocketShakeBox 1.8s ease-out infinite;
+        }
+        @keyframes rocketFlame { 
+            0% { transform: translateX(-50%) scaleY(0); opacity: 0; } 
+            10% { transform: translateX(-50%) scaleY(1.5); opacity: 1; } 
+            90% { opacity: 1; } 
+            100% { transform: translateX(-50%) scaleY(0.5); opacity: 0; } 
+        }
+        @keyframes rocketGround { 0% { opacity: 0; scale: 0.5; } 10% { opacity: 1; scale: 1.2; } 100% { opacity: 0; scale: 1; } }
+        @keyframes rocketShakeBox { 
+            0% { transform: translateY(0); } 
+            10% { transform: translateY(-15px) rotate(1deg); } 
+            12% { transform: translateY(-15px) rotate(-1deg); } 
+            14% { transform: translateY(-15px) rotate(1deg); } 
+            100% { transform: translateY(0); } 
+        }
+
+        /* --- C: CONFETTI STORM --- */
+        .fx-confetti i {
+            position: absolute; width: 12px; height: 8px;
+            background: linear-gradient(135deg, var(--c) 0%, #fff 50%, var(--c) 100%); /* Metallic look */
+            top: 50%; left: 50%;
+            opacity: 0;
+            transform-style: preserve-3d;
+            box-shadow: 0 0 5px rgba(255,255,255,0.8);
+            animation: confettiSpiral 2.5s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+            animation-delay: var(--d);
+        }
+        @keyframes confettiSpiral {
+            0% { transform: translate(-50%, -50%) rotateY(0) translateY(0) scale(0); opacity: 0; }
+            10% { opacity: 1; transform: translate(-50%, -50%) rotateY(180deg) translateY(-50px) scale(1); }
+            100% { transform: translate(var(--tx), var(--ty)) rotate(var(--r)) scale(0.5); opacity: 0; }
+        }
+
+        /* --- D: STARBURST --- */
+        .fx-starburst i {
+            position: absolute; top: 50%; left: 50%;
+            width: 4px; height: 40px; /* Long trail */
+            background: linear-gradient(to bottom, #fff, transparent);
+            opacity: 0;
+            border-radius: 2px;
+            transform-origin: center bottom;
+            animation: starExplode 2.0s ease-out infinite;
+            animation-delay: var(--d);
+            filter: drop-shadow(0 0 5px #fff);
+        }
+        @keyframes starExplode {
+            0% { transform: translate(-50%, -50%) rotate(var(--r)) scaleY(0) translateY(0); opacity: 0; }
+            10% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--r)) scaleY(1) translateY(-60px); }
+            100% { transform: translate(-50%, -50%) rotate(var(--r)) scaleY(0.2) translateY(-120px); opacity: 0; }
+        }
+
+        /* --- E: RAINBOW ARC --- */
+        .fx-rainbow::before {
+            content: ''; position: absolute; top: 10%; left: 10%; width: 80%; height: 80%;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+            filter: blur(20px);
+            opacity: 0;
+            animation: rainbowHalo 2.6s ease-in-out infinite;
+            mix-blend-mode: screen;
+        }
+        .fx-rainbow::after { /* Ground Ring */
+            content: ''; position: absolute; bottom: 20%; left: 20%; width: 60%; height: 60%;
+            border: 4px solid rgba(255,255,255,0.5);
+            border-radius: 50%;
+            transform: rotateX(70deg);
+            box-shadow: 0 0 20px rgba(255,255,255,0.8), inset 0 0 20px rgba(255,255,255,0.8);
+            opacity: 0;
+            animation: rainbowRing 2.6s ease-in-out infinite;
+        }
+        @keyframes rainbowHalo {
+            0% { transform: scale(0.5); opacity: 0; }
+            20% { opacity: 0.8; transform: scale(1.2); }
+            100% { opacity: 0; transform: scale(1.5); }
+        }
+        @keyframes rainbowRing {
+            0% { transform: rotateX(70deg) scale(0); opacity: 0; }
+            20% { opacity: 1; transform: rotateX(70deg) scale(1); }
+            100% { opacity: 0; transform: rotateX(70deg) scale(1.5); }
+        }
+
+        /* ==================== SENTIMENT GAUGE ==================== */
+        .gauge-container {
+            position: relative;
+            width: 300px;
+            height: 160px; /* Half circle height */
+            margin: 0 auto 40px auto;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        
+        /* Background & Depth */
+        .gauge-bg {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 300px; /* Full circle for gradient logic */
+            border-radius: 50%;
+            background: radial-gradient(circle, #1e1b4b 0%, #0f172a 70%);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+            z-index: 1;
+        }
+        
+        /* Subtle Noise Texture */
+        .gauge-noise {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+            animation: noiseRotate 60s linear infinite;
+            z-index: 2;
+            border-radius: 50%;
+        }
+        @keyframes noiseRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* The Arc Scale */
+        .gauge-scale {
+            position: absolute; bottom: 0; left: 5%; width: 90%; height: 270px;
+            border-radius: 50%;
+            background: conic-gradient(from 270deg, #ef4444 0deg, #f59e0b 60deg, #22c55e 120deg, #ef4444 180deg); /* Red -> Orange -> Green mapping */
+            /* Visible part is 180deg (half circle) -> range 270 to 90 deg effectively */
+            mask: radial-gradient(transparent 55%, black 56%);
+            -webkit-mask: radial-gradient(transparent 55%, black 56%);
+            transform: rotate(-90deg); /* Adjust start to left */
+            z-index: 3;
+            opacity: 0.3;
+            transition: opacity 0.5s;
+        }
+        
+        /* Active Pulse on Scale (Overlay) */
+        .gauge-scale-active {
+            position: absolute; bottom: 0; left: 5%; width: 90%; height: 270px;
+            border-radius: 50%;
+            background: conic-gradient(from 270deg, #ef4444 0deg, #f59e0b 60deg, #22c55e 120deg);
+            mask: radial-gradient(transparent 55%, black 56%);
+            -webkit-mask: radial-gradient(transparent 55%, black 56%);
+            transform: rotate(-90deg);
+            z-index: 4;
+            opacity: 0.8;
+            filter: blur(8px);
+            mix-blend-mode: screen;
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+        @keyframes pulseGlow { 0%, 100% { opacity: 0.5; filter: blur(5px); } 50% { opacity: 0.9; filter: blur(12px); } }
+
+        /* Needle */
+        .gauge-needle {
+            position: absolute; bottom: 0; left: 50%;
+            width: 4px; height: 130px;
+            background: linear-gradient(to top, #fff, transparent);
+            transform-origin: bottom center;
+            transform: rotate(-90deg); /* Start at 0 (left) */
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+            /* Transition handled by JS Physics */
+        }
+        .gauge-needle::after {
+            content: ''; position: absolute; bottom: -8px; left: -6px;
+            width: 16px; height: 16px; border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 15px rgba(255,255,255,0.8);
+        }
+
+        /* Value Display */
+        .gauge-value-area {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            text-align: center;
+            z-index: 20;
+            margin-bottom: -40px; /* Push below gauge */
+        }
+        .gauge-number {
+            font-size: 2.5rem; font-weight: 700;
+            color: var(--text-light);
+            font-family: 'JetBrains Mono', monospace;
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            display: inline-block;
+        }
+        .gauge-label {
+            font-size: 0.9rem; color: var(--magic-gold);
+            text-transform: uppercase; letter-spacing: 2px;
+            margin-top: 5px;
+            opacity: 0; transform: scale(0.9);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .gauge-label.visible { opacity: 1; transform: scale(1); }
+
+        /* Micro Event Ring */
+        .micro-pulse {
+            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 10px; height: 10px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.5);
+            opacity: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+        .micro-pulse.trigger {
+            animation: microPulseAnim 1s ease-out forwards;
+        }
+        @keyframes microPulseAnim {
+            0% { width: 10px; height: 10px; opacity: 1; border-width: 2px; }
+            100% { width: 200px; height: 200px; opacity: 0; border-width: 0px; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .boxes-stage { transform: scale(0.8); gap: 20px; }
+            .title { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+<div style="position:fixed;top:10px;right:10px;z-index:9999;display:flex;gap:8px;">
+<a href="index.html" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);color:#3b82f6;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Home</a>
+<a href="financial-galaxy.html" style="background:rgba(34,211,238,0.2);border:1px solid rgba(34,211,238,0.4);color:#22d3ee;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Financial Galaxy</a>
+</div>
+
+    <!-- Particles Background -->
+    <div id="particles-js"></div>
+
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="back-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Back to Dashboard
+            </a>
+            <div class="title">✨ Magic Coins</div>
+        </div>
+    </header>
+
+    <div class="magic-room">
+        <h2 style="margin-bottom: 40px; color: var(--magic-gold); text-transform: uppercase; letter-spacing: 3px; font-size: 0.9rem;">
+            Today's Hidden Treasures
+        </h2>
+
+        <div class="boxes-stage" id="boxes-stage">
+            <!-- 5 Boxes will be injected here -->
+        </div>
+
+        <div class="story-container" id="story-text">
+            Are you ready to reveal the secrets of the blockchain?
+        </div>
+
+        <button class="wand-btn" id="reveal-btn" onclick="revealAll()">
+            <span class="wand-icon">🪄</span> Reveal Today's Picks
+        </button>
+
+        <button class="refresh-btn" id="refresh-btn" onclick="forceRefresh()">
+            ↻ Refresh Mana (New Picks)
+        </button>
+
+        <div class="footer-legal">
+            Entertainment Mode Only • No Financial Advice • Random Selection
+        </div>
+    </div>
+
+    <script>
+        // Simple Particle System
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        document.getElementById('particles-js').appendChild(canvas);
+        
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.color = Math.random() > 0.5 ? '#3b82f6' : '#a855f7';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = 0.5;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 50; i++) particles.push(new Particle());
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // Game Logic
+        const STORAGE_KEY = 'magic_coins_picks_v1';
+        const DATE_KEY = 'magic_coins_date';
+        
+        // Generate Box HTML
+        const stage = document.getElementById('boxes-stage');
+        
+        // Helper for shuffle
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Available Effects (V2)
+        const effectsPool = ['fx-fountain', 'fx-rocket', 'fx-confetti', 'fx-starburst', 'fx-rainbow'];
+        let currentEffects = [];
+
+        function renderBoxes() {
+            stage.innerHTML = '';
+            // Shuffle effects for this session/load
+            currentEffects = shuffleArray([...effectsPool]);
+            
+            for (let i = 0; i < 5; i++) {
+                stage.innerHTML += `
+                    <div class="magic-box-container" id="box-${i}">
+                        <div class="box-cube">
+                            <div class="face front">?</div>
+                            <div class="face back"></div>
+                            <div class="face right"></div>
+                            <div class="face left"></div>
+                            <div class="face top"></div>
+                            <div class="face bottom"></div>
+                        </div>
+                        <div class="effect-layer" id="fx-layer-${i}"></div>
+                        <div class="hover-hint">Mystery effect activated</div>
+                        <div class="coin-reveal" id="reveal-${i}">
+                            <div class="coin-img-placeholder"></div>
+                            <!-- Content injected via JS -->
+                        </div>
+                    </div>
+                `;
+            }
+            initHoverEffects();
+            
+            // Preview Pulse
+            setTimeout(runPreviewPulse, 500);
+        }
+
+        function runPreviewPulse() {
+            // Trigger effects sequentially for 150ms each
+            for(let i=0; i<5; i++) {
+                setTimeout(() => {
+                    const box = document.getElementById(`box-${i}`);
+                    if(box) {
+                        box.classList.add('active-preview');
+                        setTimeout(() => box.classList.remove('active-preview'), 200);
+                    }
+                }, i * 150);
+            }
+        }
+
+        function initHoverEffects() {
+            for (let i = 0; i < 5; i++) {
+                const box = document.getElementById(`box-${i}`);
+                const layer = document.getElementById(`fx-layer-${i}`);
+                const effect = currentEffects[i];
+                
+                // Assign main class for simple effects
+                layer.classList.add(effect);
+                
+                // --- V2: MORE COMPLEX PARTICLES ---
+                
+                if (effect === 'fx-confetti') {
+                    const colors = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#a855f7', '#ffffff'];
+                    let html = '';
+                    // Fewer but larger particles (Confetti Storm)
+                    for(let j=0; j<20; j++) {
+                        const c = colors[Math.floor(Math.random()*colors.length)];
+                        // Spread them out more
+                        const tx = (Math.random()*300 - 150) + 'px';
+                        const ty = (Math.random()* -300 - 50) + 'px';
+                        const r = (Math.random()*720) + 'deg';
+                        const d = (Math.random()*0.5) + 's';
+                        html += `<i style="--c:${c}; --tx:${tx}; --ty:${ty}; --r:${r}; --d:${d}"></i>`;
+                    }
+                    layer.innerHTML = html;
+                }
+                
+                if (effect === 'fx-starburst') {
+                    let html = '';
+                    // Big shooting stars
+                    for(let j=0; j<8; j++) {
+                        const r = (j * 45) + 'deg'; // Radial distribution
+                        const d = (Math.random()*0.5) + 's';
+                        html += `<i style="--r:${r}; --d:${d}"></i>`;
+                    }
+                    layer.innerHTML = html;
+                }
+            }
+        }
+
+        renderBoxes(); // Call render immediately
+
+        async function getCoins() {
+            const today = new Date().toDateString();
+            const storedDate = localStorage.getItem(DATE_KEY);
+            const storedData = localStorage.getItem(STORAGE_KEY);
+
+            if (storedDate === today && storedData) {
+                return JSON.parse(storedData);
+            }
+
+            // Fetch new data
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false');
+                const data = await res.json();
+                
+                // Random 5 distinct coins
+                const picks = [];
+                const indices = new Set();
+                while(picks.length < 5) {
+                    const idx = Math.floor(Math.random() * data.length);
+                    if(!indices.has(idx)) {
+                        indices.add(idx);
+                        // Add some magic data
+                        const coin = data[idx];
+                        coin.magicScore = Math.floor(Math.random() * 30) + 70; // 70-100
+                        coin.story = generateStory(coin);
+                        picks.push(coin);
+                    }
+                }
+
+                localStorage.setItem(DATE_KEY, today);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(picks));
+                return picks;
+            } catch (e) {
+                console.error("API Error", e);
+                return getFallbackData();
+            }
+        }
+
+        function generateStory(coin) {
+            const adjectives = ["Ancient", "Glowing", "Whispering", "Electric", "Cosmic", "Hidden"];
+            const nouns = ["Prophecy", "Starlight", "Energy", "Void", "Signal", "Rune"];
+            const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+            const noun = nouns[Math.floor(Math.random() * nouns.length)];
+            return `The ${adj} ${noun} resonates with ${coin.name}. A magic score of ${coin.magicScore}/100 detected.`;
+        }
+
+        function getFallbackData() {
+            // In case API fails
+            return [
+                { name: "Bitcoin", symbol: "btc", current_price: 95000, price_change_percentage_24h: 2.5, image: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png", magicScore: 98, story: "The King awakens." },
+                { name: "Ethereum", symbol: "eth", current_price: 3500, price_change_percentage_24h: 1.2, image: "https://assets.coingecko.com/coins/images/279/large/ethereum.png", magicScore: 92, story: "Smart contracts humming with energy." },
+                { name: "Solana", symbol: "sol", current_price: 150, price_change_percentage_24h: 5.4, image: "https://assets.coingecko.com/coins/images/4128/large/solana.png", magicScore: 88, story: "Speed of light detected." },
+                { name: "Dogecoin", symbol: "doge", current_price: 0.12, price_change_percentage_24h: -1.0, image: "https://assets.coingecko.com/coins/images/5/large/dogecoin.png", magicScore: 75, story: "Much wow, such mystery." },
+                { name: "Polkadot", symbol: "dot", current_price: 7.50, price_change_percentage_24h: 0.5, image: "https://assets.coingecko.com/coins/images/12171/large/polkadot.png", magicScore: 81, story: "Connecting the dots of destiny." }
+            ];
+        }
+
+        let coinsData = [];
+
+        async function init() {
+            coinsData = await getCoins();
+        }
+        init();
+
+        function revealAll() {
+            const btn = document.getElementById('reveal-btn');
+            if (btn.disabled) return;
+            btn.disabled = true;
+            btn.innerHTML = "✨ Casting Spell...";
+
+            document.getElementById('story-text').innerHTML = "Summoning digital spirits...";
+            
+            // Sequence
+            coinsData.forEach((coin, index) => {
+                setTimeout(() => {
+                    openBox(index, coin);
+                }, index * 600); // Staggered reveal
+            });
+
+            setTimeout(() => {
+                btn.innerHTML = "✨ Revealed";
+                document.getElementById('refresh-btn').classList.add('visible');
+                document.getElementById('story-text').innerHTML = "The oracle has spoken for today.";
+            }, 3500);
+        }
+
+        function openBox(index, coin) {
+            const box = document.getElementById(`box-${index}`);
+            const reveal = document.getElementById(`reveal-${index}`);
+            
+            // Populate Data
+            const isUp = coin.price_change_percentage_24h >= 0;
+            const changeClass = isUp ? 'change-up' : 'change-down';
+            const changeSign = isUp ? '+' : '';
+            
+            reveal.innerHTML = `
+                <img src="${coin.image}" class="coin-img" alt="${coin.symbol}">
+                <div class="coin-symbol">${coin.symbol.toUpperCase()}</div>
+                <div class="coin-price">$${coin.current_price.toLocaleString()}</div>
+                <div class="coin-change ${changeClass}">${changeSign}${coin.price_change_percentage_24h.toFixed(2)}%</div>
+                <div class="magic-score">Magic: ${coin.magicScore}</div>
+            `;
+
+            // Animate
+            box.classList.add('opened');
+            
+            // Play sound (optional/placeholder)
+            // new Audio('pop.mp3').play().catch(()=>{});
+        }
+
+        function forceRefresh() {
+            localStorage.removeItem(DATE_KEY);
+            // Re-render to shuffle effects
+            renderBoxes();
+            // Re-fetch coins
+            init();
+            // Reset UI state if needed
+            const btn = document.getElementById('reveal-btn');
+            btn.disabled = false;
+            btn.innerHTML = '<span class="wand-icon">🪄</span> Reveal Today\'s Picks';
+            document.getElementById('refresh-btn').classList.remove('visible');
+            document.getElementById('story-text').innerHTML = "The mana has been replenished. New treasures await.";
+        }
+
+    </script>
+</body>
+</html>

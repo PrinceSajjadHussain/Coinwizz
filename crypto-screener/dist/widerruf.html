@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widerrufsbelehrung | CRYPTOSPACES</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #3b82f6;
+            --accent: #06b6d4;
+            --gold: #fbbf24;
+            --bg-dark: #0a0f1e;
+            --bg-darker: #030712;
+            --text: #f8fafc;
+            --text-muted: rgba(248,250,252,0.6);
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            line-height: 1.8;
+        }
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(59,130,246,0.3);
+        }
+        .title { font-size: 1.2rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px; }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .lang-switch {
+            display: flex;
+            background: rgba(59,130,246,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(59,130,246,0.3);
+        }
+        .lang-btn {
+            padding: 6px 12px;
+            font-family: inherit;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .lang-btn.active { background: rgba(59,130,246,0.3); color: var(--text); }
+        .lang-btn:hover { color: var(--text); }
+        .btn-back {
+            background: rgba(59,130,246,0.15);
+            border: 1px solid rgba(59,130,246,0.4);
+            color: #3b82f6;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-back:hover { background: rgba(59,130,246,0.25); }
+
+        .main-container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 100px 20px 60px;
+        }
+
+        [data-lang-de], [data-lang-en] { display: none; }
+        body.lang-de [data-lang-de] { display: block; }
+        body.lang-en [data-lang-en] { display: block; }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 30px;
+            background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(6,182,212,0.05) 100%);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 20px;
+        }
+        .hero h1 {
+            font-size: 1.6rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        .hero-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .section {
+            margin-bottom: 35px;
+            padding: 25px;
+            background: rgba(10,15,30,0.6);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 15px;
+        }
+        .section h2 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+        }
+        .section h3 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+        .section h3:first-child { margin-top: 0; }
+        .section p {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .section p:last-child { margin-bottom: 0; }
+        .section strong { color: var(--text); }
+        .section ul {
+            margin: 12px 0;
+            padding-left: 18px;
+        }
+        .section li {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 6px;
+        }
+        .section li strong { color: var(--text); }
+
+        .info-card {
+            background: rgba(59,130,246,0.05);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .info-card h3 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-top: 0;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+        .info-card p {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 6px;
+        }
+        .info-card p:last-child { margin-bottom: 0; }
+        .info-card strong { color: var(--text); }
+        .info-card a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .info-card a:hover { color: var(--accent); }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(251,191,36,0.1) 0%, rgba(59,130,246,0.1) 100%);
+            border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .highlight-box p {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 8px;
+        }
+        .highlight-box strong { color: var(--gold); }
+        .highlight-box p:last-child { margin-bottom: 0; }
+
+        .modele-box {
+            background: rgba(59,130,246,0.05);
+            border: 1px dashed rgba(59,130,246,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .modele-box p {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 8px;
+        }
+        .modele-box p:last-child { margin-bottom: 0; }
+
+        .footer-note {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(6,182,212,0.1) 100%);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 15px;
+        }
+        .footer-note p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .footer-note p:last-child {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-top: 15px;
+            margin-bottom: 0;
+        }
+
+        /* CryptoSpaces Dropdown */
+        .cryptospaces-dropdown {
+            position: relative;
+        }
+        .cryptospaces-toggle {
+            background: rgba(251,191,36,0.15);
+            border: 1px solid rgba(251,191,36,0.4);
+            color: #fbbf24;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .cryptospaces-toggle:hover { background: rgba(251,191,36,0.25); }
+        .cryptospaces-toggle .chevron { font-size: 0.5rem; transition: transform 0.2s; }
+        .cryptospaces-dropdown.open .chevron { transform: rotate(180deg); }
+        .cryptospaces-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 10px;
+            min-width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-5px);
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+        .cryptospaces-dropdown.open .cryptospaces-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .cryptospaces-menu a {
+            display: block;
+            padding: 12px 16px;
+            color: rgba(248,250,252,0.8);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(251,191,36,0.1);
+            transition: all 0.15s;
+        }
+        .cryptospaces-menu a:last-child { border-bottom: none; }
+        .cryptospaces-menu a:hover {
+            background: rgba(251,191,36,0.1);
+            color: #fbbf24;
+            padding-left: 20px;
+        }
+        .cryptospaces-menu a.active { color: #fbbf24; background: rgba(251,191,36,0.08); }
+        .cryptospaces-menu a.lifetime { color: #10b981; }
+        .cryptospaces-menu a.lifetime:hover { background: rgba(16,185,129,0.1); color: #10b981; }
+        .cryptospaces-menu a.welcome-2026 {
+            background: linear-gradient(90deg, rgba(251,191,36,0.2), rgba(168,85,247,0.2));
+            color: #fbbf24;
+            font-weight: 700;
+        }
+        .cryptospaces-menu a.welcome-2026:hover {
+            background: linear-gradient(90deg, rgba(251,191,36,0.3), rgba(168,85,247,0.3));
+            color: #fcd34d;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body class="lang-de">
+<div style="position:fixed;top:10px;right:10px;z-index:9999;display:flex;gap:8px;">
+<a href="index.html" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);color:#3b82f6;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Home</a>
+<a href="financial-galaxy.html" style="background:rgba(34,211,238,0.2);border:1px solid rgba(34,211,238,0.4);color:#22d3ee;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Financial Galaxy</a>
+</div>
+    <header class="header">
+        <div class="title">WIDERRUF</div>
+        <div class="header-right">
+            <div class="cryptospaces-dropdown" id="cryptospacesDropdown">
+                <button class="cryptospaces-toggle" id="cryptospacesToggle">
+                    <span>CryptoSpaces</span>
+                    <span class="chevron">▼</span>
+                </button>
+                <div class="cryptospaces-menu">
+        <a href="magic-coins-today.html" style="color: #a855f7;">✨ Magic Coins</a>
+                    <a href="our-vision.html">Our Vision</a>
+                    <a href="impressum.html">Impressum</a>
+                    <a href="datenschutz.html">Datenschutz</a>
+                    <a href="preise.html">Preise</a>
+                    <a href="welcome-2026.html" class="welcome-2026">★ Welcome 2026</a>
+                    <a href="lifetime.html" class="lifetime">★ LIFETIME ACCESS</a>
+                </div>
+            </div>
+            <div class="lang-switch">
+                <button class="lang-btn active" id="btnDE" onclick="setLang('de')">DE</button>
+                <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+            </div>
+            <a href="index.html" class="btn-back">← CRYPTOSPACES</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- GERMAN VERSION -->
+        <div data-lang-de>
+            <section class="hero">
+                <h1>Widerrufsbelehrung</h1>
+                <p class="hero-date">Stand: Januar 2026</p>
+            </section>
+
+            <section class="section">
+                <h2>1. Widerrufsrecht</h2>
+                <p>Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.</p>
+                <p>Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.</p>
+            </section>
+
+            <section class="section">
+                <h2>2. Ausübung des Widerrufsrechts</h2>
+                <p>Um Ihr Widerrufsrecht auszuüben, müssen Sie uns mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren.</p>
+                <p>Sie können dafür das untenstehende Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist.</p>
+            </section>
+
+            <section class="section">
+                <h2>3. Folgen des Widerrufs</h2>
+                <p>Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist.</p>
+                <p>Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der ursprünglichen Transaktion eingesetzt haben, es sei denn, mit Ihnen wurde ausdrücklich etwas anderes vereinbart; in keinem Fall werden Ihnen wegen dieser Rückzahlung Entgelte berechnet.</p>
+            </section>
+
+            <section class="section">
+                <h2>4. Ausschluss des Widerrufsrechts</h2>
+                <p>Das Widerrufsrecht erlischt vorzeitig, wenn wir mit der Ausführung der Dienstleistung mit Ihrer ausdrücklichen Zustimmung früher begonnen haben und Sie die Kenntnisnahme bestätigt haben, dass Sie Ihr Widerrufsrecht bei vollständiger Vertragserfüllung verlieren.</p>
+            </section>
+
+            <div class="modele-box">
+                <p><strong>Muster-Widerrufsformular</strong></p>
+                <p>(Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular aus und senden Sie es zurück.)</p>
+                <p>— An:</p>
+                <p><strong>Cryptospaces</strong></p>
+                <p>Orhan Ayhan</p>
+                <p>Munsterdamm 13</p>
+                <p>12169 Berlin</p>
+                <p>E-Mail: OrhanAyhan@Royalisimo.com</p>
+                <p>— Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über die Erbringung der folgenden Dienstleistung:</p>
+                <p>— Bestellt am (*)/erhalten am (*):</p>
+                <p>— Name des/der Verbraucher(s):</p>
+                <p>— Anschrift des/der Verbraucher(s):</p>
+                <p>— Unterschrift des/der Verbraucher(s) (nur bei Mitteilung auf Papier):</p>
+                <p>— Datum:</p>
+                <p>(*) Unzutreffendes streichen.</p>
+            </div>
+
+            <div class="info-card">
+                <h3>Widerruf an</h3>
+                <p><strong>Cryptospaces</strong></p>
+                <p>Orhan Ayhan</p>
+                <p>Munsterdamm 13</p>
+                <p>12169 Berlin</p>
+                <p>Germany</p>
+                <p>E-Mail: OrhanAyhan@Royalisimo.com</p>
+                <p>Telefon: +49 157 35164992</p>
+            </div>
+        </div>
+
+        <!-- ENGLISH VERSION -->
+        <div data-lang-en>
+            <section class="hero">
+                <h1>Right of Withdrawal</h1>
+                <p class="hero-date">Status: January 2026</p>
+            </section>
+
+            <section class="section">
+                <h2>1. Right of Withdrawal</h2>
+                <p>You have the right to withdraw from this contract within fourteen days without giving any reason.</p>
+                <p>The withdrawal period is fourteen days from the day of the conclusion of the contract.</p>
+            </section>
+
+            <section class="section">
+                <h2>2. Exercising the Right of Withdrawal</h2>
+                <p>To exercise your right of withdrawal, you must inform us by means of a clear statement (e.g. a letter sent by post or email) about your decision to withdraw from this contract.</p>
+                <p>You may use the withdrawal form below, but it is not required.</p>
+            </section>
+
+            <section class="section">
+                <h2>3. Consequences of Withdrawal</h2>
+                <p>If you withdraw from this contract, we shall reimburse to you all payments received from you, without undue delay and in any event no later than fourteen days from the day on which we are informed about your decision to withdraw from this contract.</p>
+                <p>For this repayment, we will use the same means of payment that you used for the original transaction, unless expressly agreed otherwise with you; in no event will you be charged fees for this repayment.</p>
+            </section>
+
+            <section class="section">
+                <h2>4. Exclusion of the Right of Withdrawal</h2>
+                <p>The right of withdrawal expires prematurely if we have begun performance of the service with your explicit consent and you have acknowledged that you will lose your right of withdrawal upon complete contract fulfillment.</p>
+            </section>
+
+            <div class="modele-box">
+                <p><strong>Withdrawal Form</strong></p>
+                <p>(If you wish to withdraw from the contract, please fill out this form and send it back.)</p>
+                <p>— To:</p>
+                <p><strong>Cryptospaces</strong></p>
+                <p>Orhan Ayhan</p>
+                <p>Munsterdamm 13</p>
+                <p>12169 Berlin</p>
+                <p>Email: OrhanAyhan@Royalisimo.com</p>
+                <p>— I/We (*) hereby withdraw from the contract concluded by me/us (*) for the provision of the following service:</p>
+                <p>— Ordered on (*)/received on (*):</p>
+                <p>— Name of consumer(s):</p>
+                <p>— Address of consumer(s):</p>
+                <p>— Signature of consumer(s) (only for notification on paper):</p>
+                <p>— Date:</p>
+                <p>(*) Delete as applicable.</p>
+            </div>
+
+            <div class="info-card">
+                <h3>Withdrawal Contact</h3>
+                <p><strong>Cryptospaces</strong></p>
+                <p>Orhan Ayhan</p>
+                <p>Munsterdamm 13</p>
+                <p>12169 Berlin</p>
+                <p>Germany</p>
+                <p>Email: OrhanAyhan@Royalisimo.com</p>
+                <p>Phone: +49 157 35164992</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = localStorage.getItem('widerrufLang') || 'en';
+        
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('widerrufLang', lang);
+            document.body.className = 'lang-' + lang;
+            document.getElementById('btnDE').classList.toggle('active', lang === 'de');
+            document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+        }
+        
+        setLang(currentLang);
+
+        // CryptoSpaces Dropdown
+        const cryptospacesDropdown = document.getElementById('cryptospacesDropdown');
+        const cryptospacesToggle = document.getElementById('cryptospacesToggle');
+        cryptospacesToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cryptospacesDropdown.classList.toggle('open');
+        });
+        document.addEventListener('click', (e) => {
+            if (!cryptospacesDropdown.contains(e.target)) {
+                cryptospacesDropdown.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>

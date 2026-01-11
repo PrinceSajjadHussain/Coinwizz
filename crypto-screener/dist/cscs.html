@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSCS - Capital Stability & Conversion System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Unified Header Styles */
+        :root {
+            --header-height: 80px;
+            --toolbar-height: 55px;
+            --total-header-height: 135px;
+            --primary: #06b6d4; /* Ensure primary matches unified theme */
+        }
+        .unified-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: rgba(10, 15, 30, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(6, 182, 212, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .unified-left { display: flex; align-items: center; gap: 1rem; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+        }
+        .unified-nav {
+            display: flex;
+            gap: 2rem;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .unified-nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+        .unified-nav-link:hover, .unified-nav-link.active {
+            color: #fff;
+            background: rgba(6, 182, 212, 0.15);
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+        }
+        .unified-utils { display: flex; align-items: center; gap: 1rem; }
+        
+        /* Sub-Toolbar für Controls */
+        .sub-toolbar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            height: var(--toolbar-height);
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(6,182,212,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            z-index: 99;
+            padding: 0 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Adjust body and fixed elements */
+        body { padding-top: var(--total-header-height) !important; }
+        .canvas-container { top: var(--total-header-height) !important; bottom: 50px; }
+        .legend, .state-info, .tooltip { top: 150px !important; }
+
+        /* Preserve Original Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #06b6d4;
+            --secondary: #14b8a6;
+            --accent: #0891b2;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0a0f1e;
+            --bg-darker: #030712;
+            --text: #f8fafc;
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--text);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.4s ease-out;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-title { font-size: 2rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 5px; margin-bottom: 8px; }
+        .loading-sub { font-size: 0.65rem; color: rgba(248,250,252,0.6); margin-bottom: 25px; letter-spacing: 2px; }
+        .progress-container { width: 280px; height: 6px; background: rgba(6,182,212,0.15); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 3px; transition: width 0.1s linear; }
+        .progress-percent { margin-top: 10px; font-size: 0.7rem; color: var(--primary); }
+
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(6,182,212,0.2);
+        }
+        .title-wrap {}
+        .title { font-size: 1.4rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 4px; }
+        .title-sub { font-size: 0.5rem; color: rgba(248,250,252,0.5); letter-spacing: 1px; margin-top: 2px; }
+        .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn {
+            background: rgba(6,182,212,0.15);
+            border: 1px solid rgba(6,182,212,0.4);
+            color: var(--primary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: rgba(6,182,212,0.25); border-color: var(--primary); }
+        .btn.active { background: rgba(6,182,212,0.4); border-color: var(--primary); }
+        .btn-nav { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.4); color: #3b82f6; text-decoration: none; }
+        .btn-nav:hover { background: rgba(59,130,246,0.25); }
+        .btn-time { background: rgba(20,184,166,0.15); border-color: rgba(20,184,166,0.4); color: var(--secondary); }
+        .btn-time.active { background: rgba(20,184,166,0.4); }
+        .btn-state { font-size: 0.6rem; padding: 6px 10px; }
+        .btn-state.accumulation { background: rgba(6,182,212,0.2); border-color: rgba(6,182,212,0.5); color: var(--primary); }
+        .btn-state.accumulation.active { background: rgba(6,182,212,0.5); }
+        .btn-state.deployment { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.5); color: var(--success); }
+        .btn-state.deployment.active { background: rgba(34,197,94,0.5); }
+        .btn-state.stress { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.5); color: var(--danger); }
+        .btn-state.stress.active { background: rgba(239,68,68,0.5); }
+        .divider { color: rgba(255,255,255,0.15); margin: 0 5px; }
+        
+        /* Einheitliche Page Link Buttons */
+        .page-links {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .page-link {
+            background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(20,184,166,0.15));
+            border: 1px solid rgba(6,182,212,0.5);
+            color: var(--primary);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-link::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(6,182,212,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        .page-link:hover::before {
+            left: 100%;
+        }
+        .page-link:hover {
+            background: linear-gradient(135deg, rgba(6,182,212,0.4), rgba(20,184,166,0.3));
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6,182,212,0.35);
+            color: var(--primary);
+        }
+        .page-link .icon {
+            font-size: 0.9rem;
+        }
+
+        .canvas-container { position: fixed; top: 60px; left: 0; right: 0; bottom: 50px; }
+        #mainCanvas { width: 100%; height: 100%; }
+
+        .footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            padding: 10px 20px;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.6rem;
+            color: rgba(248,250,252,0.5);
+            border-top: 1px solid rgba(6,182,212,0.2);
+        }
+        .stats { display: flex; gap: 20px; }
+        .stat-val { color: var(--primary); font-weight: 600; }
+        .stat-val.warning { color: var(--warning); }
+        .stat-val.danger { color: var(--danger); }
+        .stat-val.success { color: var(--success); }
+        .disclaimer { color: var(--warning); font-style: italic; }
+
+        .tooltip {
+            position: fixed;
+            background: rgba(10,15,30,0.95);
+            border: 1px solid rgba(6,182,212,0.5);
+            border-radius: 12px;
+            padding: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            z-index: 200;
+            min-width: 200px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .tooltip.visible { opacity: 1; }
+        .tooltip-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+        .tooltip-type { font-size: 0.55rem; padding: 2px 6px; border-radius: 4px; background: rgba(6,182,212,0.3); color: var(--primary); }
+        .tooltip-desc { font-size: 0.6rem; color: rgba(248,250,252,0.5); margin-bottom: 10px; }
+        .tooltip-section { margin: 8px 0; padding-top: 8px; border-top: 1px solid rgba(6,182,212,0.2); }
+        .tooltip-section-title { font-size: 0.55rem; color: rgba(248,250,252,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tooltip-row { display: flex; justify-content: space-between; font-size: 0.65rem; margin: 4px 0; }
+        .tooltip-label { color: rgba(248,250,252,0.6); }
+        .tooltip-value { font-family: 'JetBrains Mono', monospace; }
+        .tooltip-meter { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 6px; overflow: hidden; position: relative; }
+        .tooltip-meter-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+        .tooltip-meter-wave { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); animation: wave 2s infinite; }
+        @keyframes wave { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+        .legend {
+            position: fixed;
+            left: 15px;
+            top: 75px;
+            background: rgba(10,15,30,0.85);
+            border: 1px solid rgba(6,182,212,0.2);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.55rem;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+            width: 160px;
+        }
+        .legend-title { color: var(--primary); font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; font-size: 0.6rem; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin: 6px 0; color: rgba(248,250,252,0.7); }
+        .legend-icon { width: 20px; height: 12px; border-radius: 3px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        .state-info {
+            position: fixed;
+            right: 15px;
+            top: 75px;
+            background: rgba(10,15,30,0.85);
+            border: 1px solid rgba(20,184,166,0.3);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.55rem;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+            width: 170px;
+        }
+        .state-info-title { font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; font-size: 0.6rem; }
+        .state-info-desc { color: rgba(248,250,252,0.6); line-height: 1.5; margin-bottom: 10px; }
+        .state-indicator { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; margin-top: 8px; }
+        .state-indicator-dot { width: 10px; height: 10px; border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.9); } }
+    </style>
+</head>
+<body>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-title">CSCS</div>
+        <div class="loading-sub">Capital Stability & Conversion System</div>
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+<!-- Unified Header -->
+    <header class="unified-header">
+        <div class="unified-left">
+            <div class="unified-logo">CRYPTOSPACES</div>
+        </div>
+        <nav class="unified-nav">
+            <a href="top100.html" class="unified-nav-link">TOP 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">WHALES</a>
+            <a href="our-vision.html" class="unified-nav-link">VISION</a>
+        </nav>
+        <div class="unified-utils">
+             <!-- Specific utils can go here if needed, but we use toolbar for main controls -->
+        </div>
+    </header>
+
+    <!-- Sub-Toolbar for Page Controls -->
+    <div class="sub-toolbar">
+        <div class="title-wrap" style="margin-right: 20px;">
+            <div class="title" style="font-size: 1rem;">CSCS</div>
+        </div>
+        <div class="controls">
+            <button class="btn btn-state accumulation active" data-state="accumulation">Accumulation</button>
+            <button class="btn btn-state deployment" data-state="deployment">Deployment</button>
+            <button class="btn btn-state stress" data-state="stress">Stress</button>
+            <span class="divider">|</span>
+            <button class="btn btn-time active" data-time="realtime">Real-time</button>
+            <button class="btn btn-time" data-time="24h">24h</button>
+            <button class="btn btn-time" data-time="7d">7d</button>
+            <span class="divider">|</span>
+            <a href="index.html" class="btn btn-nav">Home</a>
+             <div class="page-links">
+                <a href="lyps.html" class="page-link">LYPS</a>
+                <a href="rr.html" class="page-link">RR</a>
+                <a href="ex-triv.html" class="page-link">EXTRIV</a>
+                <a href="nft-digital.html" class="page-link"><span class="icon">🎨</span>NFT</a>
+                <a href="game-vev.html" class="page-link"><span class="icon">🎮</span>GAME</a>
+                <a href="misvav.html" class="page-link"><span class="icon">⛏️</span>MIS</a>
+                <a href="sacorcs.html" class="page-link"><span class="icon">🛡️</span>SAC</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-title">RESERVOIRS</div>
+        <div class="legend-item"><div class="legend-icon" style="background: linear-gradient(180deg, #22c55e 0%, #0a0f1e 100%);"></div> Hoher Fuellstand</div>
+        <div class="legend-item"><div class="legend-icon" style="background: linear-gradient(180deg, #f59e0b 0%, #0a0f1e 100%);"></div> Mittlerer Fuellstand</div>
+        <div class="legend-item"><div class="legend-icon" style="background: linear-gradient(180deg, #ef4444 0%, #0a0f1e 100%);"></div> Niedriger Fuellstand</div>
+        <div style="margin: 10px 0; border-top: 1px solid rgba(6,182,212,0.2);"></div>
+        <div class="legend-title">FLUESSE</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--primary);"></div> Zufluss (Risk-off)</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--success);"></div> Abfluss (Risk-on)</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--danger);"></div> Turbulent</div>
+    </div>
+
+    <div class="state-info">
+        <div class="state-info-title" id="stateTitle" style="color: var(--primary);">ACCUMULATION</div>
+        <div class="state-info-desc" id="stateDesc">Hohe Fuellstaende, minimaler Abfluss. Kapital sammelt sich in stabilen Reservoirs.</div>
+        <div class="state-indicator" id="stateIndicator" style="background: rgba(6,182,212,0.2);">
+            <div class="state-indicator-dot" style="background: var(--primary);"></div>
+            <span style="color: var(--primary);">Stabil</span>
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-name"><span id="ttName" style="color: var(--primary);">USDT</span><span class="tooltip-type" id="ttType">Fiat-backed</span></div>
+        <div class="tooltip-desc" id="ttDesc">Tether USD</div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Kapitalstatus</div>
+            <div class="tooltip-row"><span class="tooltip-label">Fuellstand</span><span class="tooltip-value" id="ttFill">78%</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Oberflaeche</span><span class="tooltip-value" id="ttSurface">Ruhig</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Stabilitaet</span><span class="tooltip-value" id="ttStability">Hoch</span></div>
+        </div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Fuellstand</div>
+            <div class="tooltip-meter">
+                <div class="tooltip-meter-fill" id="ttMeter" style="width: 78%; background: linear-gradient(90deg, var(--primary), var(--secondary));"></div>
+                <div class="tooltip-meter-wave"></div>
+            </div>
+        </div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Flussrichtung</div>
+            <div class="tooltip-row"><span class="tooltip-label">Netto-Flow</span><span class="tooltip-value" id="ttFlow">+2.4B</span></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="stats">
+            <span>Reservoirs: <span class="stat-val">5</span></span>
+            <span>Total TVL: <span class="stat-val" id="statTVL">$142.8B</span></span>
+            <span>Netto-Flow: <span class="stat-val success" id="statFlow">+$3.2B</span></span>
+            <span>State: <span class="stat-val" id="statState">Accumulation</span></span>
+        </div>
+        <div class="disclaimer">Simulierte Daten - Keine Anlageberatung</div>
+    </div>
+
+    <script>
+    // ==================== CONFIG ====================
+    const STABLECOINS = [
+        { id: 'usdt', name: 'USDT', fullName: 'Tether USD', type: 'Fiat-backed', color: '#22c55e', tvl: 83.2, fillLevel: 0.85 },
+        { id: 'usdc', name: 'USDC', fullName: 'USD Coin', type: 'Fiat-backed', color: '#3b82f6', tvl: 32.4, fillLevel: 0.72 },
+        { id: 'dai', name: 'DAI', fullName: 'Dai Stablecoin', type: 'Crypto-backed', color: '#f59e0b', tvl: 5.2, fillLevel: 0.58 },
+        { id: 'busd', name: 'BUSD', fullName: 'Binance USD', type: 'Fiat-backed', color: '#eab308', tvl: 4.8, fillLevel: 0.45 },
+        { id: 'tusd', name: 'TUSD', fullName: 'TrueUSD', type: 'Fiat-backed', color: '#06b6d4', tvl: 2.1, fillLevel: 0.62 }
+    ];
+
+    const STATE_CONFIG = {
+        accumulation: {
+            fillMultiplier: 1.0,
+            flowSpeed: 0.3,
+            turbulence: 0.1,
+            waveHeight: 3,
+            flowDirection: 1, // inflow
+            color: '#06b6d4',
+            title: 'ACCUMULATION',
+            desc: 'Hohe Fuellstaende, minimaler Abfluss. Kapital sammelt sich in stabilen Reservoirs.'
+        },
+        deployment: {
+            fillMultiplier: 0.7,
+            flowSpeed: 1.2,
+            turbulence: 0.3,
+            waveHeight: 6,
+            flowDirection: -1, // outflow
+            color: '#22c55e',
+            title: 'DEPLOYMENT',
+            desc: 'Schnelle Abfluesse, aktive Kanaele. Kapital wird in Risk-Assets verschoben.'
+        },
+        stress: {
+            fillMultiplier: 0.5,
+            flowSpeed: 2.0,
+            turbulence: 0.8,
+            waveHeight: 12,
+            flowDirection: 0, // chaotic
+            color: '#ef4444',
+            title: 'STRESS',
+            desc: 'Chaotische Fluesse, ungleiche Reservoirs. Systemische Instabilitaet.'
+        }
+    };
+
+    // ==================== STATE ====================
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+
+    let width, height, centerX, centerY;
+    let reservoirs = [];
+    let channels = [];
+    let particles = [];
+    let animId = null;
+    let hoveredReservoir = null;
+    let currentState = 'accumulation';
+    let time = 0;
+
+    // ==================== INIT ====================
+    function resize() {
+        width = canvas.width = canvas.parentElement.clientWidth;
+        height = canvas.height = canvas.parentElement.clientHeight;
+        centerX = width / 2;
+        centerY = height / 2;
+        initReservoirs();
+        initChannels();
+        initParticles();
+    }
+
+    function initReservoirs() {
+        reservoirs = [];
+        const positions = [
+            { x: 0.5, y: 0.35 },  // Top center (USDT - largest)
+            { x: 0.25, y: 0.55 }, // Left (USDC)
+            { x: 0.75, y: 0.55 }, // Right (DAI)
+            { x: 0.3, y: 0.78 },  // Bottom left (BUSD)
+            { x: 0.7, y: 0.78 }   // Bottom right (TUSD)
+        ];
+
+        STABLECOINS.forEach((coin, i) => {
+            const baseWidth = 80 + (coin.tvl / 83.2) * 60;
+            const baseHeight = 100 + (coin.tvl / 83.2) * 50;
+
+            reservoirs.push({
+                ...coin,
+                x: width * positions[i].x,
+                y: height * positions[i].y,
+                width: baseWidth,
+                height: baseHeight,
+                currentFill: coin.fillLevel,
+                targetFill: coin.fillLevel,
+                wavePhase: Math.random() * Math.PI * 2,
+                wavePhase2: Math.random() * Math.PI * 2,
+                turbulencePhase: Math.random() * Math.PI * 2,
+                stability: 0.8 + Math.random() * 0.2
+            });
+        });
+
+        updateStats();
+    }
+
+    function initChannels() {
+        channels = [];
+        // Create channels between reservoirs
+        const connections = [
+            [0, 1], [0, 2], [1, 3], [2, 4], [1, 2], [3, 4], [0, 3], [0, 4]
+        ];
+
+        connections.forEach(([from, to]) => {
+            channels.push({
+                from: reservoirs[from],
+                to: reservoirs[to],
+                flowSpeed: 0.5 + Math.random() * 0.5,
+                width: 4 + Math.random() * 4,
+                particles: []
+            });
+        });
+    }
+
+    function initParticles() {
+        particles = [];
+        channels.forEach(channel => {
+            const numParticles = 5 + Math.floor(Math.random() * 5);
+            for (let i = 0; i < numParticles; i++) {
+                channel.particles.push({
+                    t: Math.random(),
+                    speed: 0.003 + Math.random() * 0.004,
+                    size: 3 + Math.random() * 3,
+                    offset: (Math.random() - 0.5) * 10
+                });
+            }
+        });
+    }
+
+    function updateStats() {
+        const totalTVL = reservoirs.reduce((sum, r) => sum + r.tvl, 0);
+        document.getElementById('statTVL').textContent = '$' + totalTVL.toFixed(1) + 'B';
+
+        const stateConfig = STATE_CONFIG[currentState];
+        const flowVal = stateConfig.flowDirection > 0 ? '+$3.2B' : stateConfig.flowDirection < 0 ? '-$2.8B' : '+/-$4.1B';
+        const flowEl = document.getElementById('statFlow');
+        flowEl.textContent = flowVal;
+        flowEl.className = 'stat-val ' + (stateConfig.flowDirection > 0 ? 'success' : stateConfig.flowDirection < 0 ? 'warning' : 'danger');
+
+        document.getElementById('statState').textContent = stateConfig.title;
+        document.getElementById('statState').style.color = stateConfig.color;
+    }
+
+    function updateStateInfo() {
+        const stateConfig = STATE_CONFIG[currentState];
+        document.getElementById('stateTitle').textContent = stateConfig.title;
+        document.getElementById('stateTitle').style.color = stateConfig.color;
+        document.getElementById('stateDesc').textContent = stateConfig.desc;
+
+        const indicator = document.getElementById('stateIndicator');
+        indicator.style.background = stateConfig.color + '20';
+        indicator.innerHTML = `<div class="state-indicator-dot" style="background: ${stateConfig.color};"></div><span style="color: ${stateConfig.color};">${currentState === 'accumulation' ? 'Stabil' : currentState === 'deployment' ? 'Aktiv' : 'Kritisch'}</span>`;
+    }
+
+    // ==================== UPDATE ====================
+    function update() {
+        time += 0.016;
+        const stateConfig = STATE_CONFIG[currentState];
+
+        // Update reservoir fill levels and waves
+        reservoirs.forEach(r => {
+            // Animate fill level toward target
+            r.targetFill = r.fillLevel * stateConfig.fillMultiplier;
+            r.currentFill += (r.targetFill - r.currentFill) * 0.02;
+
+            // Wave animation
+            r.wavePhase += 0.03 + stateConfig.turbulence * 0.05;
+            r.wavePhase2 += 0.02 + stateConfig.turbulence * 0.03;
+            r.turbulencePhase += 0.05 * stateConfig.turbulence;
+
+            // Stability fluctuation in stress state
+            if (currentState === 'stress') {
+                r.stability = 0.4 + Math.sin(time + r.wavePhase) * 0.3;
+            } else {
+                r.stability = 0.8 + Math.sin(time * 0.5) * 0.1;
+            }
+        });
+
+        // Update channel particles
+        channels.forEach(channel => {
+            channel.particles.forEach(p => {
+                const direction = stateConfig.flowDirection !== 0 ? stateConfig.flowDirection : (Math.sin(time * 2) > 0 ? 1 : -1);
+                p.t += p.speed * stateConfig.flowSpeed * direction;
+
+                if (p.t > 1) p.t = 0;
+                if (p.t < 0) p.t = 1;
+
+                // Add turbulence offset
+                if (stateConfig.turbulence > 0.3) {
+                    p.offset = Math.sin(time * 3 + p.t * 10) * 15 * stateConfig.turbulence;
+                }
+            });
+        });
+    }
+
+    // ==================== DRAWING ====================
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+        const stateConfig = STATE_CONFIG[currentState];
+
+        // Background
+        drawBackground();
+
+        // Draw channels first (behind reservoirs)
+        drawChannels();
+
+        // Draw reservoirs
+        reservoirs.forEach(r => drawReservoir(r));
+
+        // Draw imbalance zones in stress state
+        if (currentState === 'stress') {
+            drawImbalanceZones();
+        }
+    }
+
+    function drawBackground() {
+        const stateConfig = STATE_CONFIG[currentState];
+        const bgGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(width, height) * 0.7);
+        bgGrad.addColorStop(0, stateConfig.color + '08');
+        bgGrad.addColorStop(0.5, stateConfig.color + '03');
+        bgGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, width, height);
+    }
+
+    function drawChannels() {
+        const stateConfig = STATE_CONFIG[currentState];
+
+        channels.forEach(channel => {
+            const { from, to } = channel;
+
+            // Calculate control point for curve
+            const midX = (from.x + to.x) / 2;
+            const midY = (from.y + to.y) / 2;
+            const pullDown = 30 + stateConfig.turbulence * 20;
+            const ctrlY = midY + pullDown;
+
+            // Draw channel path
+            ctx.beginPath();
+            ctx.moveTo(from.x, from.y + from.height * 0.3);
+            ctx.quadraticCurveTo(midX, ctrlY, to.x, to.y + to.height * 0.3);
+
+            const channelGrad = ctx.createLinearGradient(from.x, from.y, to.x, to.y);
+            channelGrad.addColorStop(0, from.color + '40');
+            channelGrad.addColorStop(1, to.color + '40');
+            ctx.strokeStyle = channelGrad;
+            ctx.lineWidth = channel.width;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Draw flow particles
+            channel.particles.forEach(p => {
+                const t = p.t;
+                const x = (1-t)*(1-t)*from.x + 2*(1-t)*t*midX + t*t*to.x;
+                const y = (1-t)*(1-t)*(from.y + from.height*0.3) + 2*(1-t)*t*ctrlY + t*t*(to.y + to.height*0.3);
+
+                // Apply offset perpendicular to path
+                const perpX = -(to.y - from.y) / Math.hypot(to.x - from.x, to.y - from.y) * p.offset;
+                const perpY = (to.x - from.x) / Math.hypot(to.x - from.x, to.y - from.y) * p.offset;
+
+                ctx.beginPath();
+                ctx.arc(x + perpX, y + perpY, p.size, 0, Math.PI * 2);
+
+                const particleColor = stateConfig.flowDirection > 0 ? '#06b6d4' : stateConfig.flowDirection < 0 ? '#22c55e' : '#ef4444';
+                const pGrad = ctx.createRadialGradient(x + perpX, y + perpY, 0, x + perpX, y + perpY, p.size * 2);
+                pGrad.addColorStop(0, particleColor);
+                pGrad.addColorStop(1, particleColor + '00');
+                ctx.fillStyle = pGrad;
+                ctx.fill();
+            });
+        });
+    }
+
+    function drawReservoir(r) {
+        const stateConfig = STATE_CONFIG[currentState];
+        const isHovered = hoveredReservoir === r;
+        const w = r.width * (isHovered ? 1.05 : 1);
+        const h = r.height * (isHovered ? 1.05 : 1);
+        const x = r.x - w / 2;
+        const y = r.y - h / 2;
+
+        // Container glow
+        const glowGrad = ctx.createRadialGradient(r.x, r.y, 0, r.x, r.y, Math.max(w, h));
+        glowGrad.addColorStop(0, r.color + '30');
+        glowGrad.addColorStop(0.5, r.color + '10');
+        glowGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = glowGrad;
+        ctx.beginPath();
+        ctx.ellipse(r.x, r.y, w * 0.8, h * 0.6, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Container outline
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, 15);
+        ctx.strokeStyle = r.color + '60';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Fill level background
+        ctx.beginPath();
+        ctx.roundRect(x + 4, y + 4, w - 8, h - 8, 12);
+        ctx.fillStyle = 'rgba(10,15,30,0.8)';
+        ctx.fill();
+
+        // Liquid fill with waves
+        const fillHeight = (h - 8) * r.currentFill;
+        const fillY = y + h - 4 - fillHeight;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(x + 4, y + 4, w - 8, h - 8, 12);
+        ctx.clip();
+
+        // Draw liquid with wave effect
+        ctx.beginPath();
+        ctx.moveTo(x + 4, y + h - 4);
+
+        // Wave pattern
+        const waveHeight = stateConfig.waveHeight * (1 + stateConfig.turbulence);
+        for (let wx = 0; wx <= w - 8; wx += 2) {
+            const wave1 = Math.sin(r.wavePhase + wx * 0.05) * waveHeight;
+            const wave2 = Math.sin(r.wavePhase2 + wx * 0.08) * waveHeight * 0.5;
+            const turbulence = Math.sin(r.turbulencePhase + wx * 0.1) * waveHeight * stateConfig.turbulence;
+            const wy = fillY + wave1 + wave2 + turbulence;
+            ctx.lineTo(x + 4 + wx, wy);
+        }
+
+        ctx.lineTo(x + w - 4, y + h - 4);
+        ctx.closePath();
+
+        // Liquid gradient
+        const liquidGrad = ctx.createLinearGradient(x, fillY, x, y + h);
+        const fillColor = r.currentFill > 0.6 ? r.color : r.currentFill > 0.35 ? '#f59e0b' : '#ef4444';
+        liquidGrad.addColorStop(0, fillColor + 'cc');
+        liquidGrad.addColorStop(0.5, fillColor + '99');
+        liquidGrad.addColorStop(1, fillColor + '66');
+        ctx.fillStyle = liquidGrad;
+        ctx.fill();
+
+        // Surface shine
+        ctx.beginPath();
+        for (let wx = 0; wx <= w - 8; wx += 2) {
+            const wave1 = Math.sin(r.wavePhase + wx * 0.05) * waveHeight;
+            const wave2 = Math.sin(r.wavePhase2 + wx * 0.08) * waveHeight * 0.5;
+            const wy = fillY + wave1 + wave2;
+            if (wx === 0) ctx.moveTo(x + 4 + wx, wy);
+            else ctx.lineTo(x + 4 + wx, wy);
+        }
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.restore();
+
+        // Stability indicator ring
+        const stabilityColor = r.stability > 0.7 ? '#22c55e' : r.stability > 0.4 ? '#f59e0b' : '#ef4444';
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, Math.max(w, h) * 0.55, -Math.PI * 0.5, -Math.PI * 0.5 + Math.PI * 2 * r.stability);
+        ctx.strokeStyle = stabilityColor + '60';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Labels
+        ctx.font = "bold 14px 'Orbitron', sans-serif";
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(r.name, r.x, r.y - 10);
+
+        ctx.font = "10px 'JetBrains Mono', monospace";
+        ctx.fillStyle = 'rgba(248,250,252,0.7)';
+        ctx.fillText('$' + r.tvl.toFixed(1) + 'B', r.x, r.y + 8);
+
+        // Fill percentage
+        ctx.font = "bold 9px 'JetBrains Mono', monospace";
+        ctx.fillStyle = fillColor;
+        ctx.fillText(Math.round(r.currentFill * 100) + '%', r.x, r.y + 25);
+
+        // Hover ring
+        if (isHovered) {
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(x - 5, y - 5, w + 10, h + 10, 18);
+            ctx.stroke();
+        }
+    }
+
+    function drawImbalanceZones() {
+        // Find reservoirs with large fill differences
+        reservoirs.forEach((r1, i) => {
+            reservoirs.forEach((r2, j) => {
+                if (i >= j) return;
+                const fillDiff = Math.abs(r1.currentFill - r2.currentFill);
+                if (fillDiff > 0.3) {
+                    const midX = (r1.x + r2.x) / 2;
+                    const midY = (r1.y + r2.y) / 2;
+
+                    // Draw turbulence zone
+                    const pulse = 0.5 + Math.sin(time * 4) * 0.3;
+                    const zoneGrad = ctx.createRadialGradient(midX, midY, 0, midX, midY, 40);
+                    zoneGrad.addColorStop(0, `rgba(239, 68, 68, ${fillDiff * pulse})`);
+                    zoneGrad.addColorStop(1, 'transparent');
+                    ctx.fillStyle = zoneGrad;
+                    ctx.beginPath();
+                    ctx.arc(midX, midY, 40, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Warning indicator
+                    ctx.font = "bold 10px 'Orbitron', sans-serif";
+                    ctx.fillStyle = `rgba(239, 68, 68, ${pulse})`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText('!', midX, midY);
+                }
+            });
+        });
+    }
+
+    // ==================== INTERACTION ====================
+    function findReservoir(mx, my) {
+        const rect = canvas.getBoundingClientRect();
+        const x = mx - rect.left, y = my - rect.top;
+
+        for (let r of reservoirs) {
+            const dx = x - r.x;
+            const dy = y - r.y;
+            if (Math.abs(dx) < r.width / 2 + 10 && Math.abs(dy) < r.height / 2 + 10) {
+                return r;
+            }
+        }
+        return null;
+    }
+
+    function showTooltip(r, mx, my) {
+        document.getElementById('ttName').textContent = r.name;
+        document.getElementById('ttName').style.color = r.color;
+        document.getElementById('ttType').textContent = r.type;
+        document.getElementById('ttDesc').textContent = r.fullName;
+
+        document.getElementById('ttFill').textContent = Math.round(r.currentFill * 100) + '%';
+        document.getElementById('ttFill').style.color = r.currentFill > 0.6 ? 'var(--success)' : r.currentFill > 0.35 ? 'var(--warning)' : 'var(--danger)';
+
+        const surfaceState = STATE_CONFIG[currentState].turbulence < 0.3 ? 'Ruhig' : STATE_CONFIG[currentState].turbulence < 0.6 ? 'Bewegt' : 'Turbulent';
+        document.getElementById('ttSurface').textContent = surfaceState;
+
+        const stabilityText = r.stability > 0.7 ? 'Hoch' : r.stability > 0.4 ? 'Mittel' : 'Niedrig';
+        document.getElementById('ttStability').textContent = stabilityText;
+        document.getElementById('ttStability').style.color = r.stability > 0.7 ? 'var(--success)' : r.stability > 0.4 ? 'var(--warning)' : 'var(--danger)';
+
+        const meter = document.getElementById('ttMeter');
+        meter.style.width = (r.currentFill * 100) + '%';
+        meter.style.background = `linear-gradient(90deg, ${r.color}, ${r.color}aa)`;
+
+        const flowDir = STATE_CONFIG[currentState].flowDirection;
+        const flowText = flowDir > 0 ? '+$' + (r.tvl * 0.03).toFixed(1) + 'B' : flowDir < 0 ? '-$' + (r.tvl * 0.02).toFixed(1) + 'B' : '+/-$' + (r.tvl * 0.05).toFixed(1) + 'B';
+        document.getElementById('ttFlow').textContent = flowText;
+        document.getElementById('ttFlow').style.color = flowDir > 0 ? 'var(--success)' : flowDir < 0 ? 'var(--warning)' : 'var(--danger)';
+
+        tooltip.style.left = (mx + 15) + 'px';
+        tooltip.style.top = (my + 15) + 'px';
+        tooltip.classList.add('visible');
+    }
+
+    canvas.addEventListener('mousemove', e => {
+        const r = findReservoir(e.clientX, e.clientY);
+        hoveredReservoir = r;
+        canvas.style.cursor = r ? 'pointer' : 'default';
+        if (r) {
+            showTooltip(r, e.clientX, e.clientY);
+        } else {
+            tooltip.classList.remove('visible');
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        hoveredReservoir = null;
+        tooltip.classList.remove('visible');
+    });
+
+    // ==================== CONTROLS ====================
+    document.querySelectorAll('.btn-state').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.btn-state').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentState = this.dataset.state;
+            updateStateInfo();
+            updateStats();
+        });
+    });
+
+    document.querySelectorAll('.btn-time').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.btn-time').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            // Randomize fill levels for different timeframes
+            reservoirs.forEach(r => {
+                r.fillLevel = 0.3 + Math.random() * 0.6;
+            });
+        });
+    });
+
+    // ==================== ANIMATION ====================
+    function animate() {
+        update();
+        draw();
+        animId = requestAnimationFrame(animate);
+    }
+
+    // ==================== INIT ====================
+    const overlay = document.getElementById('loadingOverlay');
+    const progressBar = document.getElementById('progressBar');
+    const progressPercent = document.getElementById('progressPercent');
+
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 8 + Math.random() * 12;
+            if (progress > 90) progress = 90;
+            progressBar.style.width = progress + '%';
+            progressPercent.textContent = Math.round(progress) + '%';
+        }
+    }, 60);
+
+    window.addEventListener('resize', resize);
+    resize();
+    updateStateInfo();
+
+    setTimeout(() => {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressPercent.textContent = '100%';
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            animate();
+        }, 200);
+    }, 400);
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) cancelAnimationFrame(animId);
+        else animate();
+    });
+    </script>
+</body>
+</html>

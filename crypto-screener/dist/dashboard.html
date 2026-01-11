@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Dashboard - CryptoSpaces</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-dark: #0a0f1e;
+            --bg-card: rgba(15,23,42,0.8);
+            --border: rgba(255,255,255,0.1);
+            --text: #f8fafc;
+            --text-muted: rgba(248,250,252,0.6);
+            --accent: #3b82f6;
+            --gold: #fbbf24;
+            --green: #22c55e;
+            --red: #ef4444;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            color: var(--text);
+        }
+        
+        /* Auth Gate */
+        .auth-gate {
+            position: fixed; inset: 0;
+            background: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .auth-gate.hidden { display: none; }
+        .auth-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+        }
+        .auth-box h2 { font-family: 'Orbitron', sans-serif; color: var(--gold); margin-bottom: 12px; }
+        .auth-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
+        .auth-btn {
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            color: #fff; border: none;
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .auth-btn:hover { transform: scale(1.03); }
+        
+        /* Header */
+        .header {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: var(--accent); }
+        .plan-badge {
+            background: linear-gradient(135deg, var(--gold), #f59e0b);
+            color: #1a1a2e;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .plan-badge.free { background: rgba(100,100,100,0.3); color: var(--text-muted); }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .user-info { text-align: right; font-size: 0.75rem; }
+        .user-name { color: var(--text); font-weight: 500; }
+        .user-email { color: var(--text-muted); }
+        .logout-btn {
+            background: rgba(239,68,68,0.2);
+            border: 1px solid rgba(239,68,68,0.4);
+            color: var(--red);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .logout-btn:hover { background: rgba(239,68,68,0.3); }
+        .lang-switch { display: flex; gap: 4px; }
+        .lang-btn { background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 10px; border-radius: 6px; font-size: 0.65rem; cursor: pointer; transition: all 0.2s; }
+        .lang-btn:hover { background: rgba(255,255,255,0.2); }
+        .lang-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+        
+        /* Main Content */
+        .main { padding: 90px 24px 40px; max-width: 1200px; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .card-title { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--text); }
+        .card-badge { font-size: 0.6rem; padding: 4px 8px; border-radius: 6px; }
+        .card-badge.active { background: rgba(34,197,94,0.2); color: var(--green); }
+        .card-badge.locked { background: rgba(239,68,68,0.2); color: var(--red); }
+        .card-badge.soon { background: rgba(100,100,100,0.2); color: var(--text-muted); }
+        
+        /* Feature List */
+        .feature-list { list-style: none; }
+        .feature-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+        .feature-item:last-child { border-bottom: none; }
+        .feature-icon { font-size: 1.1rem; }
+        .feature-name { flex: 1; }
+        .feature-status { font-size: 0.7rem; padding: 4px 10px; border-radius: 6px; }
+        .feature-status.active { background: rgba(34,197,94,0.15); color: var(--green); }
+        .feature-status.locked { background: rgba(239,68,68,0.15); color: var(--red); }
+        .feature-status.soon { background: rgba(100,100,100,0.15); color: var(--text-muted); }
+        
+        /* Upgrade Section */
+        .upgrade-section { margin-bottom: 20px; }
+        .upgrade-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            cursor: pointer;
+            margin-bottom: 10px;
+            border: none;
+            transition: all 0.2s;
+        }
+        .upgrade-btn.gold {
+            background: linear-gradient(135deg, var(--gold), #f59e0b);
+            color: #1a1a2e;
+        }
+        .upgrade-btn.blue {
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            color: #fff;
+        }
+        .upgrade-btn.elite {
+            background: linear-gradient(135deg, rgba(168,85,247,0.3), rgba(126,34,206,0.2));
+            border: 2px solid rgba(168,85,247,0.6);
+            color: #e9d5ff;
+            box-shadow: 0 0 20px rgba(168,85,247,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .upgrade-btn.elite:hover {
+            background: linear-gradient(135deg, rgba(168,85,247,0.4), rgba(126,34,206,0.3));
+            box-shadow: 0 0 30px rgba(168,85,247,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .upgrade-btn:hover { transform: scale(1.02); }
+        .upgrade-hint { font-size: 0.65rem; color: var(--text-muted); text-align: center; }
+        
+        /* Coin Control */
+        .coin-counter {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0,0,0,0.2);
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+        .coin-count { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; color: var(--gold); }
+        .coin-label { font-size: 0.75rem; color: var(--text-muted); }
+        .locked-overlay {
+            position: relative;
+            filter: blur(2px);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .locked-cta {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(10,15,30,0.8);
+            border-radius: 10px;
+        }
+        .locked-cta span { font-size: 2rem; margin-bottom: 8px; }
+        .locked-cta p { font-size: 0.75rem; color: var(--text-muted); }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+        .footer a { color: var(--accent); text-decoration: none; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header { flex-direction: column; gap: 12px; padding: 12px; }
+            .main { padding: 140px 16px 30px; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div style="position:fixed;top:10px;right:10px;z-index:9999;display:flex;gap:8px;">
+<a href="index.html" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);color:#3b82f6;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Home</a>
+<a href="financial-galaxy.html" style="background:rgba(34,211,238,0.2);border:1px solid rgba(34,211,238,0.4);color:#22d3ee;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Financial Galaxy</a>
+</div>
+    <!-- Auth Gate (wird angezeigt wenn nicht eingeloggt) -->
+    <div class="auth-gate" id="authGate">
+        <div class="auth-box">
+            <h2 data-i18n="memberArea">🔒 Mitgliederbereich</h2>
+            <p data-i18n="pleaseLogin">Bitte melde dich an, um auf das Dashboard zuzugreifen.</p>
+            <a href="index.html" class="auth-btn" data-i18n="toHomepage">← Zur Startseite & Login</a>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">CS MEMBER DASHBOARD</div>
+            <div class="plan-badge free" id="planBadge" data-i18n="planFree">KOSTENLOS</div>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-name" id="userName">-</div>
+                <div class="user-email" id="userEmail">-</div>
+            </div>
+            <div class="lang-switch">
+                <button class="lang-btn" data-lang="de" onclick="setLanguage('de')">DE</button>
+                <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+            </div>
+            <button class="logout-btn" id="logoutBtn" data-i18n="logout">Logout</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="grid">
+            <!-- Account & Plan Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title" data-i18n="accountPlan">📋 Account & Plan</div>
+                    <span class="card-badge active" id="statusBadge" data-i18n="active">Aktiv</span>
+                </div>
+                <div class="upgrade-section" id="upgradeSection">
+                    <button class="upgrade-btn gold" data-i18n="rallye25Btn">🚀 Rallye 25 – 24,90 € / Monat</button>
+                    <button class="upgrade-btn blue" data-i18n="rallye50Btn">⚡ Rallye 50 – 49,90 € / Monat</button>
+                    <button class="upgrade-btn elite" data-i18n="rallye100Btn">👑 ELITE PLAN – Rallye 100 – 99,90 € / Monat</button>
+                    <p class="upgrade-hint" data-i18n="upgradeHint">Jederzeit kündbar • Keine versteckten Kosten</p>
+                </div>
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <span class="feature-icon">📊</span>
+                        <span class="feature-name" data-i18n="currentPlan">Aktueller Plan</span>
+                        <span class="feature-status" id="currentPlan">Kostenlos</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">📅</span>
+                        <span class="feature-name" data-i18n="memberSince">Mitglied seit</span>
+                        <span class="feature-status active" id="memberSince">-</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">⚙️</span>
+                        <span class="feature-name" data-i18n="managePlan">Plan verwalten</span>
+                        <span class="feature-status" style="cursor:pointer;">→</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Features Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title" data-i18n="features">✨ Features & Freischaltungen</div>
+                </div>
+                <ul class="feature-list" id="featureList">
+                    <li class="feature-item">
+                        <span class="feature-icon">👁️</span>
+                        <span class="feature-name" data-i18n="watchCoins">Coins beobachten</span>
+                        <span class="feature-status locked" id="fWatchCoins">🔒 Upgrade</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">⭐</span>
+                        <span class="feature-name" data-i18n="saveFavorites">Favoriten speichern</span>
+                        <span class="feature-status locked" id="fFavorites">🔒 Upgrade</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">💾</span>
+                        <span class="feature-name" data-i18n="saveSettings">Settings speichern</span>
+                        <span class="feature-status locked" id="fSettings">🔒 Upgrade</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">🧠</span>
+                        <span class="feature-name" data-i18n="aiDriver">AI Driver (72h)</span>
+                        <span class="feature-status soon">🧪 Coming Soon</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">⏱️</span>
+                        <span class="feature-name" data-i18n="replay24h">24h Replay</span>
+                        <span class="feature-status soon">🧪 Coming Soon</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">🔔</span>
+                        <span class="feature-name" data-i18n="smartAlerts">Smart Alerts</span>
+                        <span class="feature-status soon">🧪 Coming Soon</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Coin Control Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title" data-i18n="coinControl">🎯 Coin-Kontrolle</div>
+                    <span class="card-badge locked" id="coinControlBadge" data-i18n="premium">Premium</span>
+                </div>
+                <div style="position: relative;">
+                    <div id="coinControlContent">
+                        <div class="coin-counter">
+                            <div>
+                                <div class="coin-count" id="coinCount">0 / 25</div>
+                                <div class="coin-label" data-i18n="activeCoins">Aktive Coins</div>
+                            </div>
+                            <button class="upgrade-btn gold" style="width:auto;margin:0;" data-i18n="manage">Verwalten</button>
+                        </div>
+                    </div>
+                    <div class="locked-cta" id="coinControlLock">
+                        <span>🔒</span>
+                        <p data-i18n="upgradeForCoin">Upgrade für Coin-Verwaltung</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p data-i18n="disclaimer">Nur Visualisierung & Monitoring. Keine Finanz- oder Anlageberatung. Keine Garantie für Ergebnisse.</p>
+        <p style="margin-top: 10px;"><a href="index.html" data-i18n="backToHome">← Zurück zur Startseite</a></p>
+    </footer>
+
+    <script>
+        // i18n Translations
+        const translations = {
+            de: {
+                memberArea: '🔒 Mitgliederbereich',
+                pleaseLogin: 'Bitte melde dich an, um auf das Dashboard zuzugreifen.',
+                toHomepage: '← Zur Startseite & Login',
+                planFree: 'KOSTENLOS',
+                logout: 'Logout',
+                accountPlan: '📋 Account & Plan',
+                active: 'Aktiv',
+                rallye25Btn: '🚀 Rallye 25 – 24,90 € / Monat',
+                rallye50Btn: '⚡ Rallye 50 – 49,90 € / Monat',
+                rallye100Btn: '👑 ELITE PLAN – Rallye 100 – 99,90 € / Monat',
+                upgradeHint: 'Jederzeit kündbar • Keine versteckten Kosten',
+                currentPlan: 'Aktueller Plan',
+                planFreeStatus: 'Kostenlos',
+                memberSince: 'Mitglied seit',
+                managePlan: 'Plan verwalten',
+                features: '✨ Features & Freischaltungen',
+                watchCoins: 'Coins beobachten',
+                saveFavorites: 'Favoriten speichern',
+                saveSettings: 'Settings speichern',
+                aiDriver: 'AI Driver (72h)',
+                replay24h: '24h Replay',
+                smartAlerts: 'Smart Alerts',
+                upgrade: '🔒 Upgrade',
+                comingSoon: '🧪 Coming Soon',
+                unlocked: '✅ Aktiv',
+                coinControl: '🎯 Coin-Kontrolle',
+                premium: 'Premium',
+                activeCoins: 'Aktive Coins',
+                manage: 'Verwalten',
+                upgradeForCoin: 'Upgrade für Coin-Verwaltung',
+                disclaimer: 'Nur Visualisierung & Monitoring. Keine Finanz- oder Anlageberatung. Keine Garantie für Ergebnisse.',
+                backToHome: '← Zurück zur Startseite',
+                member: 'Mitglied'
+            },
+            en: {
+                memberArea: '🔒 Member Area',
+                pleaseLogin: 'Please log in to access the dashboard.',
+                toHomepage: '← To Homepage & Login',
+                planFree: 'FREE',
+                logout: 'Logout',
+                accountPlan: '📋 Account & Plan',
+                active: 'Active',
+                rallye25Btn: '🚀 Rallye 25 – €24.90 / month',
+                rallye50Btn: '⚡ Rallye 50 – €49.90 / month',
+                rallye100Btn: '👑 ELITE PLAN – Rallye 100 – €99.90 / month',
+                upgradeHint: 'Cancel anytime • No hidden fees',
+                currentPlan: 'Current Plan',
+                planFreeStatus: 'Free',
+                memberSince: 'Member since',
+                managePlan: 'Manage Plan',
+                features: '✨ Features & Unlocks',
+                watchCoins: 'Watch Coins',
+                saveFavorites: 'Save Favorites',
+                saveSettings: 'Save Settings',
+                aiDriver: 'AI Driver (72h)',
+                replay24h: '24h Replay',
+                smartAlerts: 'Smart Alerts',
+                upgrade: '🔒 Upgrade',
+                comingSoon: '🧪 Coming Soon',
+                unlocked: '✅ Active',
+                coinControl: '🎯 Coin Control',
+                premium: 'Premium',
+                activeCoins: 'Active Coins',
+                manage: 'Manage',
+                upgradeForCoin: 'Upgrade for Coin Management',
+                disclaimer: 'Visualization & Monitoring only. No financial or investment advice. No guarantee of results.',
+                backToHome: '← Back to Homepage',
+                member: 'Member'
+            }
+        };
+        
+        let currentLang = localStorage.getItem('dashboardLang') || 'de';
+        
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('dashboardLang', lang);
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            document.documentElement.lang = lang;
+        }
+        
+        // Auth Check
+        const user = JSON.parse(localStorage.getItem('cryptoUser') || 'null');
+        const authGate = document.getElementById('authGate');
+        
+        if (!user || !user.loggedIn) {
+            authGate.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        } else {
+            authGate.classList.add('hidden');
+            
+            // User Info anzeigen
+            document.getElementById('userName').textContent = user.name || 'Mitglied';
+            document.getElementById('userEmail').textContent = user.email || '-';
+            document.getElementById('memberSince').textContent = user.memberSince || new Date().toLocaleDateString('de-DE');
+            
+            // Plan-Status
+            const plan = user.plan || 'free';
+            const planBadge = document.getElementById('planBadge');
+            const currentPlan = document.getElementById('currentPlan');
+            const upgradeSection = document.getElementById('upgradeSection');
+            
+            if (plan === 'rallye25') {
+                planBadge.textContent = 'RALLYE 25';
+                planBadge.classList.remove('free');
+                currentPlan.textContent = 'Rallye 25';
+                currentPlan.classList.add('active');
+                upgradeSection.style.display = 'none';
+                unlockFeatures(25);
+            } else if (plan === 'rallye50') {
+                planBadge.textContent = 'RALLYE 50';
+                planBadge.classList.remove('free');
+                currentPlan.textContent = 'Rallye 50';
+                currentPlan.classList.add('active');
+                upgradeSection.style.display = 'none';
+                unlockFeatures(50);
+            } else {
+                currentPlan.classList.add('locked');
+            }
+        }
+        
+        function unlockFeatures(limit) {
+            document.getElementById('fWatchCoins').textContent = '✅ Aktiv';
+            document.getElementById('fWatchCoins').classList.remove('locked');
+            document.getElementById('fWatchCoins').classList.add('active');
+            
+            document.getElementById('fFavorites').textContent = '✅ Aktiv';
+            document.getElementById('fFavorites').classList.remove('locked');
+            document.getElementById('fFavorites').classList.add('active');
+            
+            document.getElementById('fSettings').textContent = '✅ Aktiv';
+            document.getElementById('fSettings').classList.remove('locked');
+            document.getElementById('fSettings').classList.add('active');
+            
+            document.getElementById('coinControlBadge').textContent = 'Aktiv';
+            document.getElementById('coinControlBadge').classList.remove('locked');
+            document.getElementById('coinControlBadge').classList.add('active');
+            
+            document.getElementById('coinControlLock').style.display = 'none';
+            document.getElementById('coinCount').textContent = '0 / ' + limit;
+        }
+        
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('cryptoUser');
+            window.location.href = 'index.html';
+        });
+        
+        // Initialize language
+        setLanguage(currentLang);
+    </script>
+</body>
+</html>

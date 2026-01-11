@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whale Resonance | CryptoSpaces</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ocean-deep: #001020;
+            --ocean-mid: #002040;
+            --ocean-surface: #003060;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --whale-color: #1e3a5f;
+            --text-light: #f1f5f9;
+            --pump-glow: #22c55e;
+            --warning: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--ocean-deep);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--text-light);
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(0, 16, 32, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 12px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(14, 165, 233, 0.3);
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .back-btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #3b82f6;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.7rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: rgba(59, 130, 246, 0.3); }
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #0ea5e9, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+        .header-right { display: flex; gap: 10px; align-items: center; }
+        .nav-link {
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            color: #fbbf24;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .nav-link:hover { background: rgba(251, 191, 36, 0.25); }
+
+        /* Main Container */
+        .main-container {
+            padding-top: 70px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Ocean Layer (Whale Area) */
+        .ocean-layer {
+            flex: 0 0 45%;
+            position: relative;
+            z-index: 10;
+            background: linear-gradient(180deg, 
+                var(--ocean-deep) 0%, 
+                var(--ocean-mid) 60%,
+                var(--ocean-surface) 100%);
+            overflow: hidden;
+            border-bottom: 3px solid rgba(34, 211, 238, 0.4);
+        }
+
+        /* Water Surface Line */
+        .water-surface {
+            position: absolute;
+            bottom: 30%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(34, 211, 238, 0.6) 20%, 
+                rgba(14, 165, 233, 0.8) 50%,
+                rgba(34, 211, 238, 0.6) 80%, 
+                transparent 100%);
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+        }
+
+        /* Water Waves Animation */
+        .water-waves {
+            position: absolute;
+            bottom: 28%;
+            left: 0;
+            width: 200%;
+            height: 60px;
+            opacity: 0.3;
+        }
+        .water-waves svg {
+            width: 100%;
+            height: 100%;
+        }
+        .wave-path {
+            fill: none;
+            stroke: var(--accent-cyan);
+            stroke-width: 2;
+            animation: waveMove 8s linear infinite;
+        }
+        @keyframes waveMove {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Whale Container */
+        .whale-container {
+            position: absolute;
+            width: 280px;
+            height: 150px;
+            transition: left 0.1s linear;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+            z-index: 20;
+        }
+        .whale-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            animation: whaleSwim 4s ease-in-out infinite;
+        }
+        @keyframes whaleSwim {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-8px) rotate(-1deg); }
+            50% { transform: translateY(0) rotate(0deg); }
+            75% { transform: translateY(8px) rotate(1deg); }
+        }
+
+        /* Whale States - LEGACY (hidden) */
+        .whale-state { display: none; }
+        .whale-state.active { display: none; }
+
+        /* Bubbles from Whale */
+        .whale-bubbles {
+            position: absolute;
+            pointer-events: none;
+        }
+        .whale-bubble {
+            position: absolute;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), rgba(34,211,238,0.2));
+            border-radius: 50%;
+            animation: bubbleRise 3s ease-out forwards;
+        }
+        @keyframes bubbleRise {
+            0% { opacity: 0.8; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-200px) scale(0.3); }
+        }
+
+        /* Pressure Indicator */
+        .pressure-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 16, 32, 0.8);
+            border: 1px solid rgba(34, 211, 238, 0.4);
+            border-radius: 12px;
+            padding: 15px 20px;
+            min-width: 180px;
+        }
+        .pressure-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            color: var(--accent-cyan);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .pressure-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .pressure-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #fbbf24, #ef4444);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 30%;
+        }
+        .pressure-label {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            display: flex;
+            justify-content: space-between;
+        }
+        .pressure-value {
+            color: var(--pump-glow);
+            font-weight: 600;
+        }
+
+        /* Calm Mode Notice */
+        .calm-notice {
+            position: absolute;
+            bottom: 15px;
+            left: 20px;
+            font-size: 0.6rem;
+            color: rgba(248, 250, 252, 0.4);
+            display: none;
+        }
+        .calm-notice.visible { display: block; }
+
+        /* Coin Area */
+        .coin-area {
+            flex: 1;
+            position: relative;
+            z-index: 10;
+            background: linear-gradient(180deg, 
+                var(--ocean-surface) 0%,
+                var(--ocean-mid) 30%,
+                var(--ocean-deep) 100%);
+            overflow: visible;
+            padding: 20px;
+        }
+
+        /* Coin Baseline */
+        .coin-baseline {
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(34, 211, 238, 0.2);
+        }
+
+        /* Coin Bubble */
+        .coin-bubble {
+            position: absolute;
+            bottom: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, bottom 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 10;
+        }
+        .coin-bubble.pumping {
+            animation: pumpElastic 0.5s ease-out;
+        }
+        @keyframes pumpElastic {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.3); }
+            50% { transform: scale(1.15); }
+            70% { transform: scale(1.25); }
+            100% { transform: scale(1.2); }
+        }
+        .coin-bubble.rising {
+            bottom: calc(100% + 200px);
+            z-index: 1100;
+        }
+        .coin-bubble.descending {
+            transition: bottom 4s ease-in-out;
+        }
+
+        .coin-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--ocean-mid), var(--ocean-deep));
+            border: 2px solid rgba(34, 211, 238, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .coin-icon img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+        }
+        .coin-bubble.pumping .coin-icon {
+            border-color: var(--pump-glow);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.6), 0 0 60px rgba(34, 197, 94, 0.3);
+        }
+
+        .coin-name {
+            margin-top: 6px;
+            font-size: 0.55rem;
+            color: rgba(248, 250, 252, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Coin Overlay */
+        .coin-overlay {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 16, 32, 0.95);
+            border: 1px solid rgba(34, 211, 238, 0.5);
+            border-radius: 10px;
+            padding: 12px 15px;
+            min-width: 200px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1200;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        .coin-overlay.visible {
+            opacity: 1;
+        }
+        .overlay-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(34, 211, 238, 0.2);
+        }
+        .overlay-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--ocean-mid);
+        }
+        .overlay-icon img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+        .overlay-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+        .overlay-ticker {
+            font-size: 0.6rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+        }
+        .overlay-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.6rem;
+            margin: 5px 0;
+        }
+        .overlay-label { color: rgba(248, 250, 252, 0.6); }
+        .overlay-value { color: var(--text-light); font-weight: 500; }
+        .overlay-value.high { color: var(--pump-glow); }
+        .overlay-value.positive { color: #22c55e; }
+        .overlay-value.negative { color: #ef4444; }
+        .overlay-timestamp {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(34, 211, 238, 0.2);
+            font-size: 0.5rem;
+            color: rgba(248, 250, 252, 0.4);
+            text-align: center;
+        }
+
+        /* Air Bubbles Effect */
+        .air-bubble {
+            position: absolute;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), rgba(34,211,238,0.1));
+            border-radius: 50%;
+            pointer-events: none;
+            animation: airBubbleRise 2s ease-out forwards;
+        }
+        @keyframes airBubbleRise {
+            0% { opacity: 0.6; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-150px) scale(0.5); }
+        }
+
+        /* Ambient Bubble System */
+        .ambient-bubble {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            will-change: transform, opacity;
+            background: radial-gradient(circle at 30% 30%, 
+                rgba(255,255,255,0.25) 0%, 
+                rgba(34,211,238,0.12) 40%, 
+                rgba(14,165,233,0.05) 100%);
+            box-shadow: 
+                inset 0 -2px 4px rgba(0,0,0,0.1),
+                inset 2px 2px 4px rgba(255,255,255,0.15),
+                0 0 8px rgba(34,211,238,0.1);
+            filter: blur(0.3px);
+        }
+
+        /* Video Background */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        .video-background.active {
+            opacity: 1;
+        }
+        
+        /* When video is active, make backgrounds transparent */
+        body.video-active .ocean-layer {
+            background: transparent !important;
+        }
+        body.video-active .coin-area {
+            background: transparent !important;
+        }
+
+        /* Video Toggle Button */
+        .video-toggle {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: rgba(0, 32, 64, 0.8);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+        .video-toggle:hover {
+            background: rgba(0, 48, 96, 0.9);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+        }
+        .video-toggle.active {
+            background: rgba(14, 165, 233, 0.2);
+            border-color: var(--accent-cyan);
+        }
+        .video-toggle svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: rgba(34, 211, 238, 0.6);
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+        .video-toggle:hover svg,
+        .video-toggle.active svg {
+            stroke: var(--accent-cyan);
+        }
+
+        /* Ocean Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            bottom: 50px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: rgba(0, 32, 64, 0.8);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+        .sound-toggle:hover {
+            background: rgba(0, 48, 96, 0.9);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+        }
+        .sound-toggle.active {
+            background: rgba(14, 165, 233, 0.2);
+            border-color: var(--accent-cyan);
+        }
+        .sound-toggle svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: rgba(34, 211, 238, 0.6);
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+        .sound-toggle:hover svg,
+        .sound-toggle.active svg {
+            stroke: var(--accent-cyan);
+        }
+        .sound-toggle .wave-lines {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .sound-toggle.active .wave-lines {
+            opacity: 1;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 16, 32, 0.95);
+            border-top: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 0.6rem;
+            color: rgba(248, 250, 252, 0.5);
+            z-index: 1000;
+        }
+        .disclaimer span {
+            color: #f59e0b;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 20px;
+        }
+        .stat-item {
+            background: rgba(0, 16, 32, 0.7);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 8px;
+            padding: 10px 15px;
+        }
+        .stat-label {
+            font-size: 0.5rem;
+            color: rgba(248, 250, 252, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stat-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin-top: 4px;
+        }
+
+        /* Loading State */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--ocean-deep);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            transition: opacity 0.5s ease;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-whale {
+            width: 150px;
+            height: 80px;
+            animation: loadingBob 2s ease-in-out infinite;
+        }
+        @keyframes loadingBob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .loading-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--accent-cyan);
+            margin-top: 20px;
+            letter-spacing: 3px;
+        }
+        .loading-sub {
+            font-size: 0.6rem;
+            color: rgba(248, 250, 252, 0.5);
+            margin-top: 10px;
+        }
+
+        /* Whale History Panel */
+        .history-tab {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 32, 64, 0.95);
+            border: 1px solid rgba(34, 211, 238, 0.4);
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            padding: 12px 8px;
+            cursor: pointer;
+            z-index: 1500;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            color: var(--accent-cyan);
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+        .history-tab:hover { background: rgba(0, 48, 96, 0.95); }
+        .history-tab.hidden { display: none; }
+
+        .history-panel {
+            position: fixed;
+            right: -380px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 360px;
+            max-height: 70vh;
+            background: rgba(0, 16, 32, 0.97);
+            border: 1px solid rgba(34, 211, 238, 0.4);
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            z-index: 1600;
+            transition: right 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -5px 0 30px rgba(0, 0, 0, 0.5);
+        }
+        .history-panel.open { right: 0; }
+
+        .history-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(34, 211, 238, 0.2);
+            position: relative;
+        }
+        .history-close {
+            position: absolute;
+            top: 12px; right: 12px;
+            background: none;
+            border: none;
+            color: rgba(248, 250, 252, 0.5);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .history-close:hover { color: var(--accent-cyan); }
+        .history-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+        .history-subtitle {
+            font-size: 0.55rem;
+            color: rgba(248, 250, 252, 0.5);
+            margin-top: 4px;
+        }
+        .history-viz-note {
+            font-size: 0.5rem;
+            color: rgba(248, 250, 252, 0.3);
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        .time-filters {
+            display: flex;
+            gap: 6px;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(34, 211, 238, 0.15);
+        }
+        .time-btn {
+            flex: 1;
+            padding: 8px 4px;
+            background: rgba(34, 211, 238, 0.1);
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            border-radius: 6px;
+            color: rgba(248, 250, 252, 0.6);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .time-btn:hover { background: rgba(34, 211, 238, 0.2); }
+        .time-btn.active {
+            background: rgba(34, 211, 238, 0.3);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        .time-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .history-timeline {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(34, 211, 238, 0.15);
+        }
+        .timeline-bar {
+            height: 40px;
+            background: rgba(0, 32, 64, 0.5);
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+        .timeline-peak {
+            position: absolute;
+            bottom: 0;
+            width: 4px;
+            background: var(--pump-glow);
+            border-radius: 2px 2px 0 0;
+            transition: all 0.3s;
+        }
+        .timeline-peak.sell { background: #ef4444; }
+        .timeline-peak:hover { opacity: 0.8; }
+
+        .history-events {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        .history-events::-webkit-scrollbar { width: 4px; }
+        .history-events::-webkit-scrollbar-thumb { background: rgba(34, 211, 238, 0.3); border-radius: 2px; }
+
+        .event-item {
+            padding: 10px 16px;
+            border-bottom: 1px solid rgba(34, 211, 238, 0.1);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .event-item:hover { background: rgba(34, 211, 238, 0.1); }
+        .event-item.highlighted { background: rgba(34, 197, 94, 0.15); }
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .event-type {
+            font-size: 0.6rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .event-type.buy { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .event-type.sell { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .event-time {
+            font-size: 0.5rem;
+            color: rgba(248, 250, 252, 0.4);
+        }
+        .event-coin {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .event-coin-icon {
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            background: var(--ocean-mid);
+        }
+        .event-coin-icon img { width: 100%; height: 100%; border-radius: 50%; }
+        .event-coin-symbol {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+        .event-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            font-size: 0.55rem;
+        }
+        .event-detail {
+            display: flex;
+            justify-content: space-between;
+        }
+        .event-label { color: rgba(248, 250, 252, 0.5); }
+        .event-value { color: var(--text-light); }
+        .event-value.high { color: #ef4444; }
+        .event-value.medium { color: #fbbf24; }
+        .event-value.low { color: #22c55e; }
+
+        .replay-btn {
+            margin: 12px 16px;
+            padding: 10px;
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(14, 165, 233, 0.2));
+            border: 1px solid rgba(34, 211, 238, 0.4);
+            border-radius: 8px;
+            color: var(--accent-cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .replay-btn:hover { background: rgba(34, 211, 238, 0.3); }
+
+        .history-footer {
+            padding: 10px 16px;
+            border-top: 1px solid rgba(34, 211, 238, 0.15);
+            font-size: 0.45rem;
+            color: rgba(248, 250, 252, 0.3);
+            text-align: center;
+        }
+
+        .no-data-msg {
+            padding: 20px 16px;
+            text-align: center;
+            font-size: 0.6rem;
+            color: rgba(248, 250, 252, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 10px 15px; }
+            .header-right { display: none; }
+            .ocean-layer { flex: 0 0 35%; }
+            .whale-container { width: 180px; height: 100px; }
+            .pressure-indicator { padding: 10px 12px; min-width: 140px; }
+            .coin-icon { width: 40px; height: 40px; font-size: 0.6rem; }
+            .history-panel { width: 300px; right: -320px; max-height: 60vh; }
+            .history-tab { padding: 10px 6px; font-size: 0.5rem; }
+        }
+    </style>
+    <link rel="stylesheet" href="membership-gating.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <svg class="loading-whale" viewBox="0 0 200 100">
+            <ellipse cx="100" cy="50" rx="70" ry="35" fill="#1e3a5f"/>
+            <ellipse cx="45" cy="50" rx="25" ry="20" fill="#1e3a5f"/>
+            <path d="M155 30 Q180 10 175 50 Q180 90 155 70" fill="#1e3a5f"/>
+            <circle cx="35" cy="45" r="4" fill="#22d3ee"/>
+            <path d="M100 25 Q100 5 90 15 M100 25 Q100 5 110 15" stroke="#22d3ee" stroke-width="2" fill="none" opacity="0.6"/>
+        </svg>
+        <div class="loading-text">WHALE RESONANCE</div>
+        <div class="loading-sub">Scanning whale activity...</div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="back-btn">← HOME</a>
+            <div class="title">WHALE RESONANCE</div>
+        </div>
+        <div class="header-right">
+            <a href="financial-galaxy.html" class="nav-link">Financial Galaxy</a>
+            <a href="geowhales.html" class="nav-link">GeoWhales</a>
+            <a href="whaleBubbles.html" class="nav-link">Whale Bubbles</a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Ocean Layer (Whale Area) -->
+        <div class="ocean-layer" id="oceanLayer">
+            <!-- Water Waves -->
+            <div class="water-waves">
+                <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
+                    <path class="wave-path" d="M0,30 Q150,10 300,30 T600,30 T900,30 T1200,30 T1500,30 T1800,30"/>
+                </svg>
+            </div>
+            
+            <!-- Water Surface -->
+            <div class="water-surface"></div>
+
+            <!-- Whale Container (Single Image Animation) -->
+            <div class="whale-container" id="whaleContainer">
+                <img src="assets/img/waal2.png" alt="Whale" class="whale-img" id="whaleImg">
+            </div>
+
+            <!-- Pressure Indicator -->
+            <div class="pressure-indicator">
+                <div class="pressure-title">WHALE PRESSURE</div>
+                <div class="pressure-bar">
+                    <div class="pressure-fill" id="pressureFill"></div>
+                </div>
+                <div class="pressure-label">
+                    <span>Level:</span>
+                    <span class="pressure-value" id="pressureLevel">LOW</span>
+                </div>
+            </div>
+
+            <!-- Calm Mode Notice -->
+            <div class="calm-notice" id="calmNotice">
+                ⚠ Whale feed limited – running in calm mode.
+            </div>
+        </div>
+
+        <!-- Coin Area -->
+        <div class="coin-area" id="coinArea">
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-label">Active Coins</div>
+                    <div class="stat-value" id="activeCoins">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Pumping</div>
+                    <div class="stat-value" id="pumpingCount">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Total Volume</div>
+                    <div class="stat-value" id="totalVolume">$0</div>
+                </div>
+            </div>
+
+            <!-- Coin Baseline -->
+            <div class="coin-baseline"></div>
+
+            <!-- Coins will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Whale History Tab -->
+    <div class="history-tab" id="historyTab" onclick="toggleHistoryPanel()">📊 WHALE HISTORY</div>
+
+    <!-- Whale History Panel -->
+    <div class="history-panel" id="historyPanel">
+        <div class="history-header">
+            <button class="history-close" onclick="toggleHistoryPanel()">✕</button>
+            <div class="history-title">Whale Resonance History</div>
+            <div class="history-subtitle">Buys / Sells · Time-stamped · Data-based</div>
+            <div class="history-viz-note">Visualization only</div>
+        </div>
+
+        <div class="time-filters">
+            <button class="time-btn active" data-period="7d" onclick="setTimePeriod('7d')">7D</button>
+            <button class="time-btn" data-period="1m" onclick="setTimePeriod('1m')">1M</button>
+            <button class="time-btn" data-period="3m" onclick="setTimePeriod('3m')">3M</button>
+            <button class="time-btn" data-period="6m" onclick="setTimePeriod('6m')">6M</button>
+            <button class="time-btn" data-period="12m" onclick="setTimePeriod('12m')">12M</button>
+        </div>
+
+        <div class="history-timeline">
+            <div class="timeline-bar" id="timelineBar"></div>
+        </div>
+
+        <div class="history-events" id="historyEvents"></div>
+
+        <button class="replay-btn" onclick="replayEvents()">▶ Replay selected period</button>
+
+        <div class="history-footer">
+            Visualization only. No trading signals. No financial advice.
+        </div>
+    </div>
+
+    <!-- Video Background -->
+    <video class="video-background" id="videoBackground" loop muted playsinline>
+        <source src="video/Ocean.mp4" type="video/mp4">
+    </video>
+
+    <!-- Video Toggle Button -->
+    <button class="video-toggle" id="videoToggle" title="Video Hintergrund">
+        <svg viewBox="0 0 24 24">
+            <rect x="2" y="4" width="20" height="16" rx="2" ry="2" fill="rgba(34,211,238,0.2)"/>
+            <polygon points="10,8 16,12 10,16" fill="rgba(34,211,238,0.5)"/>
+        </svg>
+    </button>
+
+    <!-- Ocean Ambient Sound -->
+    <audio id="oceanAmbient" loop preload="auto">
+        <source src="audio/pure-ocean-waves.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Sound Toggle Button -->
+    <button class="sound-toggle" id="soundToggle" title="Ocean Sound">
+        <svg viewBox="0 0 24 24">
+            <path d="M3 9v6h4l5 5V4L7 9H3z" fill="rgba(34,211,238,0.3)"/>
+            <g class="wave-lines">
+                <path d="M16 9c.8.8 1.3 2 1.3 3s-.5 2.2-1.3 3"/>
+                <path d="M19 6c1.6 1.6 2.5 3.8 2.5 6s-.9 4.4-2.5 6"/>
+            </g>
+        </svg>
+    </button>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+        <span>⚠</span> Visualization only. No trading signals. No financial advice. 
+        Whale activity is simulated for demonstration purposes.
+    </div>
+
+    <script>
+        // ==================== CONFIG ====================
+        const COIN_DATA = [
+            { id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin', image: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png', price: 97234, change24h: 2.34 },
+            { id: 'ethereum', symbol: 'ETH', name: 'Ethereum', image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png', price: 3456, change24h: 1.87 },
+            { id: 'solana', symbol: 'SOL', name: 'Solana', image: 'https://assets.coingecko.com/coins/images/4128/small/solana.png', price: 198, change24h: 5.21 },
+            { id: 'cardano', symbol: 'ADA', name: 'Cardano', image: 'https://assets.coingecko.com/coins/images/975/small/cardano.png', price: 1.12, change24h: -0.45 },
+            { id: 'ripple', symbol: 'XRP', name: 'XRP', image: 'https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png', price: 2.34, change24h: 3.21 },
+            { id: 'polkadot', symbol: 'DOT', name: 'Polkadot', image: 'https://assets.coingecko.com/coins/images/12171/small/polkadot.png', price: 8.45, change24h: 2.15 },
+            { id: 'dogecoin', symbol: 'DOGE', name: 'Dogecoin', image: 'https://assets.coingecko.com/coins/images/5/small/dogecoin.png', price: 0.42, change24h: 8.76 },
+            { id: 'avalanche', symbol: 'AVAX', name: 'Avalanche', image: 'https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png', price: 42.30, change24h: 4.32 },
+            { id: 'chainlink', symbol: 'LINK', name: 'Chainlink', image: 'https://assets.coingecko.com/coins/images/877/small/chainlink-new-logo.png', price: 18.90, change24h: 1.23 },
+            { id: 'polygon', symbol: 'MATIC', name: 'Polygon', image: 'https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png', price: 0.98, change24h: -1.45 },
+            { id: 'uniswap', symbol: 'UNI', name: 'Uniswap', image: 'https://assets.coingecko.com/coins/images/12504/small/uni.jpg', price: 12.34, change24h: 2.87 },
+            { id: 'cosmos', symbol: 'ATOM', name: 'Cosmos', image: 'https://assets.coingecko.com/coins/images/1481/small/cosmos_hub.png', price: 9.87, change24h: 0.54 },
+            { id: 'litecoin', symbol: 'LTC', name: 'Litecoin', image: 'https://assets.coingecko.com/coins/images/2/small/litecoin.png', price: 108.50, change24h: 1.98 },
+            { id: 'near', symbol: 'NEAR', name: 'NEAR Protocol', image: 'https://assets.coingecko.com/coins/images/10365/small/near.jpg', price: 6.78, change24h: 3.45 },
+            { id: 'stellar', symbol: 'XLM', name: 'Stellar', image: 'https://assets.coingecko.com/coins/images/100/small/Stellar_symbol_black_RGB.png', price: 0.45, change24h: 2.12 },
+            { id: 'arbitrum', symbol: 'ARB', name: 'Arbitrum', image: 'https://assets.coingecko.com/coins/images/16547/small/photo_2023-03-29_21.47.00.jpeg', price: 1.23, change24h: 4.56 },
+            { id: 'optimism', symbol: 'OP', name: 'Optimism', image: 'https://assets.coingecko.com/coins/images/25244/small/Optimism.png', price: 2.45, change24h: 5.67 },
+            { id: 'filecoin', symbol: 'FIL', name: 'Filecoin', image: 'https://assets.coingecko.com/coins/images/12817/small/filecoin.png', price: 6.78, change24h: -2.34 },
+            { id: 'aptos', symbol: 'APT', name: 'Aptos', image: 'https://assets.coingecko.com/coins/images/26455/small/aptos_round.png', price: 12.34, change24h: 6.78 },
+            { id: 'sui', symbol: 'SUI', name: 'Sui', image: 'https://assets.coingecko.com/coins/images/26375/small/sui_asset.jpeg', price: 4.56, change24h: 7.89 }
+        ];
+
+        // ==================== STATE ====================
+        let whaleState = 1; // 1=deep, 2=surface, 3=breach
+        let whalePressure = 30; // 0-100
+        let whaleX = -300;
+        let whaleY = 0;
+        let coinBubbles = [];
+        let activeOverlays = 0;
+        const MAX_OVERLAYS = 3;
+
+        // ==================== DOM ELEMENTS ====================
+        const whaleContainer = document.getElementById('whaleContainer');
+        const oceanLayer = document.getElementById('oceanLayer');
+        const coinArea = document.getElementById('coinArea');
+        const pressureFill = document.getElementById('pressureFill');
+        const pressureLevel = document.getElementById('pressureLevel');
+        const calmNotice = document.getElementById('calmNotice');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // ==================== INITIALIZATION ====================
+        function init() {
+            createCoinBubbles();
+            startWhaleAnimation();
+            startPressureSimulation();
+            updateStats();
+
+            // Hide loading after 1.5s
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+            }, 1500);
+        }
+
+        function createCoinBubbles() {
+            const areaWidth = coinArea.clientWidth;
+            const spacing = areaWidth / (COIN_DATA.length + 1);
+
+            COIN_DATA.forEach((coin, index) => {
+                const bubble = document.createElement('div');
+                bubble.className = 'coin-bubble';
+                bubble.style.left = `${spacing * (index + 1) - 25}px`;
+                bubble.dataset.coinId = coin.id;
+
+                bubble.innerHTML = `
+                    <div class="coin-icon">
+                        <img src="${coin.image}" alt="${coin.symbol}" onerror="this.parentElement.textContent='${coin.symbol}'">
+                    </div>
+                    <div class="coin-name">${coin.symbol}</div>
+                    <div class="coin-overlay" id="overlay-${coin.id}">
+                        <div class="overlay-header">
+                            <div class="overlay-icon"><img src="${coin.image}" alt="${coin.symbol}"></div>
+                            <div>
+                                <div class="overlay-name">${coin.name}</div>
+                                <div class="overlay-ticker">${coin.symbol}</div>
+                            </div>
+                        </div>
+                        <div class="overlay-row">
+                            <span class="overlay-label">Whale Pressure:</span>
+                            <span class="overlay-value high" id="pressure-${coin.id}">HIGH</span>
+                        </div>
+                        <div class="overlay-row">
+                            <span class="overlay-label">Buy Volume:</span>
+                            <span class="overlay-value" id="volume-${coin.id}">$0</span>
+                        </div>
+                        <div class="overlay-row">
+                            <span class="overlay-label">Price:</span>
+                            <span class="overlay-value">$${coin.price.toLocaleString()}</span>
+                        </div>
+                        <div class="overlay-row">
+                            <span class="overlay-label">24h Change:</span>
+                            <span class="overlay-value ${coin.change24h >= 0 ? 'positive' : 'negative'}">${coin.change24h >= 0 ? '+' : ''}${coin.change24h}%</span>
+                        </div>
+                        <div class="overlay-timestamp" id="time-${coin.id}"></div>
+                    </div>
+                `;
+
+                coinArea.appendChild(bubble);
+                coinBubbles.push({
+                    element: bubble,
+                    coin: coin,
+                    isPumping: false,
+                    isRising: false,
+                    pumpLevel: 0
+                });
+            });
+
+            document.getElementById('activeCoins').textContent = COIN_DATA.length;
+        }
+
+        // ==================== WHALE ANIMATION ====================
+        function startWhaleAnimation() {
+            const oceanWidth = oceanLayer.clientWidth;
+            const oceanHeight = oceanLayer.clientHeight;
+
+            function animateWhale() {
+                // Move whale from left to right
+                whaleX += 0.5;
+                if (whaleX > oceanWidth + 100) {
+                    whaleX = -300;
+                }
+
+                // Vertical wave motion
+                whaleY = Math.sin(Date.now() / 1000) * 15;
+
+                // Position whale based on pressure
+                const baseBottom = 25; // % from bottom
+                const pressureBoost = (whalePressure / 100) * 25; // Up to 25% higher
+                const bottom = baseBottom + pressureBoost + (whaleY / oceanHeight * 100);
+
+                whaleContainer.style.left = `${whaleX}px`;
+                whaleContainer.style.bottom = `${bottom}%`;
+
+                // Update whale state based on pressure
+                updateWhaleState();
+
+                requestAnimationFrame(animateWhale);
+            }
+
+            animateWhale();
+        }
+
+        function updateWhaleState() {
+            // Single image animation - no state changes needed
+            // Whale swims smoothly via CSS animation (whaleSwim)
+        }
+
+        function createWhaleBubbles() {
+            const rect = whaleContainer.getBoundingClientRect();
+            const oceanRect = oceanLayer.getBoundingClientRect();
+
+            for (let i = 0; i < 5; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'whale-bubble';
+                bubble.style.left = `${rect.left - oceanRect.left + 100 + Math.random() * 80}px`;
+                bubble.style.top = `${rect.top - oceanRect.top + 20 + Math.random() * 40}px`;
+                bubble.style.width = `${8 + Math.random() * 12}px`;
+                bubble.style.height = bubble.style.width;
+                oceanLayer.appendChild(bubble);
+
+                setTimeout(() => bubble.remove(), 3000);
+            }
+        }
+
+        // ==================== PRESSURE SIMULATION ====================
+        function startPressureSimulation() {
+            setInterval(() => {
+                // Simulate whale pressure changes
+                const change = (Math.random() - 0.45) * 15;
+                whalePressure = Math.max(10, Math.min(95, whalePressure + change));
+
+                // Update UI
+                pressureFill.style.width = `${whalePressure}%`;
+                
+                let level = 'LOW';
+                let color = '#22c55e';
+                if (whalePressure > 66) {
+                    level = 'HIGH';
+                    color = '#ef4444';
+                } else if (whalePressure > 33) {
+                    level = 'MEDIUM';
+                    color = '#fbbf24';
+                }
+                pressureLevel.textContent = level;
+                pressureLevel.style.color = color;
+
+                // Trigger coin pumps based on pressure
+                if (whalePressure > 60 && Math.random() < 0.3) {
+                    triggerCoinPump();
+                }
+
+                // Show calm notice if pressure is very low
+                calmNotice.classList.toggle('visible', whalePressure < 20);
+
+            }, 1000);
+        }
+
+        // ==================== COIN PUMP EFFECT ====================
+        function triggerCoinPump() {
+            // Select 1-3 random coins to pump
+            const pumpCount = Math.floor(Math.random() * 3) + 1;
+            const availableCoins = coinBubbles.filter(b => !b.isPumping && !b.isRising);
+
+            for (let i = 0; i < Math.min(pumpCount, availableCoins.length); i++) {
+                const randomIndex = Math.floor(Math.random() * availableCoins.length);
+                const coinBubble = availableCoins.splice(randomIndex, 1)[0];
+                pumpCoin(coinBubble);
+            }
+        }
+
+        function pumpCoin(coinBubble) {
+            if (coinBubble.isPumping || activeOverlays >= MAX_OVERLAYS) return;
+
+            coinBubble.isPumping = true;
+            coinBubble.element.classList.add('pumping');
+            activeOverlays++;
+
+            // Create air bubbles
+            createAirBubbles(coinBubble.element);
+
+            // Update overlay data
+            const volume = Math.floor(Math.random() * 50000000) + 1000000;
+            const pressureText = whalePressure > 66 ? 'HIGH' : whalePressure > 33 ? 'MEDIUM' : 'LOW';
+            
+            document.getElementById(`pressure-${coinBubble.coin.id}`).textContent = pressureText;
+            document.getElementById(`volume-${coinBubble.coin.id}`).textContent = `$${(volume / 1000000).toFixed(2)}M`;
+            document.getElementById(`time-${coinBubble.coin.id}`).textContent = new Date().toLocaleString();
+
+            // Show overlay
+            const overlay = document.getElementById(`overlay-${coinBubble.coin.id}`);
+            overlay.classList.add('visible');
+
+            // Start rising after pump animation
+            setTimeout(() => {
+                coinBubble.isRising = true;
+                coinBubble.element.classList.add('rising');
+                updateStats();
+            }, 500);
+
+            // Hide overlay after 5 seconds
+            setTimeout(() => {
+                overlay.classList.remove('visible');
+                activeOverlays--;
+            }, 5000);
+
+            // Reset coin after reaching top
+            setTimeout(() => {
+                coinBubble.element.classList.remove('pumping', 'rising');
+                coinBubble.element.classList.add('descending');
+                
+                setTimeout(() => {
+                    coinBubble.element.classList.remove('descending');
+                    coinBubble.isPumping = false;
+                    coinBubble.isRising = false;
+                    updateStats();
+                }, 4000);
+            }, 3000);
+        }
+
+        function createAirBubbles(element) {
+            const rect = element.getBoundingClientRect();
+            const areaRect = coinArea.getBoundingClientRect();
+
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'air-bubble';
+                    bubble.style.left = `${rect.left - areaRect.left + Math.random() * 40}px`;
+                    bubble.style.bottom = `${window.innerHeight - rect.bottom + areaRect.top + 20}px`;
+                    bubble.style.width = `${4 + Math.random() * 8}px`;
+                    bubble.style.height = bubble.style.width;
+                    coinArea.appendChild(bubble);
+
+                    setTimeout(() => bubble.remove(), 2000);
+                }, i * 100);
+            }
+        }
+
+        // ==================== STATS UPDATE ====================
+        function updateStats() {
+            const pumping = coinBubbles.filter(b => b.isPumping || b.isRising).length;
+            document.getElementById('pumpingCount').textContent = pumping;
+
+            const totalVol = Math.floor(Math.random() * 500000000) + 100000000;
+            document.getElementById('totalVolume').textContent = `$${(totalVol / 1000000000).toFixed(2)}B`;
+        }
+
+        // ==================== START ====================
+        window.addEventListener('load', init);
+
+        // ==================== AMBIENT BUBBLE SYSTEM ====================
+        (function() {
+            const coinArea = document.getElementById('coinArea');
+            let bubbles = [];
+            let mouseX = 0, mouseY = 0;
+            let animationId = null;
+            let lastSpawn = 0;
+            const MAX_BUBBLES = 40;
+
+            function spawnBubble() {
+                if (bubbles.length >= MAX_BUBBLES) return;
+                const areaRect = coinArea.getBoundingClientRect();
+                const bubble = document.createElement('div');
+                bubble.className = 'ambient-bubble';
+                
+                const size = 4 + Math.random() * 38;
+                const x = Math.random() * (areaRect.width - size);
+                const speed = 0.3 + (1 - size/42) * 0.7;
+                const wobbleAmp = 15 + Math.random() * 25;
+                const wobbleSpeed = 0.5 + Math.random() * 1.5;
+                const opacity = 0.15 + Math.random() * 0.4;
+                
+                bubble.style.cssText = `
+                    width: ${size}px; height: ${size}px;
+                    left: ${x}px; bottom: -${size}px;
+                    opacity: 0;
+                `;
+                coinArea.appendChild(bubble);
+                
+                bubbles.push({
+                    el: bubble, x, y: -size, size, speed, opacity,
+                    wobbleAmp, wobbleSpeed, wobblePhase: Math.random() * Math.PI * 2,
+                    born: performance.now(), dissolving: false
+                });
+            }
+
+            function updateBubbles(time) {
+                const areaRect = coinArea.getBoundingClientRect();
+                const areaHeight = areaRect.height;
+                const dt = 16;
+                
+                for (let i = bubbles.length - 1; i >= 0; i--) {
+                    const b = bubbles[i];
+                    b.y += b.speed * dt * 0.06;
+                    b.wobblePhase += b.wobbleSpeed * 0.02;
+                    const wobbleX = Math.sin(b.wobblePhase) * b.wobbleAmp;
+                    
+                    // Mouse influence
+                    const bubbleCenterX = b.x + wobbleX + b.size/2;
+                    const bubbleCenterY = areaHeight - b.y - b.size/2;
+                    const dx = mouseX - bubbleCenterX;
+                    const dy = mouseY - bubbleCenterY;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    let pushX = 0;
+                    if (dist < 120 && dist > 0) {
+                        pushX = -dx * (1 - dist/120) * 0.3;
+                    }
+                    
+                    const finalX = b.x + wobbleX + pushX;
+                    const dissolveStart = areaHeight - 80;
+                    let currentOpacity = b.opacity;
+                    let scale = 1;
+                    
+                    if (b.y > dissolveStart) {
+                        const progress = (b.y - dissolveStart) / 80;
+                        currentOpacity = b.opacity * (1 - progress);
+                        scale = 1 + progress * 0.3;
+                        b.dissolving = true;
+                    } else if (b.y < 50) {
+                        currentOpacity = b.opacity * (b.y / 50);
+                    }
+                    
+                    b.el.style.transform = `translate(${finalX}px, ${-b.y}px) scale(${scale})`;
+                    b.el.style.opacity = currentOpacity;
+                    
+                    if (b.y > areaHeight + b.size) {
+                        b.el.remove();
+                        bubbles.splice(i, 1);
+                    }
+                }
+                
+                // Spawn new bubbles
+                if (time - lastSpawn > 150 + Math.random() * 200) {
+                    const count = Math.random() < 0.3 ? 2 : 1;
+                    for (let j = 0; j < count; j++) spawnBubble();
+                    lastSpawn = time;
+                }
+                
+                animationId = requestAnimationFrame(updateBubbles);
+            }
+
+            coinArea.addEventListener('mousemove', (e) => {
+                const rect = coinArea.getBoundingClientRect();
+                mouseX = e.clientX - rect.left;
+                mouseY = e.clientY - rect.top;
+            });
+
+            coinArea.addEventListener('mouseleave', () => { mouseX = -1000; mouseY = -1000; });
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    cancelAnimationFrame(animationId);
+                } else {
+                    animationId = requestAnimationFrame(updateBubbles);
+                }
+            });
+
+            // Start after page load
+            setTimeout(() => {
+                for (let i = 0; i < 15; i++) setTimeout(() => spawnBubble(), i * 100);
+                animationId = requestAnimationFrame(updateBubbles);
+            }, 1600);
+        })();
+
+        // ==================== OCEAN AMBIENT SOUND ====================
+        (function() {
+            const audio = document.getElementById('oceanAmbient');
+            const toggle = document.getElementById('soundToggle');
+            const FADE_DURATION = 400;
+            const TARGET_VOLUME = 0.12;
+            let isPlaying = false;
+            
+            audio.volume = 0;
+            
+            function fadeAudio(targetVol, duration) {
+                const startVol = audio.volume;
+                const diff = targetVol - startVol;
+                const startTime = performance.now();
+                
+                function step(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    audio.volume = startVol + diff * progress;
+                    if (progress < 1) requestAnimationFrame(step);
+                }
+                requestAnimationFrame(step);
+            }
+            
+            function enableSound() {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    toggle.classList.add('active');
+                    fadeAudio(TARGET_VOLUME, FADE_DURATION);
+                    localStorage.setItem('whaleOceanSound', 'on');
+                }).catch(() => {});
+            }
+            
+            function disableSound() {
+                fadeAudio(0, FADE_DURATION);
+                setTimeout(() => {
+                    audio.pause();
+                    isPlaying = false;
+                    toggle.classList.remove('active');
+                    localStorage.setItem('whaleOceanSound', 'off');
+                }, FADE_DURATION);
+            }
+            
+            toggle.addEventListener('click', () => {
+                if (isPlaying) disableSound();
+                else enableSound();
+            });
+            
+            // Restore state on interaction if was enabled
+            if (localStorage.getItem('whaleOceanSound') === 'on') {
+                document.addEventListener('click', function restore() {
+                    enableSound();
+                    document.removeEventListener('click', restore);
+                }, { once: true });
+            }
+        })();
+
+        // ==================== HISTORY PANEL ====================
+        let historyPanelOpen = false;
+        let currentPeriod = '7d';
+        let autoHideTimer = null;
+        const historyPanel = document.getElementById('historyPanel');
+        const historyTab = document.getElementById('historyTab');
+
+        function toggleHistoryPanel() {
+            historyPanelOpen = !historyPanelOpen;
+            historyPanel.classList.toggle('open', historyPanelOpen);
+            historyTab.classList.toggle('hidden', historyPanelOpen);
+            if (historyPanelOpen) {
+                generateHistoryEvents();
+                resetAutoHide();
+            } else {
+                clearAutoHide();
+            }
+        }
+
+        function resetAutoHide() {
+            clearAutoHide();
+            autoHideTimer = setTimeout(() => {
+                if (historyPanelOpen) toggleHistoryPanel();
+            }, 15000);
+        }
+
+        function clearAutoHide() {
+            if (autoHideTimer) clearTimeout(autoHideTimer);
+        }
+
+        historyPanel.addEventListener('mousemove', resetAutoHide);
+        historyPanel.addEventListener('scroll', resetAutoHide);
+
+        function setTimePeriod(period) {
+            currentPeriod = period;
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.period === period);
+            });
+            generateHistoryEvents();
+            resetAutoHide();
+        }
+
+        function generateHistoryEvents() {
+            const eventsContainer = document.getElementById('historyEvents');
+            const timelineBar = document.getElementById('timelineBar');
+            const periodDays = { '7d': 7, '1m': 30, '3m': 90, '6m': 180, '12m': 365 };
+            const days = periodDays[currentPeriod];
+
+            // Generate mock events
+            const eventCount = Math.min(days, 20 + Math.floor(Math.random() * 15));
+            const events = [];
+            for (let i = 0; i < eventCount; i++) {
+                const coin = COIN_DATA[Math.floor(Math.random() * COIN_DATA.length)];
+                const isBuy = Math.random() > 0.4;
+                const volume = Math.floor(Math.random() * 80000000) + 500000;
+                const daysAgo = Math.floor(Math.random() * days);
+                const date = new Date();
+                date.setDate(date.getDate() - daysAgo);
+                date.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
+                const pressureScore = Math.random();
+                events.push({
+                    coin, isBuy, volume, date, daysAgo,
+                    price: coin.price * (0.85 + Math.random() * 0.3),
+                    changeAfter: (Math.random() - 0.3) * 20,
+                    pressure: pressureScore > 0.66 ? 'High' : pressureScore > 0.33 ? 'Med' : 'Low'
+                });
+            }
+            events.sort((a, b) => b.volume - a.volume);
+
+            // Render timeline
+            timelineBar.innerHTML = '';
+            events.forEach((e, i) => {
+                const peak = document.createElement('div');
+                peak.className = 'timeline-peak' + (e.isBuy ? '' : ' sell');
+                peak.style.left = `${(e.daysAgo / days) * 100}%`;
+                peak.style.height = `${20 + (e.volume / 80000000) * 20}px`;
+                peak.title = `${e.coin.symbol} - $${(e.volume/1000000).toFixed(1)}M`;
+                timelineBar.appendChild(peak);
+            });
+
+            // Render events list
+            eventsContainer.innerHTML = events.slice(0, 25).map((e, idx) => `
+                <div class="event-item" data-coin="${e.coin.id}" onclick="highlightCoin('${e.coin.id}', this)">
+                    <div class="event-header">
+                        <span class="event-type ${e.isBuy ? 'buy' : 'sell'}">${e.isBuy ? 'WHALE BUY' : 'WHALE SELL'}</span>
+                        <span class="event-time">${e.date.toLocaleDateString()} ${e.date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>
+                    </div>
+                    <div class="event-coin">
+                        <div class="event-coin-icon"><img src="${e.coin.image}" alt="${e.coin.symbol}" onerror="this.parentElement.textContent='${e.coin.symbol}'"></div>
+                        <span class="event-coin-symbol">${e.coin.symbol}</span>
+                    </div>
+                    <div class="event-details">
+                        <div class="event-detail"><span class="event-label">USD Value:</span><span class="event-value">$${(e.volume/1000000).toFixed(2)}M</span></div>
+                        <div class="event-detail"><span class="event-label">Price:</span><span class="event-value">$${e.price.toLocaleString(undefined,{maximumFractionDigits:2})}</span></div>
+                        <div class="event-detail"><span class="event-label">24h After:</span><span class="event-value ${e.changeAfter>=0?'low':'high'}">${e.changeAfter>=0?'+':''}${e.changeAfter.toFixed(1)}%</span></div>
+                        <div class="event-detail"><span class="event-label">Pressure:</span><span class="event-value ${e.pressure.toLowerCase()}">${e.pressure}</span></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function highlightCoin(coinId, eventEl) {
+            document.querySelectorAll('.event-item').forEach(el => el.classList.remove('highlighted'));
+            eventEl.classList.add('highlighted');
+            const bubble = coinBubbles.find(b => b.coin.id === coinId);
+            if (bubble) {
+                bubble.element.style.boxShadow = '0 0 25px rgba(34, 197, 94, 0.8)';
+                bubble.element.classList.add('pumping');
+                setTimeout(() => {
+                    bubble.element.style.boxShadow = '';
+                    bubble.element.classList.remove('pumping');
+                }, 1500);
+            }
+            resetAutoHide();
+        }
+
+        function replayEvents() {
+            const items = document.querySelectorAll('.event-item');
+            let i = 0;
+            function playNext() {
+                if (i >= Math.min(items.length, 8)) return;
+                items[i].click();
+                i++;
+                setTimeout(playNext, 800);
+            }
+            playNext();
+        }
+
+        // ==================== VIDEO BACKGROUND TOGGLE ====================
+        (function() {
+            const video = document.getElementById('videoBackground');
+            const toggle = document.getElementById('videoToggle');
+            let isActive = false;
+            
+            toggle.addEventListener('click', () => {
+                isActive = !isActive;
+                if (isActive) {
+                    video.classList.add('active');
+                    toggle.classList.add('active');
+                    document.body.classList.add('video-active');
+                    video.play().catch(() => {});
+                    localStorage.setItem('whaleVideoBackground', 'on');
+                } else {
+                    video.classList.remove('active');
+                    toggle.classList.remove('active');
+                    document.body.classList.remove('video-active');
+                    video.pause();
+                    localStorage.setItem('whaleVideoBackground', 'off');
+                }
+            });
+            
+            // Restore state
+            if (localStorage.getItem('whaleVideoBackground') === 'on') {
+                isActive = true;
+                video.classList.add('active');
+                toggle.classList.add('active');
+                document.body.classList.add('video-active');
+                video.play().catch(() => {});
+            }
+        })();
+
+        window.addEventListener('resize', () => {
+            // Reposition coins on resize
+            const areaWidth = coinArea.clientWidth;
+            const spacing = areaWidth / (COIN_DATA.length + 1);
+            coinBubbles.forEach((bubble, index) => {
+                bubble.element.style.left = `${spacing * (index + 1) - 25}px`;
+            });
+        });
+    </script>
+    <script src="membership-gating.js"></script>
+</body>
+</html>

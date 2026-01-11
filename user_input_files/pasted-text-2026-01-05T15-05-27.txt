@@ -1,0 +1,187 @@
+Perfekt verstanden.
+Hier ist der **sauber übertragene, angepasste Textprompt** für die Seite **financial-galaxy.html** – **identische Logik**, **gleiches Hover-Prinzip**, aber **inhaltlich auf globale Finanzdaten, Makro-Impulse und Marktkräfte** ausgerichtet.
+
+Kein Marketing. Keine Spielerei. **Strukturell sicher.**
+
+---
+
+## **TEXPROMPT – Financial Galaxy (financial-galaxy.html)**
+
+### Rechtsseitiges, schließbares Hover-Fenster **„Market Signals · Financial Galaxy“**
+
+**Sehr wichtig:**
+Alle bestehenden Funktionen, Animationen, Datenflüsse, Trigger-Logiken und Layout-Strukturen **dürfen nicht verändert, überschrieben oder beschädigt werden**.
+Das Hover-Fenster wird **rein ergänzend**, **isoliert** und **read-only** integriert.
+
+---
+
+## **Ziel**
+
+Ergänze auf **financial-galaxy.html** ein **seitenstil-konformes, schließbares Hover-/Info-Fenster auf der rechten Seite**, das **relevante Impulse aus der globalen Finanzwelt** als **historische Zeitansicht** darstellt.
+
+Der Nutzer soll nachvollziehen können,
+
+**welche makroökonomischen, institutionellen oder marktweiten Ereignisse**
+**wann**
+**auf welche Asset-Klassen, Märkte oder Kapitalströme**
+**Resonanz ausgelöst haben**,
+
+ohne den laufenden visuellen „Financial Galaxy“-Raum zu stören oder zu überdecken.
+
+---
+
+## **1) Position & Verhalten des Hover-Fensters**
+
+* **Position:** rechter Seitenrand, vertikal zentriert, responsiv angepasst
+* **Default-Zustand:** eingeklappt als schlanker Seiten-Tab
+  Beschriftung:
+  **„Market Signals“** oder **„Financial Galaxy Feed“**
+* **Öffnen:** Klick auf Tab oder Icon
+* **Schließen:** X-Button im Panel-Header
+* **Auto-Hide (optional):** nach 10–15 Sekunden Inaktivität, weich, nicht aggressiv
+* Das Fenster liegt **über** der Seite, **verdeckt jedoch nicht** die zentrale Galaxy-Animation und greift **nicht** in bestehende Layer ein.
+
+---
+
+## **2) Header-Bereich im Fenster**
+
+Im oberen Bereich des Panels:
+
+**Titel:**
+**Market Signals · Financial Galaxy**
+
+**Subline:**
+Macro events · Capital flows · Time-stamped
+
+Optional (klein, dezent):
+Visualization only
+
+---
+
+## **3) Zeitfilter-Leiste (Markt-Historie)**
+
+Direkt unter dem Header eine kompakte Toggle-Leiste:
+
+* **7D**
+* **1M**
+* **3M**
+* **6M**
+* **12M**
+
+**Regeln:**
+
+* Immer **nur ein Zeitraum aktiv**
+* Aktiver Zeitraum klar visuell hervorgehoben
+* Umschalten aktualisiert **ausschließlich** den Panel-Inhalt
+  (keine Neuladung, keine Beeinflussung der Haupt-Galaxy-Animation)
+
+---
+
+## **4) Panel-Inhalt: „Market Resonance Replay“**
+
+Der Panel-Content ist kompakt, scrollbar und vollständig im **Financial-Galaxy-Stil** gehalten.
+
+---
+
+### **A) Mini-Market-Timeline (oben)**
+
+* Kleine visuelle Zeitspur („Market Trace“)
+
+* **Keine klassischen Charts, keine Kerzen**
+
+* Marker stehen für **Finanz-Impulse**
+
+* Marker unterscheiden sich nach Impuls-Typ, z. B.:
+
+  * Zentralbank (Zins, Statements)
+  * Makrodaten (Inflation, CPI, Jobs)
+  * Institutionelle Flows
+  * Geopolitische Ereignisse
+  * Risk-On / Risk-Off-Phasen
+
+* Optional: Resonanz-Intensität (Low / Medium / High)
+
+---
+
+### **B) Market-Event-Liste (darunter, scrollbar)**
+
+Liste relevanter **Finanz- und Marktimpulse** im gewählten Zeitraum
+(sortiert nach Resonanzstärke oder Zeit, logisch konsistent).
+
+Jeder Eintrag zeigt kompakt:
+
+* **Datum & Uhrzeit**
+* **Event-Typ** (Macro / Central Bank / Institutional / Geopolitical)
+* **Betroffene Märkte / Assets**
+  (z. B. Crypto, Equities, FX, Bonds, Commodities)
+* **Kurzbeschreibung des Ereignisses** (neutral, sachlich)
+* **Resonanz-Stärke** (Low / Medium / High)
+* **Beobachtete Marktreaktion**
+  (z. B. Volatility spike, Rotation, Flight to safety – beschreibend, nicht wertend)
+
+**Optional bei Datenverfügbarkeit:**
+
+* Volatility-Change
+* Flow-Direction (In / Out)
+* Correlation-Shifts
+
+---
+
+## **5) Interaktion im Panel**
+
+* **Klick auf ein Market-Event:**
+
+  * markiert die betroffenen Zonen/Objekte im Galaxy-Hauptfeld kurz visuell (Glow / Pulse)
+  * triggert eine **dezente Resonanz-Wiederholung**
+    (leichte Schwingung, Richtungsimpuls, Intensitätsänderung)
+  * zeigt **Detailinformationen ausschließlich im Panel**, nicht im Hauptscreen
+
+* **Panel-Button:**
+  **Replay selected market period**
+  → spielt die Marktimpulse des gewählten Zeitraums als ruhige Sequenz (ca. 60–90 Sekunden) **nur im Panel** ab.
+
+---
+
+## **6) Daten-Fallback & Sicherheit**
+
+* Wenn Markt- oder Makrodaten fehlen:
+
+  * Hinweis im Panel:
+    *“Market data limited for this period.”*
+  * Zeitfilter bleiben sichtbar, aber logisch deaktiviert
+* **Keine erfundenen Inhalte**
+* **Keine Prognosen oder Bewertungen**
+
+---
+
+## **7) Stil & rechtliche Leitplanken**
+
+* Design strikt im **Financial Galaxy / Macro Space**-Look
+* Ruhig, analytisch, kosmisch, professionell
+* Keine Begriffe wie:
+  *Signal*, *Chance*, *Prediction*, *Buy*, *Sell*
+* Fester Footer im Panel:
+
+**“Market visualization only. No trading signals. No financial advice.”**
+
+---
+
+## **Zielbild**
+
+Der Nutzer beobachtet die **laufende Financial-Galaxy-Animation**
+und kann **rechts gezielt umschalten**, um zu verstehen:
+
+**„Welche Ereignisse aus der Finanzwelt haben in diesem Zeitraum Marktresonanz erzeugt – und warum?“**
+
+Zeitlich eingeordnet.
+Asset-übergreifend.
+Ohne Hype.
+Ohne Versprechen.
+**Globale Marktmechanik – visuell begreifbar.**
+
+---
+
+Wenn du willst, können wir als nächsten Schritt:
+
+* **Asset-spezifische Filter** (nur Crypto / nur FX / nur Equities) ergänzen
+* oder **Makro-Impulse als eigene „Galaxie-Zonen“** definieren (Zinsen, Risiko, Liquidität).

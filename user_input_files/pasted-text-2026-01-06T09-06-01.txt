@@ -1,0 +1,96 @@
+**Verbesserungsprompt für die Kacheln im Beziehungs-Screener**
+
+---
+
+**Ziel:**
+Die Kacheln im Beziehungs-Screener sollen **dynamisch** und **interaktiv** sein, um die **Beziehungen und Interaktionen** zwischen Coins effektiv darzustellen und dem Benutzer eine visuell ansprechende sowie informierte Erfahrung zu bieten. Hier sind die vorgeschlagenen Verbesserungen:
+
+---
+
+**1. Interaktive Kachelverbindungen:**
+
+* **Was soll passieren?**
+  Beim **Mouseover** einer Kachel (Coin) sollte eine **animierte Verbindungslinie** zu anderen **verbundenen Coins** erscheinen, um zu zeigen, wie diese Coins miteinander interagieren. Diese Verbindungen sollten **farblich codiert** sein, wobei grün für positive, rot für negative und gelb für neutrale Korrelationen steht.
+
+* **Technische Anforderung:**
+
+  * Implementierung von **interaktiven Verbindungen** zwischen den Kacheln.
+  * Farblich gekennzeichnete Linien für die Art der Beziehung (positiv, negativ, neutral).
+  * Verhindern, dass sich Verbindungen überlagern oder unübersichtlich werden.
+
+---
+
+**2. Dynamische Kachelgrößen und Animationen:**
+
+* **Was soll passieren?**
+  Die **Größe der Kachel** sollte sich basierend auf der **Stärke der Marktbewegung** ändern. Bei starker Marktdynamik oder hohem Handelsvolumen sollte die Kachel **größer** oder **animiert** erscheinen, während bei geringerer Bewegung die Kachel kleiner oder unsichtbarer wird.
+
+* **Technische Anforderung:**
+
+  * Kachelgrößen sollten proportional zur **Markteinflussstärke** angepasst werden.
+  * Ein animiertes **Vergrößern** oder **Verkleinern** der Kachel bei Veränderung des Marktes, um die **Interaktionsdichte** zu visualisieren.
+
+---
+
+**3. Kachelfarben und Transparenzen:**
+
+* **Was soll passieren?**
+  Die Kacheln sollen ihre **Farbe** ändern, um **emotionale Marktphasen** widerzuspiegeln. Bei **Euphorie** sollten die Kacheln **grün** oder **heller** leuchten, bei **Angst** **rot** oder **dunkler**. Schwächere oder weniger relevante Kacheln sollten eine reduzierte **Transparenz** aufweisen.
+
+* **Technische Anforderung:**
+
+  * Implementierung einer **Farbskala** für die Kacheln (z. B. von rot über gelb bis grün).
+  * **Reduzierte Transparenz** für weniger aktive Kacheln, die den **aktuellen Marktwert** widerspiegeln.
+
+---
+
+**4. Interaktive Kachel-Detailansicht bei Klick:**
+
+* **Was soll passieren?**
+  Beim Klick auf eine Kachel sollte ein **Popup-Fenster** oder eine **Seitenleiste** erscheinen, das **detaillierte Informationen** über den Coin und seine **Marktbeziehungen** anzeigt. Diese Informationen könnten **Preisbewegungen**, **historische Korrelationen** und **aktuelle Marktnachrichten** beinhalten.
+
+* **Technische Anforderung:**
+
+  * Beim Klick auf eine Kachel sollte ein **modales Fenster** oder eine **Seitenleiste** mit dynamischen Daten erscheinen.
+  * Implementierung von **API-Verbindungen**, die aktuelle **Marktdaten** und **Nachrichten** abrufen.
+
+---
+
+**5. Bewegliche Kacheln für Marktveränderungen:**
+
+* **Was soll passieren?**
+  Wenn sich die **Marktdynamik** drastisch verändert, sollten die Kacheln in **neue Positionen springen** oder sich **animiert bewegen**, um zu zeigen, wie sich die **Beziehungen** zwischen den Coins aufgrund von Marktbewegungen verändern.
+
+* **Technische Anforderung:**
+
+  * Kacheln sollten **smooth animationen** haben, die es ihnen ermöglichen, von **einer Position in eine andere zu springen**.
+  * **Marktbewegungs-Trigger** (z. B. plötzliche Preisänderungen) sollten Kacheln dazu bringen, sich **dynamisch zu verschieben**.
+
+---
+
+**6. Erweiterte Verbindungslinien-Animation:**
+
+* **Was soll passieren?**
+  Die **Verbindungslinien** zwischen den Kacheln sollten nicht nur statisch erscheinen, sondern sich **beweglich und dynamisch** darstellen, wenn der Markt **aktiv wird**. Verbindungen sollten **wachsen, pulsieren oder explodieren**, je nachdem, wie stark der Markt reagiert.
+
+* **Technische Anforderung:**
+
+  * **Dynamische Verbindungslinien** mit Animationen, die auf Marktentwicklungen reagieren.
+  * Die Linien sollten bei hoher Marktaktivität **wachsen**, bei geringer Aktivität **schwächer pulsieren**.
+
+---
+
+**7. Verhinderung von Überlagerung und Unübersichtlichkeit:**
+
+* **Was soll passieren?**
+  Bei vielen gleichzeitig auftretenden Verbindungen und Kacheln könnte die Anzeige überladen wirken. Es sollte eine **Priorisierung und Filterung** stattfinden, damit nur **die relevantesten Verbindungen** angezeigt werden.
+
+* **Technische Anforderung:**
+
+  * **Filtrierung und Priorisierung** der Kacheln und Verbindungen, um nur **aktive und signifikante Beziehungen** anzuzeigen.
+  * **Zoom- und Fokussierungsfunktionen**, die es dem Nutzer ermöglichen, nur die **relevanten Beziehungen** in einem bestimmten Bereich zu sehen.
+
+---
+
+**Zusammenfassung der Verbesserung:**
+Die Kacheln im Beziehungs-Screener sollten **interaktiv**, **dynamisch** und **visuell ansprechend** gestaltet werden, um die **Beziehungen und Interaktionen zwischen den Coins** klar und verständlich darzustellen. Durch die Einführung von **Animationen**, **Farbänderungen** und **detaillierten Kachelansichten** wird der Screener nicht nur funktional, sondern auch intuitiv und benutzerfreundlich.

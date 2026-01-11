@@ -1,0 +1,181 @@
+Verstanden.
+Hier ist der **konsequent umgeschriebene und angepasste Textprompt** für **echochambers.html**, **nicht mehr auf Wale**, sondern **auf Influencer-Nachrichten / Narrative** ausgerichtet – inklusive **Hover-Fenster „Influencer-News · Echo Chambers“**.
+
+Der Text ist **technisch sauber**, **risikoarm**, **ergänzend** und schützt explizit **alle bestehenden Funktionen und Strukturen**.
+
+---
+
+## **TEXPROMPT – Echo Chambers (echochambers.html)**
+
+### Rechtsseitiges, schließbares Hover-Fenster **„Influencer-News · Echo Chambers“**
+
+**Sehr wichtig:**
+Alle bestehenden Funktionen, Animationen, Datenflüsse, Trigger-Logiken und Layout-Strukturen **dürfen nicht verändert, überschrieben oder beschädigt werden**.
+Das Hover-Fenster wird **rein ergänzend**, **isoliert** und **read-only** integriert.
+
+---
+
+## **Ziel**
+
+Ergänze auf **echochambers.html** ein **seitenstil-konformes, schließbares Hover-/Info-Fenster auf der rechten Seite**, das **Influencer-basierte Narrative und Resonanzen** als **historische Zeitansicht** darstellt.
+
+Der Nutzer soll nachvollziehen können,
+
+**welche Influencer-Impulse (YouTube, X, Instagram, Meta)**
+**wann**
+**auf welche Coins**
+**Resonanz ausgelöst haben**,
+
+ohne den laufenden visuellen Resonanz-Raum zu stören oder zu überdecken.
+
+---
+
+## **1) Position & Verhalten des Hover-Fensters**
+
+* **Position:** rechter Seitenrand, vertikal zentriert, responsiv angepasst
+* **Default-Zustand:** eingeklappt als schlanker Seiten-Tab
+  Beschriftung:
+  **„Influencer-News“** oder **„Echo Chambers Feed“**
+* **Öffnen:** Klick auf Tab oder Icon
+* **Schließen:** X-Button im Panel-Header
+* **Auto-Hide (optional):** nach 10–15 Sekunden Inaktivität, weich, nicht aggressiv
+* Das Fenster liegt **über** der Seite, **verdeckt jedoch nicht** die Haupt-Animation und greift **nicht** in bestehende Layer ein.
+
+---
+
+## **2) Header-Bereich im Fenster**
+
+Im oberen Bereich des Panels:
+
+**Titel:**
+**Influencer-News · Echo Chambers**
+
+**Subline:**
+Platform impulses · Time-stamped · Narrative-based
+
+Optional (klein, dezent):
+Visualization only
+
+---
+
+## **3) Zeitfilter-Leiste (Narrative-Historie)**
+
+Direkt unter dem Header eine kompakte Toggle-Leiste:
+
+* **7D**
+* **1M**
+* **3M**
+* **6M**
+* **12M**
+
+**Regeln:**
+
+* Immer **nur ein Zeitraum aktiv**
+* Aktiver Zeitraum klar visuell hervorgehoben
+* Umschalten aktualisiert **ausschließlich** den Panel-Inhalt
+  (keine Neuladung, keine Beeinflussung der Haupt-Resonanz-Animation)
+
+---
+
+## **4) Panel-Inhalt: „Narrative Resonance Replay“**
+
+Der Panel-Content ist kompakt, scrollbar und vollständig im **Echo-Chambers-Stil** gehalten.
+
+---
+
+### **A) Mini-Resonance-Timeline (oben)**
+
+* Kleine visuelle Zeitspur („Narrative Trace“)
+* **Keine Charts, keine Kerzen**
+* Marker stehen für **Influencer-Impulse**
+* Marker unterscheiden sich nach Plattform:
+
+  * YouTube
+  * X
+  * Instagram
+  * Meta
+* Optional: Resonanz-Intensität (Weak / Medium / Strong)
+
+---
+
+### **B) Influencer-Event-Liste (darunter, scrollbar)**
+
+Liste relevanter **Influencer-Nachrichten / Impulse** im gewählten Zeitraum
+(sortiert nach Resonanzstärke oder Zeit).
+
+Jeder Eintrag zeigt kompakt:
+
+* **Datum & Uhrzeit**
+* **Plattform** (Text, kein Logo-Zwang)
+* **Influencer-Typ** (Creator / Analyst / Broadcaster / Anonymous Node)
+* **Narrative-Kategorie** (AI, Meme, L2, Gaming, Macro, Regulation etc.)
+* **Betroffene Coins**
+* **Resonanz-Stärke** (Low / Medium / High)
+* **Kurzbeschreibung der Nachricht** (neutral, beschreibend)
+
+**Optional bei Datenverfügbarkeit:**
+
+* Mentions-Anstieg
+* Velocity-Change
+* Sentiment-Tendenz (neutral formuliert)
+
+---
+
+## **5) Interaktion im Panel**
+
+* **Klick auf ein Influencer-Event:**
+
+  * markiert die betroffenen Coins im Hauptfeld kurz visuell (Glow)
+  * triggert eine **dezente Resonanz-Wiederholung**
+    (leichte Schwingung / Inflate-Impulse)
+  * zeigt **Detailinformationen ausschließlich im Panel**, nicht im Hauptscreen
+
+* **Panel-Button:**
+  **Replay selected narrative period**
+  → spielt die Influencer-Impulse des gewählten Zeitraums als ruhige Sequenz (ca. 60–90 Sekunden) **nur im Panel** ab.
+
+---
+
+## **6) Daten-Fallback & Sicherheit**
+
+* Wenn Influencer- oder Plattformdaten fehlen:
+
+  * Hinweis im Panel:
+    *“Narrative feed limited for this period.”*
+  * Zeitfilter bleiben sichtbar, aber logisch deaktiviert
+* **Keine erfundenen Inhalte**
+* **Keine Bewertungen, Empfehlungen oder Prognosen**
+
+---
+
+## **7) Stil & rechtliche Leitplanken**
+
+* Design strikt im **Echo Chambers / Narrative Space**-Look
+* Ruhig, analytisch, futuristisch
+* Keine Begriffe wie:
+  *Signal*, *Chance*, *Prediction*, *Buy*, *Sell*
+* Fester Footer im Panel:
+
+**“Narrative visualization only. No trading signals. No financial advice.”**
+
+---
+
+## **Zielbild**
+
+Der Nutzer beobachtet die **laufende Echo-Chambers-Resonanz**
+und kann **rechts gezielt umschalten**, um zu verstehen:
+
+**„Welche Influencer-Nachrichten haben in diesem Zeitraum Resonanz erzeugt – und wie?“**
+
+Zeitlich eingeordnet.
+Plattformbezogen.
+Ohne Hype.
+Ohne Versprechen.
+**Reine Marktpsychologie – sichtbar gemacht.**
+
+---
+
+Wenn du willst, können wir im nächsten Schritt:
+
+* das **Wording der Hover-Texte pro Plattform** verfeinern
+* oder **Influencer-Typen als eigene Resonanz-Layer** definieren (Media vs. Analysts vs. Anonymous Nodes).

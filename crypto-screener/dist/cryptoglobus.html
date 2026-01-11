@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoGlobus - The Global Pulse of Digital Capital</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --space-black: #000510;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --green-buy: #10b981;
+            --red-sell: #ef4444;
+            --yellow-neutral: #fbbf24;
+            --purple-fomo: #a855f7;
+            --gray-fear: #6b7280;
+            --text-light: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--space-black);
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--text-light);
+        }
+
+        #globeCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: linear-gradient(180deg, rgba(0, 5, 16, 0.95) 0%, rgba(0, 5, 16, 0) 100%);
+            padding: 20px 30px 40px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            padding: 7px 12px;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: rgba(14, 165, 233, 0.05);
+        }
+
+        .nav-link:hover {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+        }
+
+        /* Global Status */
+        .global-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+        }
+
+        .status-title {
+            text-align: center;
+        }
+
+        .status-title h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-light);
+            letter-spacing: 4px;
+            margin-bottom: 5px;
+        }
+
+        .status-title p {
+            font-size: 0.7rem;
+            color: rgba(241, 245, 249, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .buy-sell-bar {
+            width: 200px;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.6rem;
+            margin-bottom: 5px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .bar-label .buy { color: var(--green-buy); }
+        .bar-label .sell { color: var(--red-sell); }
+
+        .bar-container {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .bar-buy {
+            height: 100%;
+            background: linear-gradient(90deg, var(--green-buy), #34d399);
+            transition: width 0.5s;
+        }
+
+        .bar-sell {
+            height: 100%;
+            background: linear-gradient(90deg, #f87171, var(--red-sell));
+            transition: width 0.5s;
+        }
+
+        /* Fear & Greed Indicator */
+        .fear-greed {
+            text-align: center;
+        }
+
+        .fg-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin: 0 auto 5px;
+        }
+
+        .fg-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .fg-label {
+            font-size: 0.5rem;
+            color: rgba(241, 245, 249, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .fg-title {
+            font-size: 0.55rem;
+            color: rgba(241, 245, 249, 0.5);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Continent Overlay */
+        .continent-overlay {
+            position: fixed;
+            z-index: 200;
+            background: rgba(0, 10, 30, 0.95);
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 320px;
+            max-width: 380px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.25s;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 40px rgba(14, 165, 233, 0.2);
+            pointer-events: none;
+        }
+
+        .continent-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .overlay-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+        }
+
+        .overlay-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .overlay-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .overlay-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .stat-box {
+            background: rgba(14, 165, 233, 0.08);
+            border: 1px solid rgba(14, 165, 233, 0.15);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .stat-box-label {
+            font-size: 0.55rem;
+            color: rgba(241, 245, 249, 0.5);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-box-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .stat-box-value.green { color: var(--green-buy); }
+        .stat-box-value.red { color: var(--red-sell); }
+
+        /* Mini Chart */
+        .mini-chart-container {
+            background: rgba(14, 165, 233, 0.05);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 12px;
+        }
+
+        .mini-chart-label {
+            font-size: 0.55rem;
+            color: rgba(241, 245, 249, 0.5);
+            margin-bottom: 8px;
+        }
+
+        .mini-chart {
+            height: 50px;
+            position: relative;
+        }
+
+        .mini-chart canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* AI Summary */
+        .ai-summary {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .ai-summary-label {
+            font-size: 0.5rem;
+            color: var(--purple-fomo);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .ai-summary-text {
+            font-size: 0.75rem;
+            color: rgba(241, 245, 249, 0.85);
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        /* Legend */
+        .legend {
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+            z-index: 50;
+            background: rgba(0, 10, 30, 0.8);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .legend-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            color: var(--accent-cyan);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 0.6rem;
+            color: rgba(241, 245, 249, 0.7);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: linear-gradient(0deg, rgba(0, 5, 16, 0.95) 0%, rgba(0, 5, 16, 0) 100%);
+            padding: 30px 30px 15px;
+            text-align: center;
+        }
+
+        .footer-disclaimer {
+            font-size: 0.55rem;
+            color: rgba(241, 245, 249, 0.4);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .update-time {
+            font-size: 0.55rem;
+            color: rgba(14, 165, 233, 0.6);
+            margin-top: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--space-black);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--accent-cyan);
+            margin-bottom: 10px;
+            letter-spacing: 5px;
+        }
+
+        .loading-sub {
+            font-size: 0.7rem;
+            color: rgba(241, 245, 249, 0.5);
+            margin-bottom: 30px;
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 4px;
+            background: rgba(14, 165, 233, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            transition: width 0.3s;
+        }
+
+        @media (max-width: 900px) {
+            .global-status { flex-wrap: wrap; gap: 20px; }
+            .legend { display: none; }
+            .header { padding: 15px 15px 30px; }
+            .nav-links { gap: 6px; flex-wrap: wrap; }
+        }
+
+        /* Global Flows Panel */
+        .flows-tab {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, rgba(14,165,233,0.25), rgba(6,182,212,0.15));
+            border: 1px solid rgba(14,165,233,0.4);
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            padding: 15px 8px;
+            cursor: pointer;
+            z-index: 300;
+            writing-mode: vertical-rl;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            color: var(--accent-cyan);
+            letter-spacing: 2px;
+            transition: all 0.3s;
+        }
+        .flows-tab:hover { background: rgba(14,165,233,0.35); }
+        .flows-tab.hidden { display: none; }
+
+        #flowsPanel {
+            position: fixed;
+            right: -420px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 400px;
+            max-height: 80vh;
+            background: rgba(0, 10, 30, 0.95);
+            border: 1px solid rgba(14,165,233,0.4);
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            z-index: 350;
+            transition: right 0.4s ease;
+            backdrop-filter: blur(15px);
+            display: flex;
+            flex-direction: column;
+        }
+        #flowsPanel.open { right: 0; }
+
+        .flows-header {
+            padding: 18px;
+            border-bottom: 1px solid rgba(14,165,233,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .flows-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--accent-cyan);
+            margin-bottom: 4px;
+        }
+        .flows-subtitle {
+            font-size: 0.6rem;
+            color: rgba(241,245,249,0.5);
+        }
+        .flows-close {
+            background: none;
+            border: 1px solid rgba(14,165,233,0.3);
+            color: var(--accent-cyan);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .flows-close:hover { background: rgba(14,165,233,0.2); }
+
+        .flows-timefilter {
+            display: flex;
+            gap: 6px;
+            padding: 12px 18px;
+            border-bottom: 1px solid rgba(14,165,233,0.15);
+        }
+        .flows-timefilter button {
+            flex: 1;
+            padding: 6px;
+            background: rgba(14,165,233,0.08);
+            border: 1px solid rgba(14,165,233,0.2);
+            border-radius: 4px;
+            color: rgba(241,245,249,0.6);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .flows-timefilter button.active,
+        .flows-timefilter button:hover {
+            background: rgba(14,165,233,0.25);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        .flows-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 18px;
+        }
+        .flows-content::-webkit-scrollbar { width: 4px; }
+        .flows-content::-webkit-scrollbar-thumb { background: rgba(14,165,233,0.3); border-radius: 2px; }
+
+        .flow-event {
+            background: rgba(14,165,233,0.06);
+            border: 1px solid rgba(14,165,233,0.15);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .flow-event:hover { background: rgba(14,165,233,0.12); border-color: rgba(14,165,233,0.35); }
+        .flow-event.highlighted { border-color: var(--accent-cyan); box-shadow: 0 0 15px rgba(14,165,233,0.3); }
+
+        .flow-event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .flow-event-type {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            color: var(--accent-cyan);
+        }
+        .flow-event-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.55rem;
+            color: rgba(241,245,249,0.5);
+        }
+        .flow-event-region {
+            font-size: 0.65rem;
+            color: rgba(241,245,249,0.7);
+            margin-bottom: 6px;
+        }
+        .flow-event-region span { color: var(--accent-cyan); }
+        .flow-event-metrics {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .flow-metric {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.55rem;
+            color: rgba(241,245,249,0.6);
+        }
+        .flow-metric.positive { color: var(--green-buy); }
+        .flow-metric.negative { color: var(--red-sell); }
+
+        .flows-footer {
+            padding: 12px 18px;
+            border-top: 1px solid rgba(14,165,233,0.15);
+            text-align: center;
+        }
+        .flows-replay-btn {
+            background: linear-gradient(135deg, rgba(14,165,233,0.2), rgba(6,182,212,0.15));
+            border: 1px solid rgba(14,165,233,0.4);
+            color: var(--accent-cyan);
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        .flows-replay-btn:hover { background: rgba(14,165,233,0.3); }
+        .flows-disclaimer {
+            font-size: 0.5rem;
+            color: rgba(241,245,249,0.35);
+            margin-top: 10px;
+        }
+    </style>
+    <link rel="stylesheet" href="membership-gating.css">
+</head>
+<body>
+    <!-- Loading -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-title">CRYPTOGLOBUS</div>
+        <div class="loading-sub">Initializing Global Market Data...</div>
+        <div class="loading-bar">
+            <div class="loading-progress" id="loadingProgress"></div>
+        </div>
+    </div>
+
+    <!-- Globe Canvas -->
+    <div id="globeCanvas"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-top">
+            <a href="index.html" class="logo">CRYPTOSPACES</a>
+            <nav class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="crypto-matrix-vision.html" class="nav-link">Matrix Vision</a>
+                <a href="financial-galaxy.html" class="nav-link">Financial Galaxy</a>
+                <a href="canaveral.html" class="nav-link">Canaveral</a>
+                <a href="gravity.html" class="nav-link">Galaxy Mode</a>
+            </nav>
+        </div>
+        <div class="global-status">
+            <div class="buy-sell-bar">
+                <div class="bar-label">
+                    <span class="buy">BUY <span id="buyPercent">--</span>%</span>
+                    <span class="sell"><span id="sellPercent">--</span>% SELL</span>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-buy" id="barBuy" style="width: 50%;"></div>
+                    <div class="bar-sell" id="barSell" style="width: 50%;"></div>
+                </div>
+            </div>
+            <div class="status-title">
+                <h1>CRYPTOGLOBUS</h1>
+                <p>THE GLOBAL PULSE OF DIGITAL CAPITAL</p>
+            </div>
+            <div class="fear-greed">
+                <div class="fg-circle" id="fgCircle">
+                    <span class="fg-value" id="fgValue">--</span>
+                    <span class="fg-label" id="fgLabel">Loading</span>
+                </div>
+                <div class="fg-title">FEAR & GREED</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Continent Overlay -->
+    <div class="continent-overlay" id="continentOverlay">
+        <div class="overlay-header">
+            <div class="overlay-indicator" id="overlayIndicator"></div>
+            <div class="overlay-name" id="overlayName">--</div>
+        </div>
+        <div class="overlay-stats">
+            <div class="stat-box">
+                <div class="stat-box-label">24h Volume</div>
+                <div class="stat-box-value" id="overlayVolume">--</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-label">Buy/Sell Ratio</div>
+                <div class="stat-box-value" id="overlayRatio">--</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-label">Fear & Greed</div>
+                <div class="stat-box-value" id="overlayFG">--</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-label">Trend</div>
+                <div class="stat-box-value" id="overlayTrend">--</div>
+            </div>
+        </div>
+        <div class="mini-chart-container">
+            <div class="mini-chart-label">Activity (60 Min)</div>
+            <div class="mini-chart">
+                <canvas id="miniChartCanvas"></canvas>
+            </div>
+        </div>
+        <div class="ai-summary">
+            <div class="ai-summary-label">AI Analysis</div>
+            <div class="ai-summary-text" id="aiSummary">Analyzing market conditions...</div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-title">MARKET SIGNALS</div>
+        <div class="legend-item"><div class="legend-color" style="background: #10b981;"></div>Strong Buy Pressure</div>
+        <div class="legend-item"><div class="legend-color" style="background: #ef4444;"></div>Sell Pressure</div>
+        <div class="legend-item"><div class="legend-color" style="background: #fbbf24;"></div>Sideways Movement</div>
+        <div class="legend-item"><div class="legend-color" style="background: #3b82f6;"></div>Low Activity</div>
+        <div class="legend-item"><div class="legend-color" style="background: linear-gradient(135deg, #f97316, #a855f7);"></div>FOMO / Greed</div>
+        <div class="legend-item"><div class="legend-color" style="background: #6b7280;"></div>Fear / Risk-Off</div>
+    </div>
+
+    <!-- Global Flows Tab -->
+    <div class="flows-tab" id="flowsTab" onclick="toggleFlowsPanel()">GLOBAL FLOWS</div>
+
+    <!-- Global Flows Panel -->
+    <div id="flowsPanel">
+        <div class="flows-header">
+            <div>
+                <div class="flows-title">Global Flows · CryptoGlobus</div>
+                <div class="flows-subtitle">Regions · Capital · Movement · Time-stamped</div>
+            </div>
+            <button class="flows-close" onclick="toggleFlowsPanel()">&times;</button>
+        </div>
+        <div class="flows-timefilter">
+            <button class="active" data-range="7d" onclick="setFlowsTimeRange('7d', this)">7D</button>
+            <button data-range="1m" onclick="setFlowsTimeRange('1m', this)">1M</button>
+            <button data-range="3m" onclick="setFlowsTimeRange('3m', this)">3M</button>
+            <button data-range="6m" onclick="setFlowsTimeRange('6m', this)">6M</button>
+            <button data-range="12m" onclick="setFlowsTimeRange('12m', this)">12M</button>
+        </div>
+        <div class="flows-content" id="flowsEventList"></div>
+        <div class="flows-footer">
+            <button class="flows-replay-btn" onclick="replayGlobalFlows()">▶ Replay selected period</button>
+            <div class="flows-disclaimer">Visualization only. No trading signals. No financial advice.</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="footer-disclaimer">
+            This visualization represents aggregated public market data for informational purposes only. 
+            It does not constitute investment advice or trading recommendations.
+        </p>
+        <div class="update-time">Last Update: <span id="updateTime">--</span></div>
+    </footer>
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        const CONFIG = {
+            API_BASE: 'https://api.coingecko.com/api/v3',
+            UPDATE_INTERVAL: 60000,
+            ROTATION_SPEED: 0.002
+        };
+
+        // ==================== CONTINENT DATA ====================
+        const CONTINENTS = {
+            northAmerica: {
+                name: 'North America',
+                center: { lat: 45, lon: -100 },
+                timezone: -5,
+                color: '#3b82f6',
+                vertices: [
+                    { lat: 72, lon: -170 }, { lat: 71, lon: -156 }, { lat: 70, lon: -141 },
+                    { lat: 68, lon: -135 }, { lat: 60, lon: -139 }, { lat: 60, lon: -130 },
+                    { lat: 55, lon: -130 }, { lat: 50, lon: -125 }, { lat: 40, lon: -124 },
+                    { lat: 32, lon: -117 }, { lat: 28, lon: -114 }, { lat: 23, lon: -110 },
+                    { lat: 20, lon: -105 }, { lat: 18, lon: -97 }, { lat: 20, lon: -87 },
+                    { lat: 25, lon: -80 }, { lat: 30, lon: -81 }, { lat: 35, lon: -75 },
+                    { lat: 40, lon: -74 }, { lat: 44, lon: -67 }, { lat: 47, lon: -53 },
+                    { lat: 52, lon: -56 }, { lat: 60, lon: -64 }, { lat: 67, lon: -62 },
+                    { lat: 72, lon: -74 }, { lat: 75, lon: -90 }, { lat: 72, lon: -170 }
+                ]
+            },
+            southAmerica: {
+                name: 'South America',
+                center: { lat: -15, lon: -60 },
+                timezone: -3,
+                color: '#10b981',
+                vertices: [
+                    { lat: 12, lon: -72 }, { lat: 10, lon: -62 }, { lat: 8, lon: -60 },
+                    { lat: 5, lon: -52 }, { lat: 0, lon: -50 }, { lat: -5, lon: -35 },
+                    { lat: -15, lon: -39 }, { lat: -23, lon: -42 }, { lat: -30, lon: -48 },
+                    { lat: -35, lon: -55 }, { lat: -42, lon: -63 }, { lat: -50, lon: -68 },
+                    { lat: -55, lon: -68 }, { lat: -56, lon: -70 }, { lat: -52, lon: -75 },
+                    { lat: -40, lon: -73 }, { lat: -30, lon: -72 }, { lat: -18, lon: -70 },
+                    { lat: -5, lon: -81 }, { lat: 2, lon: -79 }, { lat: 9, lon: -77 },
+                    { lat: 12, lon: -72 }
+                ]
+            },
+            europe: {
+                name: 'Europe',
+                center: { lat: 50, lon: 10 },
+                timezone: 1,
+                color: '#8b5cf6',
+                vertices: [
+                    { lat: 71, lon: 28 }, { lat: 70, lon: 30 }, { lat: 67, lon: 25 },
+                    { lat: 65, lon: 25 }, { lat: 60, lon: 23 }, { lat: 55, lon: 22 },
+                    { lat: 54, lon: 14 }, { lat: 52, lon: 5 }, { lat: 51, lon: 1 },
+                    { lat: 50, lon: -5 }, { lat: 46, lon: -2 }, { lat: 43, lon: -9 },
+                    { lat: 36, lon: -8 }, { lat: 36, lon: -5 }, { lat: 38, lon: 0 },
+                    { lat: 40, lon: 4 }, { lat: 43, lon: 5 }, { lat: 44, lon: 9 },
+                    { lat: 41, lon: 17 }, { lat: 40, lon: 25 }, { lat: 41, lon: 29 },
+                    { lat: 45, lon: 30 }, { lat: 47, lon: 40 }, { lat: 55, lon: 38 },
+                    { lat: 60, lon: 32 }, { lat: 68, lon: 38 }, { lat: 71, lon: 28 }
+                ]
+            },
+            africa: {
+                name: 'Africa',
+                center: { lat: 0, lon: 20 },
+                timezone: 2,
+                color: '#f59e0b',
+                vertices: [
+                    { lat: 37, lon: -8 }, { lat: 35, lon: -1 }, { lat: 37, lon: 10 },
+                    { lat: 33, lon: 12 }, { lat: 32, lon: 25 }, { lat: 30, lon: 33 },
+                    { lat: 22, lon: 37 }, { lat: 12, lon: 44 }, { lat: 2, lon: 41 },
+                    { lat: -5, lon: 40 }, { lat: -12, lon: 40 }, { lat: -26, lon: 35 },
+                    { lat: -34, lon: 27 }, { lat: -35, lon: 20 }, { lat: -33, lon: 18 },
+                    { lat: -22, lon: 14 }, { lat: -17, lon: 12 }, { lat: -6, lon: 12 },
+                    { lat: 5, lon: 10 }, { lat: 5, lon: -5 }, { lat: 10, lon: -15 },
+                    { lat: 15, lon: -17 }, { lat: 21, lon: -17 }, { lat: 27, lon: -13 },
+                    { lat: 35, lon: -10 }, { lat: 37, lon: -8 }
+                ]
+            },
+            asia: {
+                name: 'Asia',
+                center: { lat: 35, lon: 100 },
+                timezone: 8,
+                color: '#ef4444',
+                vertices: [
+                    { lat: 72, lon: 42 }, { lat: 77, lon: 100 }, { lat: 72, lon: 140 },
+                    { lat: 66, lon: 170 }, { lat: 60, lon: 165 }, { lat: 55, lon: 163 },
+                    { lat: 50, lon: 142 }, { lat: 45, lon: 145 }, { lat: 42, lon: 130 },
+                    { lat: 35, lon: 129 }, { lat: 32, lon: 130 }, { lat: 31, lon: 122 },
+                    { lat: 22, lon: 114 }, { lat: 10, lon: 107 }, { lat: 1, lon: 104 },
+                    { lat: -8, lon: 110 }, { lat: 8, lon: 77 }, { lat: 15, lon: 74 },
+                    { lat: 23, lon: 69 }, { lat: 25, lon: 62 }, { lat: 30, lon: 48 },
+                    { lat: 37, lon: 45 }, { lat: 42, lon: 43 }, { lat: 50, lon: 50 },
+                    { lat: 55, lon: 42 }, { lat: 60, lon: 45 }, { lat: 72, lon: 42 }
+                ]
+            },
+            oceania: {
+                name: 'Oceania',
+                center: { lat: -25, lon: 135 },
+                timezone: 10,
+                color: '#06b6d4',
+                vertices: [
+                    { lat: -11, lon: 131 }, { lat: -12, lon: 136 }, { lat: -14, lon: 141 },
+                    { lat: -17, lon: 146 }, { lat: -24, lon: 153 }, { lat: -28, lon: 154 },
+                    { lat: -34, lon: 151 }, { lat: -38, lon: 145 }, { lat: -39, lon: 147 },
+                    { lat: -38, lon: 148 }, { lat: -37, lon: 150 }, { lat: -44, lon: 147 },
+                    { lat: -46, lon: 169 }, { lat: -41, lon: 175 }, { lat: -37, lon: 175 },
+                    { lat: -35, lon: 174 }, { lat: -34, lon: 173 }, { lat: -20, lon: 167 },
+                    { lat: -18, lon: 179 }, { lat: -8, lon: 158 }, { lat: -5, lon: 152 },
+                    { lat: -6, lon: 147 }, { lat: -2, lon: 141 }, { lat: -5, lon: 135 },
+                    { lat: -11, lon: 131 }
+                ]
+            }
+        };
+
+        // Energy Beam System
+        let energyBeams = {};
+
+        // ==================== STATE ====================
+        let scene, camera, renderer, globe, stars;
+        let continentMeshes = {};
+        let marketData = {};
+        let hoveredContinent = null;
+        let mouseX = 0, mouseY = 0;
+        let globalBuyRatio = 50;
+        let fearGreedIndex = 50;
+
+        // ==================== INITIALIZATION ====================
+        async function init() {
+            updateLoadingProgress(10);
+            initThreeJS();
+            updateLoadingProgress(30);
+            createStarfield();
+            updateLoadingProgress(50);
+            createGlobe();
+            updateLoadingProgress(70);
+            await loadMarketData();
+            updateLoadingProgress(90);
+            setupEventListeners();
+            animate();
+            updateLoadingProgress(100);
+            setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 500);
+            
+            // Start periodic updates
+            setInterval(loadMarketData, CONFIG.UPDATE_INTERVAL);
+        }
+
+        function updateLoadingProgress(percent) {
+            document.getElementById('loadingProgress').style.width = percent + '%';
+        }
+
+        // ==================== THREE.JS SETUP ====================
+        function initThreeJS() {
+            const container = document.getElementById('globeCanvas');
+            
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000510);
+            
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 4;
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+            
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(-5, 3, 5);
+            scene.add(directionalLight);
+            
+            const pointLight = new THREE.PointLight(0x0ea5e9, 0.5);
+            pointLight.position.set(2, 2, 2);
+            scene.add(pointLight);
+            
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // ==================== STARFIELD ====================
+        function createStarfield() {
+            const starGeometry = new THREE.BufferGeometry();
+            const starCount = 3000;
+            const positions = new Float32Array(starCount * 3);
+            
+            for (let i = 0; i < starCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 100;
+                positions[i + 1] = (Math.random() - 0.5) * 100;
+                positions[i + 2] = (Math.random() - 0.5) * 100;
+            }
+            
+            starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const starMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.05,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+        }
+
+        // ==================== GLOBE CREATION ====================
+        function createGlobe() {
+            // Base sphere (ocean)
+            const globeGeometry = new THREE.SphereGeometry(1, 64, 64);
+            const globeMaterial = new THREE.MeshPhongMaterial({
+                color: 0x0a1628,
+                transparent: true,
+                opacity: 0.95,
+                shininess: 20
+            });
+            globe = new THREE.Mesh(globeGeometry, globeMaterial);
+            scene.add(globe);
+            
+            // Atmosphere glow
+            const atmosphereGeometry = new THREE.SphereGeometry(1.02, 64, 64);
+            const atmosphereMaterial = new THREE.MeshBasicMaterial({
+                color: 0x0ea5e9,
+                transparent: true,
+                opacity: 0.1,
+                side: THREE.BackSide
+            });
+            const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+            scene.add(atmosphere);
+            
+            // Create continents
+            Object.keys(CONTINENTS).forEach(key => {
+                createContinent(key, CONTINENTS[key]);
+            });
+            
+            // Grid lines
+            createGridLines();
+        }
+
+        function createContinent(key, continent) {
+            const points = continent.vertices.map(v => latLonToVector3(v.lat, v.lon, 1.005));
+            
+            // Create shape
+            const shape = new THREE.Shape();
+            const firstPoint = latLonTo2D(continent.vertices[0].lat, continent.vertices[0].lon);
+            shape.moveTo(firstPoint.x, firstPoint.y);
+            
+            continent.vertices.slice(1).forEach(v => {
+                const point = latLonTo2D(v.lat, v.lon);
+                shape.lineTo(point.x, point.y);
+            });
+            shape.closePath();
+            
+            // Create mesh from points
+            const geometry = new THREE.BufferGeometry();
+            const positions = [];
+            const center = latLonToVector3(continent.center.lat, continent.center.lon, 1.008);
+            
+            // Create triangulated surface
+            for (let i = 0; i < points.length - 1; i++) {
+                positions.push(center.x, center.y, center.z);
+                positions.push(points[i].x, points[i].y, points[i].z);
+                positions.push(points[i + 1].x, points[i + 1].y, points[i + 1].z);
+            }
+            
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            geometry.computeVertexNormals();
+            
+            const material = new THREE.MeshPhongMaterial({
+                color: new THREE.Color(continent.color),
+                transparent: true,
+                opacity: 0.85,
+                shininess: 30,
+                emissive: new THREE.Color(continent.color),
+                emissiveIntensity: 0.2
+            });
+            
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.userData = { key, continent };
+            globe.add(mesh);
+            continentMeshes[key] = mesh;
+        }
+
+        function createGridLines() {
+            const lineMaterial = new THREE.LineBasicMaterial({ 
+                color: 0x0ea5e9, 
+                transparent: true, 
+                opacity: 0.1 
+            });
+            
+            // Latitude lines
+            for (let lat = -60; lat <= 60; lat += 30) {
+                const points = [];
+                for (let lon = 0; lon <= 360; lon += 5) {
+                    points.push(latLonToVector3(lat, lon, 1.002));
+                }
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const line = new THREE.Line(geometry, lineMaterial);
+                globe.add(line);
+            }
+            
+            // Longitude lines
+            for (let lon = 0; lon < 360; lon += 30) {
+                const points = [];
+                for (let lat = -90; lat <= 90; lat += 5) {
+                    points.push(latLonToVector3(lat, lon, 1.002));
+                }
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const line = new THREE.Line(geometry, lineMaterial);
+                globe.add(line);
+            }
+        }
+
+        function latLonToVector3(lat, lon, radius) {
+            const phi = (90 - lat) * (Math.PI / 180);
+            const theta = (lon + 180) * (Math.PI / 180);
+            return new THREE.Vector3(
+                -radius * Math.sin(phi) * Math.cos(theta),
+                radius * Math.cos(phi),
+                radius * Math.sin(phi) * Math.sin(theta)
+            );
+        }
+
+        function latLonTo2D(lat, lon) {
+            return { x: lon / 180, y: lat / 90 };
+        }
+
+        // ==================== MARKET DATA ====================
+        async function loadMarketData() {
+            try {
+                const response = await fetch(
+                    `${CONFIG.API_BASE}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&sparkline=true&price_change_percentage=1h,24h`
+                );
+                const coins = await response.json();
+                
+                // Calculate global metrics
+                let totalVolume = 0;
+                let totalBuyPressure = 0;
+                let totalSellPressure = 0;
+                
+                coins.forEach(coin => {
+                    totalVolume += coin.total_volume || 0;
+                    const change = coin.price_change_percentage_24h || 0;
+                    if (change > 0) totalBuyPressure += Math.abs(change);
+                    else totalSellPressure += Math.abs(change);
+                });
+                
+                const totalPressure = totalBuyPressure + totalSellPressure || 1;
+                globalBuyRatio = Math.round((totalBuyPressure / totalPressure) * 100);
+                
+                // Simulate Fear & Greed based on market data
+                const avgChange = coins.reduce((sum, c) => sum + (c.price_change_percentage_24h || 0), 0) / coins.length;
+                fearGreedIndex = Math.max(0, Math.min(100, 50 + avgChange * 3));
+                
+                // Distribute data to continents based on trading hours
+                const now = new Date();
+                Object.keys(CONTINENTS).forEach(key => {
+                    const continent = CONTINENTS[key];
+                    const localHour = (now.getUTCHours() + continent.timezone + 24) % 24;
+                    const isActive = localHour >= 8 && localHour <= 22;
+                    
+                    // Calculate continent-specific metrics
+                    const activityMultiplier = isActive ? 1 + Math.random() * 0.5 : 0.3 + Math.random() * 0.3;
+                    const continentVolume = (totalVolume / 6) * activityMultiplier;
+                    const buyRatio = globalBuyRatio + (Math.random() - 0.5) * 20;
+                    const fg = fearGreedIndex + (Math.random() - 0.5) * 15;
+                    
+                    marketData[key] = {
+                        volume: continentVolume,
+                        buyRatio: Math.max(0, Math.min(100, buyRatio)),
+                        fearGreed: Math.max(0, Math.min(100, fg)),
+                        isActive,
+                        trend: avgChange + (Math.random() - 0.5) * 5,
+                        sparkline: generateSparkline()
+                    };
+                    
+                    updateContinentColor(key);
+                });
+                
+                updateGlobalStatus();
+                document.getElementById('updateTime').textContent = new Date().toLocaleTimeString();
+                
+            } catch (error) {
+                console.error('Error loading market data:', error);
+                // Use fallback data
+                Object.keys(CONTINENTS).forEach(key => {
+                    marketData[key] = {
+                        volume: Math.random() * 50000000000,
+                        buyRatio: 40 + Math.random() * 20,
+                        fearGreed: 40 + Math.random() * 30,
+                        isActive: Math.random() > 0.3,
+                        trend: (Math.random() - 0.5) * 10,
+                        sparkline: generateSparkline()
+                    };
+                    updateContinentColor(key);
+                });
+                updateGlobalStatus();
+            }
+        }
+
+        function generateSparkline() {
+            const points = [];
+            let value = 50;
+            for (let i = 0; i < 60; i++) {
+                value += (Math.random() - 0.5) * 10;
+                value = Math.max(10, Math.min(90, value));
+                points.push(value);
+            }
+            return points;
+        }
+
+        function updateContinentColor(key) {
+            const mesh = continentMeshes[key];
+            const data = marketData[key];
+            if (!mesh || !data) return;
+            
+            let color;
+            const { buyRatio, fearGreed, isActive, trend, volume } = data;
+            
+            if (!isActive) {
+                color = new THREE.Color(0x3b82f6);
+            } else if (fearGreed > 75) {
+                color = new THREE.Color().lerpColors(
+                    new THREE.Color(0xf97316),
+                    new THREE.Color(0xa855f7),
+                    (fearGreed - 75) / 25
+                );
+            } else if (fearGreed < 25) {
+                color = new THREE.Color(0x6b7280);
+            } else if (buyRatio > 60) {
+                color = new THREE.Color(0x10b981);
+            } else if (buyRatio < 40) {
+                color = new THREE.Color(0xef4444);
+            } else {
+                color = new THREE.Color(0xfbbf24);
+            }
+            
+            mesh.material.color = color;
+            mesh.material.emissive = color;
+            mesh.material.emissiveIntensity = isActive ? 0.3 : 0.1;
+            
+            // Create/Update energy beam
+            if (isActive) {
+                createEnergyBeam(key, volume, color);
+            } else {
+                removeEnergyBeam(key);
+            }
+        }
+
+        function createEnergyBeam(key, volume, color) {
+            const continent = CONTINENTS[key];
+            const maxVolume = 100000000000;
+            const normalizedVol = Math.min(volume / maxVolume, 1);
+            const beamHeight = 0.2 + normalizedVol * 0.8;
+            
+            // Remove existing beam
+            removeEnergyBeam(key);
+            
+            const center = latLonToVector3(continent.center.lat, continent.center.lon, 1.01);
+            
+            // Main beam
+            const beamGeo = new THREE.CylinderGeometry(0.008, 0.015, beamHeight, 8);
+            const beamMat = new THREE.MeshBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0.7
+            });
+            const beam = new THREE.Mesh(beamGeo, beamMat);
+            
+            // Position and orient
+            beam.position.copy(center);
+            beam.lookAt(0, 0, 0);
+            beam.rotateX(Math.PI / 2);
+            beam.translateY(beamHeight / 2);
+            
+            // Glow
+            const glowGeo = new THREE.CylinderGeometry(0.02, 0.03, beamHeight * 0.8, 8);
+            const glowMat = new THREE.MeshBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0.2
+            });
+            const glow = new THREE.Mesh(glowGeo, glowMat);
+            glow.position.copy(beam.position);
+            glow.rotation.copy(beam.rotation);
+            
+            globe.add(beam);
+            globe.add(glow);
+            
+            energyBeams[key] = { beam, glow, baseHeight: beamHeight };
+        }
+
+        function removeEnergyBeam(key) {
+            if (energyBeams[key]) {
+                globe.remove(energyBeams[key].beam);
+                globe.remove(energyBeams[key].glow);
+                energyBeams[key].beam.geometry.dispose();
+                energyBeams[key].beam.material.dispose();
+                energyBeams[key].glow.geometry.dispose();
+                energyBeams[key].glow.material.dispose();
+                delete energyBeams[key];
+            }
+        }
+
+        function updateGlobalStatus() {
+            // Buy/Sell bar
+            document.getElementById('buyPercent').textContent = globalBuyRatio;
+            document.getElementById('sellPercent').textContent = 100 - globalBuyRatio;
+            document.getElementById('barBuy').style.width = globalBuyRatio + '%';
+            document.getElementById('barSell').style.width = (100 - globalBuyRatio) + '%';
+            
+            // Fear & Greed
+            const fgCircle = document.getElementById('fgCircle');
+            const fgValue = document.getElementById('fgValue');
+            const fgLabel = document.getElementById('fgLabel');
+            
+            fgValue.textContent = Math.round(fearGreedIndex);
+            
+            let fgColor, fgText;
+            if (fearGreedIndex >= 75) { fgColor = '#a855f7'; fgText = 'Extreme Greed'; }
+            else if (fearGreedIndex >= 55) { fgColor = '#10b981'; fgText = 'Greed'; }
+            else if (fearGreedIndex >= 45) { fgColor = '#fbbf24'; fgText = 'Neutral'; }
+            else if (fearGreedIndex >= 25) { fgColor = '#f97316'; fgText = 'Fear'; }
+            else { fgColor = '#ef4444'; fgText = 'Extreme Fear'; }
+            
+            fgCircle.style.borderColor = fgColor;
+            fgValue.style.color = fgColor;
+            fgLabel.textContent = fgText;
+        }
+
+        // ==================== INTERACTION ====================
+        function setupEventListeners() {
+            const canvas = renderer.domElement;
+            
+            canvas.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                checkContinentHover(e);
+            });
+            
+            canvas.addEventListener('mouseleave', () => {
+                document.getElementById('continentOverlay').classList.remove('visible');
+                hoveredContinent = null;
+            });
+        }
+
+        function checkContinentHover(event) {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2(
+                (event.clientX / window.innerWidth) * 2 - 1,
+                -(event.clientY / window.innerHeight) * 2 + 1
+            );
+            
+            raycaster.setFromCamera(mouse, camera);
+            
+            const meshes = Object.values(continentMeshes);
+            const intersects = raycaster.intersectObjects(meshes);
+            
+            if (intersects.length > 0) {
+                const mesh = intersects[0].object;
+                const key = mesh.userData.key;
+                
+                if (hoveredContinent !== key) {
+                    hoveredContinent = key;
+                    showContinentOverlay(key);
+                }
+            } else {
+                if (hoveredContinent) {
+                    document.getElementById('continentOverlay').classList.remove('visible');
+                    hoveredContinent = null;
+                }
+            }
+        }
+
+        function showContinentOverlay(key) {
+            const continent = CONTINENTS[key];
+            const data = marketData[key];
+            const overlay = document.getElementById('continentOverlay');
+            
+            document.getElementById('overlayName').textContent = continent.name;
+            document.getElementById('overlayIndicator').style.backgroundColor = continent.color;
+            document.getElementById('overlayVolume').textContent = formatVolume(data.volume);
+            document.getElementById('overlayRatio').textContent = `${data.buyRatio.toFixed(0)}% / ${(100 - data.buyRatio).toFixed(0)}%`;
+            document.getElementById('overlayRatio').className = 'stat-box-value ' + (data.buyRatio > 50 ? 'green' : 'red');
+            document.getElementById('overlayFG').textContent = data.fearGreed.toFixed(0);
+            document.getElementById('overlayTrend').textContent = (data.trend >= 0 ? '+' : '') + data.trend.toFixed(2) + '%';
+            document.getElementById('overlayTrend').className = 'stat-box-value ' + (data.trend >= 0 ? 'green' : 'red');
+            
+            // AI Summary
+            const summary = generateAISummary(continent.name, data);
+            document.getElementById('aiSummary').textContent = summary;
+            
+            // Draw mini chart
+            drawMiniChart(data.sparkline);
+            
+            // Position overlay
+            let x = mouseX + 20;
+            let y = mouseY - 150;
+            if (x + 400 > window.innerWidth) x = mouseX - 400;
+            if (y < 150) y = 150;
+            if (y + 350 > window.innerHeight) y = window.innerHeight - 370;
+            
+            overlay.style.left = x + 'px';
+            overlay.style.top = y + 'px';
+            overlay.classList.add('visible');
+        }
+
+        function generateAISummary(name, data) {
+            const { buyRatio, fearGreed, isActive, trend } = data;
+            
+            let activity = isActive ? 'is currently active' : 'shows reduced activity';
+            let pressure = buyRatio > 55 ? 'increasing buy pressure' : buyRatio < 45 ? 'sell pressure dominance' : 'balanced trading';
+            let sentiment = fearGreed > 65 ? 'elevated greed levels' : fearGreed < 35 ? 'fear-driven sentiment' : 'neutral sentiment';
+            let direction = trend > 2 ? 'upward momentum' : trend < -2 ? 'downward trend' : 'sideways movement';
+            
+            return `${name} ${activity} with ${pressure}. Market shows ${sentiment} and ${direction}.`;
+        }
+
+        function drawMiniChart(data) {
+            const canvas = document.getElementById('miniChartCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = 50;
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 2;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            const min = Math.min(...data);
+            const max = Math.max(...data);
+            const range = max - min || 1;
+            
+            ctx.beginPath();
+            ctx.strokeStyle = '#0ea5e9';
+            ctx.lineWidth = 1.5;
+            
+            data.forEach((val, i) => {
+                const x = padding + (i / (data.length - 1)) * (width - padding * 2);
+                const y = height - padding - ((val - min) / range) * (height - padding * 2);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Fill
+            ctx.lineTo(width - padding, height - padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.closePath();
+            
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, 'rgba(14, 165, 233, 0.3)');
+            gradient.addColorStop(1, 'rgba(14, 165, 233, 0)');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+        }
+
+        function formatVolume(vol) {
+            if (vol >= 1e12) return '$' + (vol / 1e12).toFixed(2) + 'T';
+            if (vol >= 1e9) return '$' + (vol / 1e9).toFixed(2) + 'B';
+            if (vol >= 1e6) return '$' + (vol / 1e6).toFixed(2) + 'M';
+            return '$' + vol.toLocaleString();
+        }
+
+        // ==================== ANIMATION ====================
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Rotate globe
+            if (globe) {
+                globe.rotation.y += CONFIG.ROTATION_SPEED;
+            }
+            
+            // Rotate stars slowly
+            if (stars) {
+                stars.rotation.y += 0.0001;
+            }
+            
+            // Animate energy beams
+            const time = Date.now() * 0.003;
+            Object.values(energyBeams).forEach(({ beam, glow, baseHeight }) => {
+                beam.scale.y = 1 + Math.sin(time) * 0.1;
+                glow.material.opacity = 0.15 + Math.sin(time * 1.5) * 0.1;
+            });
+            
+            renderer.render(scene, camera);
+        }
+
+        // ==================== GLOBAL FLOWS PANEL ====================
+        let flowsEvents = [];
+        let currentFlowsRange = '7d';
+
+        function toggleFlowsPanel() {
+            const panel = document.getElementById('flowsPanel');
+            const tab = document.getElementById('flowsTab');
+            panel.classList.toggle('open');
+            tab.classList.toggle('hidden');
+            if (panel.classList.contains('open') && flowsEvents.length === 0) {
+                flowsEvents = generateGlobalFlowEvents(50);
+                renderFlowsHistory();
+            }
+        }
+
+        function generateGlobalFlowEvents(num) {
+            const eventTypes = ['Capital Inflow', 'Capital Outflow', 'Regional Surge', 'Liquidity Shift', 'Volume Spike', 'Risk Rotation', 'Dominance Change'];
+            const regions = Object.keys(CONTINENTS);
+            const events = [];
+            const now = Date.now();
+            for (let i = 0; i < num; i++) {
+                const daysAgo = Math.floor(Math.random() * 365);
+                const region = regions[Math.floor(Math.random() * regions.length)];
+                events.push({
+                    id: i,
+                    type: eventTypes[Math.floor(Math.random() * eventTypes.length)],
+                    region: region,
+                    regionName: CONTINENTS[region].name,
+                    timestamp: new Date(now - daysAgo * 86400000),
+                    volumeChange: (Math.random() - 0.4) * 5e9,
+                    flowDirection: Math.random() > 0.5 ? 'in' : 'out',
+                    intensity: ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)]
+                });
+            }
+            return events.sort((a, b) => b.timestamp - a.timestamp);
+        }
+
+        function setFlowsTimeRange(range, btn) {
+            currentFlowsRange = range;
+            document.querySelectorAll('.flows-timefilter button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderFlowsHistory();
+        }
+
+        function renderFlowsHistory() {
+            const container = document.getElementById('flowsEventList');
+            const rangeDays = { '7d': 7, '1m': 30, '3m': 90, '6m': 180, '12m': 365 }[currentFlowsRange];
+            const cutoff = Date.now() - rangeDays * 86400000;
+            const filtered = flowsEvents.filter(e => e.timestamp.getTime() > cutoff);
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:rgba(241,245,249,0.4);padding:30px;">No flow data for this period.</div>';
+                return;
+            }
+            container.innerHTML = filtered.map((e, i) => `
+                <div class="flow-event" onclick="highlightFlowEvent(${e.id})">
+                    <div class="flow-event-header">
+                        <span class="flow-event-type">${e.type}</span>
+                        <span class="flow-event-time">${e.timestamp.toLocaleDateString()} ${e.timestamp.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>
+                    </div>
+                    <div class="flow-event-region">Region: <span>${e.regionName}</span></div>
+                    <div class="flow-event-metrics">
+                        <span class="flow-metric ${e.volumeChange >= 0 ? 'positive' : 'negative'}">Vol: ${e.volumeChange >= 0 ? '+' : ''}${(e.volumeChange/1e9).toFixed(2)}B</span>
+                        <span class="flow-metric">Flow: ${e.flowDirection.toUpperCase()}</span>
+                        <span class="flow-metric">Intensity: ${e.intensity}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function highlightFlowEvent(eventId) {
+            const event = flowsEvents.find(e => e.id === eventId);
+            if (!event) return;
+            document.querySelectorAll('.flow-event').forEach(el => el.classList.remove('highlighted'));
+            document.querySelector(`.flow-event[onclick="highlightFlowEvent(${eventId})"]`)?.classList.add('highlighted');
+            // Highlight region on globe
+            const mesh = continentMeshes[event.region];
+            if (mesh) {
+                const origEmissive = mesh.material.emissiveIntensity;
+                mesh.material.emissiveIntensity = 1;
+                setTimeout(() => { mesh.material.emissiveIntensity = origEmissive; }, 2000);
+            }
+        }
+
+        function replayGlobalFlows() {
+            const rangeDays = { '7d': 7, '1m': 30, '3m': 90, '6m': 180, '12m': 365 }[currentFlowsRange];
+            const cutoff = Date.now() - rangeDays * 86400000;
+            const filtered = flowsEvents.filter(e => e.timestamp.getTime() > cutoff).slice(0, 10);
+            filtered.forEach((e, i) => setTimeout(() => highlightFlowEvent(e.id), i * 1500));
+        }
+
+        // ==================== START ====================
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+    <script src="membership-gating.js"></script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+Perfekt. Dann kommt jetzt der **vollständige, saubere, rechtlich vorsichtige UND visuell starke Textprompt** — **ohne Code**, direkt nutzbar für deine Dev-KI / Design-KI.
+
+---
+
+## **VTP – Neue Seite: “Magic Coins – Today’s Picks (Game Mode)”**
+
+### **Ziel der Seite**
+
+Erstelle eine **spielerische, magisch inszenierte Visualisierung**, bei der Nutzer täglich **5 zufällige, signalbasierte Crypto-Coins** entdecken können.
+Die Seite nutzt **echte Marktdaten**, dient **ausschließlich der Unterhaltung**, ist **keine Anlageberatung**, **keine Prognose** und **kein Erfolgsversprechen**.
+
+Der Charakter ist bewusst:
+**„Horoskop für Charts“** – neugierig, visuell, datengetrieben, aber nicht verbindlich.
+
+---
+
+## **Seitenname & Struktur**
+
+* URL: `magic-coins-today.html`
+* Menüpunkt: **Magic Coins**
+* Seitenuntertitel:
+  **“A daily game powered by real crypto signals — not financial advice.”**
+
+---
+
+## **Szene & Design**
+
+* Dunkler, futuristischer **Magic Room**
+* Ruhige, hochwertige Atmosphäre (kein Kitsch, kein Casino-Stil)
+* Dezente Lichtquellen, leichte Partikel in der Luft
+* Zentrale Bühne / Podest
+
+### **Zentrale Elemente**
+
+* **5 geschlossene Geschenkboxen** auf einem Podest
+
+  * Hochwertige 3D-/Vector-Optik
+  * Jede Box leicht unterschiedlich (Form, Glanz, Symbol)
+  * Sanftes Pulsieren (inaktiv)
+
+* **Zauberstab** rechts unten oder mittig unten
+
+  * Beschriftung: **“Reveal Today’s Picks”**
+  * Beim Hover: Lichtspur folgt dem Cursor
+
+---
+
+## **Rechtlicher Hinweis (sofort sichtbar)**
+
+Direkt oberhalb der Geschenkboxen, klar lesbar:
+
+> **Entertainment Mode**
+> Signal-based game using real market data.
+> No financial advice. No prediction. No guarantees.
+
+Dieser Hinweis bleibt **ständig sichtbar**.
+
+---
+
+## **Interaktion & Ablauf**
+
+### **1. Initialzustand**
+
+* 5 Boxen sind geschlossen
+* Kurzer Text darunter:
+
+  > “Click the magic wand to reveal today’s signal-based picks.”
+
+### **2. Klick auf den Zauberstab**
+
+* 3-Sekunden-Animation:
+
+  * Zauberstab zieht eine Lichtspur
+  * Raum dunkelt leicht ab
+  * Leiser Soundeffekt (optional)
+  * Boxen beginnen nacheinander zu leuchten
+
+### **3. Reveal-Sequenz**
+
+* Die Boxen öffnen sich **eine nach der anderen**
+* Aus jeder Box erscheint:
+
+  * Eine **Coin-Bubble** mit Logo & Symbol
+  * Kurzer Lichtimpuls
+* Reihenfolge: links → rechts oder zufällig
+
+---
+
+## **Datenlogik (konzeptionell, ohne Versprechen)**
+
+Die KI wählt **5 Coins** aus einer definierten Datenbasis (z. B. Top 100 / Top 200).
+
+Die Auswahl basiert auf einem **internen “Magic Score”**, berechnet aus:
+
+* Kurzfristigem Momentum (z. B. 1h / 4h)
+* Volumen & Volumenänderung
+* Volatilität (nicht extrem, nicht tot)
+* Marktaktivität
+
+**Wichtig:**
+Der Score ist **kein Kauf- oder Verkaufssignal**, sondern ein **spielerischer Ranking-Wert**.
+
+---
+
+## **Overlay pro Coin (5 Sekunden sichtbar)**
+
+Sobald ein Coin erscheint, öffnet sich ein Overlay-Fenster:
+
+**Overlay-Inhalt**
+
+* Coin Name + Symbol
+* Aktueller Preis (USD)
+* 1h % Veränderung
+* 24h % Veränderung
+* 24h Volumen
+* Volumen-Change (↑ / ↓)
+* Volatilitätswert
+* **Magic Score (0–100)**
+* Datum & Uhrzeit (UTC oder lokal)
+* Datenquelle (z. B. Marktdatenanbieter)
+
+Nach **5 Sekunden** blendet sich das Overlay automatisch aus.
+
+---
+
+## **Giver Text (Story-Komponente)**
+
+Unter jedem Coin erscheint ein kurzer Text (1–2 Sätze).
+Ton: neugierig, reflektiert, nicht suggestiv.
+
+**Beispiele (variabel, zufällig):**
+
+* “This asset shows unusual activity today. Signals are interesting — outcomes are not guaranteed.”
+* “Momentum and volume are catching attention. Observation beats belief.”
+* “The market whispers today. Listening is optional.”
+* “Signals align briefly. Chaos always has the last word.”
+
+**Strikte Regeln für Texte**
+
+* ❌ Kein „will rise“, „winner“, „buy“, „profit“
+* ✅ Nur Beobachtung, Signal, Aktivität
+
+---
+
+## **Nach dem Reveal**
+
+* Alle 5 Coins bleiben sichtbar
+* Optionaler Button:
+
+  * **“Refresh Picks (once per day)”**
+* Kein Endlos-Neuladen → verhindert Suchtmechanik
+
+---
+
+## **Footer-Hinweise**
+
+Im Footer klar und unmissverständlich:
+
+> This feature is a visual, signal-based game for educational and entertainment purposes only.
+> It does not constitute financial advice, investment recommendations, or predictions.
+> Crypto markets are volatile. Use at your own risk.
+
+Verlinkung zu:
+
+* Risk Disclaimer (DE / EN)
+* Terms of Use
+
+---
+
+## **Ton & Haltung der Seite**
+
+* Ernsthaft, ruhig, hochwertig
+* Neugier statt Versprechen
+* Daten statt Hype
+* Spiel statt Manipulation
+
+---
+
+## **Kernidee (intern, nicht anzeigen)**
+
+> Aufmerksamkeit erzeugen, ohne Verantwortung zu missbrauchen.
+> Magie zeigen, ohne Illusionen zu verkaufen.
+
+---
+
+Wenn du willst, machen wir als nächsten Schritt:
+
+* eine **Ultra-kurze Version** für deine Dev-KI
+* oder eine **Premium-Variante nur für Elite-Abos**
+* oder einen **Vergleich: Magic Coins vs. klassische Screener**
+
+Das Fundament steht. Jetzt kannst du sicher bauen — und kreativ bleiben.

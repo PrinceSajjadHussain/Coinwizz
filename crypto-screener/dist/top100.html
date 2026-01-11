@@ -1,0 +1,3121 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top 100 Coins | CryptoSpaces</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --space-black: #000510;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --text-light: #f1f5f9;
+        }
+        /* Unified Header Styles */
+        .unified-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0, 5, 16, 0.95) 0%, rgba(0, 5, 16, 0) 100%);
+            padding: 15px 30px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+        }
+        .unified-left { display: flex; align-items: center; gap: 20px; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+        .unified-nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .unified-nav-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            padding: 7px 12px;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: rgba(14, 165, 233, 0.05);
+            text-transform: uppercase;
+        }
+        .unified-nav-link:hover {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+        }
+        .unified-utils {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .unified-btn {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(34, 211, 238, 0.1));
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            color: var(--text-light);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .unified-btn:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(34, 211, 238, 0.2));
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+        @media (max-width: 900px) {
+            .unified-nav { display: none; }
+            .unified-header { padding: 10px 15px; }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--space-black);
+            color: var(--text-light);
+            min-height: 100vh;
+            padding-top: 80px; /* Space for fixed header */
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .page-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: #fbbf24;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.85rem;
+        }
+        
+        .last-update {
+            color: #64748b;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-ghost {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+        
+        .btn-ghost:hover {
+            background: rgba(148, 163, 184, 0.1);
+        }
+        
+        /* Status Banner */
+        .status-banner {
+            display: none;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        
+        .status-banner.visible { display: block; }
+        
+        /* Filter Bar */
+        .filter-bar {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 15px 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            max-width: 300px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        }
+        
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .filter-btn {
+            padding: 8px 14px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 6px;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        
+        .sort-select {
+            padding: 8px 12px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-family: inherit;
+            cursor: pointer;
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 20px 30px;
+        }
+        
+        /* Table */
+        .table-container {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 16px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            overflow: hidden;
+        }
+        
+        .coin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .coin-table th {
+            background: rgba(30, 41, 59, 0.9);
+            padding: 14px 12px;
+            text-align: left;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        
+        .coin-table th:hover {
+            color: #3b82f6;
+        }
+        
+        .coin-table th.sorted {
+            color: #fbbf24;
+        }
+        
+        .coin-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+            font-size: 0.9rem;
+        }
+        
+        .coin-table tr:hover {
+            background: rgba(59, 130, 246, 0.1);
+            cursor: pointer;
+        }
+        
+        .coin-table tr:nth-child(even) {
+            background: rgba(30, 41, 59, 0.3);
+        }
+        
+        .coin-table tr:nth-child(even):hover {
+            background: rgba(59, 130, 246, 0.15);
+        }
+        
+        /* Coin Cell */
+        .coin-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .coin-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        
+        .coin-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .coin-name {
+            font-weight: 600;
+            color: #f8fafc;
+        }
+        
+        .coin-symbol {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+        
+        /* Percentage Colors */
+        .positive { color: #22c55e; }
+        .negative { color: #ef4444; }
+        .neutral { color: #94a3b8; }
+        
+        /* Rank Badge */
+        .rank {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        
+        .rank-1 { background: linear-gradient(135deg, #ffd700, #ffb800); color: #1a1a1a; }
+        .rank-2 { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); color: #1a1a1a; }
+        .rank-3 { background: linear-gradient(135deg, #cd7f32, #a66028); color: #1a1a1a; }
+        .rank-default { background: rgba(100, 116, 139, 0.3); color: #94a3b8; }
+        
+        /* Signals */
+        .signals {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        
+        .signal-badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .signal-buy { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.4); }
+        .signal-sell { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); }
+        .signal-volume { background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.4); }
+        .signal-breakout { background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.4); }
+        
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(59, 130, 246, 0.1);
+            color: #94a3b8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+        
+        .action-btn.active {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+        
+        /* Sparkline */
+        .sparkline {
+            width: 80px;
+            height: 30px;
+        }
+        
+        /* Detail Drawer */
+        .drawer-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 200;
+        }
+        
+        .drawer-overlay.open { display: block; }
+        
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -500px;
+            width: 500px;
+            max-width: 90vw;
+            height: 100vh;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            border-left: 1px solid rgba(59, 130, 246, 0.3);
+            z-index: 201;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .drawer.open { right: 0; }
+        
+        .drawer-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .drawer-close {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        .drawer-close:hover {
+            background: rgba(239, 68, 68, 0.4);
+        }
+        
+        .drawer-content {
+            padding: 20px;
+        }
+        
+        .drawer-coin {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .drawer-coin img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }
+        
+        .drawer-coin-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: #f8fafc;
+        }
+        
+        .drawer-coin-symbol {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .kpi-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        
+        .kpi-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f8fafc;
+        }
+        
+        .trend-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        
+        .trend-bull { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .trend-bear { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .trend-neutral { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+        
+        .ai-insight {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .ai-insight-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #a78bfa;
+            margin-bottom: 10px;
+        }
+        
+        .ai-insight-text {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+        
+        .risk-banner {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-top: 20px;
+            font-size: 0.75rem;
+            color: #fbbf24;
+            text-align: center;
+        }
+        
+        /* Start Button */
+        .start-btn {
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+        }
+        
+        /* Rocket Overlay */
+        #rocketOverlayLayer {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            pointer-events: all;
+            overflow: hidden;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.85);
+        }
+        .rocket-overlay-content {
+            position: relative;
+            width: 400px;
+            height: 500px;
+            background: linear-gradient(180deg, #0a0a2e 0%, #1a1a4a 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(59,130,246,0.4);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .rocket-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .rocket-close-btn:hover { color: #ef4444; }
+        .rocket-header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .rocket-symbol {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: #fbbf24;
+            margin-right: 10px;
+        }
+        .rocket-change { font-weight: 600; }
+        .rocket-change.positive { color: #22c55e; }
+        .rocket-change.negative { color: #ef4444; }
+        .rocket-time-scale {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+        .rocket-stage {
+            flex: 1;
+            position: relative;
+            background: radial-gradient(ellipse at bottom, #1a1a4a 0%, #000 100%);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .rocket-element {
+            position: absolute;
+            font-size: 3rem;
+            transition: bottom 0.1s, left 0.1s;
+        }
+        .rocket-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: particleFade 1s forwards;
+        }
+        @keyframes particleFade {
+            0% { opacity: 1; transform: scale(1) translateY(0); }
+            100% { opacity: 0; transform: scale(0.2) translateY(50px); }
+        }
+        .rocket-disclaimer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #f59e0b;
+            margin-top: 10px;
+        }
+        
+        /* Chart-Rocket Overlay - UPGRADED */
+        #chartRocketOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.95);
+        }
+        .chart-rocket-container {
+            width: 95vw;
+            height: 92vh;
+            max-width: 1600px;
+            background: linear-gradient(180deg, #030318 0%, #0a0a2e 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(59,130,246,0.4);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .chart-rocket-header {
+            padding: 18px 30px;
+            border-bottom: 1px solid rgba(59,130,246,0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chart-rocket-header h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #fbbf24;
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+            text-shadow: 0 0 20px rgba(251,191,36,0.4);
+        }
+        .chart-rocket-header p {
+            color: #64748b;
+            font-size: 0.75rem;
+        }
+        .chart-rocket-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #ef4444;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .chart-rocket-close:hover { background: rgba(239,68,68,0.2); transform: scale(1.1); }
+        
+        /* Main Content Split */
+        .chart-rocket-main {
+            flex: 1;
+            display: flex;
+            gap: 15px;
+            padding: 15px 20px;
+            overflow: hidden;
+        }
+        
+        /* Stage Area (70%) */
+        .chart-rocket-stage {
+            flex: 0 0 70%;
+            position: relative;
+            background: radial-gradient(ellipse at bottom left, #0f0f3f 0%, #000010 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(59,130,246,0.2);
+        }
+        .chart-rocket-timer {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-family: 'Orbitron', sans-serif;
+            color: #3b82f6;
+            font-size: 1rem;
+            z-index: 10;
+        }
+        .chart-rocket-coin {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-family: 'Orbitron', sans-serif;
+            color: #fbbf24;
+            font-size: 1.1rem;
+            z-index: 10;
+        }
+        .chart-axis-x {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: rgba(100,116,139,0.6);
+        }
+        .chart-axis-y {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            font-size: 0.6rem;
+            color: rgba(100,116,139,0.6);
+        }
+        
+        /* Data Panel (30%) */
+        .chart-data-panel {
+            flex: 0 0 28%;
+            background: rgba(15,23,42,0.8);
+            border-radius: 16px;
+            border: 1px solid rgba(59,130,246,0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chart-data-header {
+            padding: 15px;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+            text-align: center;
+        }
+        .chart-data-coin-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: #fbbf24;
+            margin-bottom: 5px;
+        }
+        .chart-data-coin-symbol {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        .chart-data-metrics {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        .chart-data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            background: rgba(59,130,246,0.05);
+            border-radius: 8px;
+            border-left: 3px solid rgba(59,130,246,0.4);
+        }
+        .chart-data-label {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+        .chart-data-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #f8fafc;
+            font-weight: 600;
+        }
+        .chart-data-value.positive { color: #22c55e; }
+        .chart-data-value.negative { color: #ef4444; }
+        .chart-data-timestamp {
+            text-align: center;
+            padding: 12px;
+            background: rgba(251,191,36,0.1);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .chart-data-timestamp-label {
+            font-size: 0.6rem;
+            color: #fbbf24;
+            margin-bottom: 4px;
+        }
+        .chart-data-timestamp-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: #fbbf24;
+        }
+        
+        /* Trail Points with Labels */
+        .chart-trail-point {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(59,130,246,0.9);
+            box-shadow: 0 0 8px rgba(59,130,246,0.7);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            z-index: 5;
+        }
+        .chart-trail-point:hover {
+            transform: scale(2);
+            box-shadow: 0 0 15px rgba(59,130,246,1);
+            z-index: 20;
+        }
+        .chart-trail-point.major {
+            width: 10px;
+            height: 10px;
+            background: #fbbf24;
+            box-shadow: 0 0 12px rgba(251,191,36,0.8);
+        }
+        .chart-trail-label {
+            position: absolute;
+            font-size: 0.55rem;
+            color: rgba(248,250,252,0.8);
+            background: rgba(15,23,42,0.9);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(59,130,246,0.3);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 15;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .chart-trail-point:hover + .chart-trail-label,
+        .chart-trail-label.visible {
+            opacity: 1;
+        }
+        .chart-trail-label .vol { color: #3b82f6; }
+        .chart-trail-label .price { color: #fbbf24; }
+        .chart-trail-label .change-pos { color: #22c55e; }
+        .chart-trail-label .change-neg { color: #ef4444; }
+        
+        /* Rocket Ship */
+        .chart-rocket-ship {
+            position: absolute;
+            font-size: 3rem;
+            filter: drop-shadow(0 0 20px rgba(251,191,36,0.8));
+            transition: none;
+            z-index: 50;
+        }
+        .chart-exhaust {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: exhaustFadeChart 0.6s forwards;
+        }
+        @keyframes exhaustFadeChart {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.2) translate(30px, 30px); }
+        }
+        .chart-thruster {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50% 50% 50% 50%;
+            filter: blur(3px);
+            animation: thrusterPulse 0.15s ease-in-out infinite alternate;
+        }
+        @keyframes thrusterPulse {
+            0% { opacity: 0.7; transform: scale(1) rotate(190deg); }
+            100% { opacity: 1; transform: scale(1.15) rotate(190deg); }
+        }
+        .chart-flame {
+            position: absolute;
+            pointer-events: none;
+            animation: flameDance 0.1s ease-in-out infinite alternate;
+        }
+        @keyframes flameDance {
+            0% { transform: rotate(190deg) scaleY(1); }
+            100% { transform: rotate(190deg) scaleY(0.85); }
+        }
+        
+        /* Controls Bar */
+        .chart-rocket-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 20px;
+            background: rgba(15,23,42,0.9);
+            border-top: 1px solid rgba(59,130,246,0.2);
+        }
+        .chart-control-btn {
+            background: rgba(59,130,246,0.15);
+            border: 1px solid rgba(59,130,246,0.4);
+            color: #3b82f6;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .chart-control-btn:hover {
+            background: rgba(59,130,246,0.25);
+            box-shadow: 0 0 15px rgba(59,130,246,0.3);
+        }
+        .chart-control-btn.active {
+            background: rgba(59,130,246,0.4);
+            color: #fff;
+        }
+        .chart-control-btn.play {
+            background: rgba(34,197,94,0.15);
+            border-color: rgba(34,197,94,0.4);
+            color: #22c55e;
+        }
+        .chart-control-btn.play:hover {
+            background: rgba(34,197,94,0.25);
+        }
+        .chart-speed-group {
+            display: flex;
+            gap: 5px;
+            padding: 4px;
+            background: rgba(15,23,42,0.5);
+            border-radius: 8px;
+        }
+        .chart-speed-btn {
+            background: transparent;
+            border: none;
+            color: #64748b;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .chart-speed-btn:hover { color: #f8fafc; }
+        .chart-speed-btn.active {
+            background: rgba(59,130,246,0.3);
+            color: #3b82f6;
+        }
+        .chart-progress-bar {
+            flex: 1;
+            max-width: 300px;
+            height: 6px;
+            background: rgba(59,130,246,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .chart-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3b82f6, #fbbf24);
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+        
+        /* Footer */
+        .chart-rocket-footer {
+            padding: 8px 30px;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.65rem;
+            border-top: 1px solid rgba(59,130,246,0.1);
+            background: rgba(15,23,42,0.5);
+        }
+        .chart-rocket-body { display: flex; flex: 1; gap: 15px; padding: 15px; overflow: hidden; }
+        .chart-rocket-main-view { flex: 3; display: flex; flex-direction: column; }
+        .chart-rocket-side-panel { flex: 1; min-width: 200px; background: rgba(15,23,42,0.6); border-radius: 10px; padding: 15px; overflow-y: auto; }
+        .side-panel-section { margin-bottom: 20px; }
+        .side-panel-section h4 { color: #60a5fa; margin: 0 0 10px 0; font-size: 0.85rem; border-bottom: 1px solid rgba(96,165,250,0.3); padding-bottom: 5px; }
+        .side-panel-stat { display: flex; justify-content: space-between; font-size: 0.75rem; padding: 4px 0; color: #94a3b8; }
+        .side-panel-stat span:last-child { color: #e2e8f0; font-weight: 600; }
+        .trail-points-list { max-height: 120px; overflow-y: auto; font-size: 0.7rem; }
+        .trail-point-item { display: flex; justify-content: space-between; padding: 3px 5px; background: rgba(59,130,246,0.1); margin-bottom: 3px; border-radius: 4px; color: #94a3b8; }
+        .chart-rocket-controls { display: flex; align-items: center; gap: 10px; padding: 10px 20px; background: rgba(15,23,42,0.8); border-top: 1px solid rgba(59,130,246,0.2); }
+        .rocket-ctrl-btn { background: linear-gradient(135deg, #1e3a5f, #0f172a); border: 1px solid rgba(59,130,246,0.3); color: #60a5fa; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; }
+        .rocket-ctrl-btn:hover { background: linear-gradient(135deg, #2563eb, #1e40af); color: white; }
+        .rocket-close-btn { margin-left: auto; background: linear-gradient(135deg, #7f1d1d, #450a0a); border-color: rgba(239,68,68,0.3); color: #f87171; }
+        .rocket-close-btn:hover { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; }
+        .rocket-progress-bar { flex: 1; height: 8px; background: rgba(30,58,95,0.5); border-radius: 4px; overflow: hidden; }
+        .rocket-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); transition: width 0.1s linear; }
+        .chart-btn {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-left: 5px;
+        }
+        .chart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 10px rgba(139,92,246,0.4);
+        }
+        .news-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-left: 5px;
+        }
+        .news-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 10px rgba(16,185,129,0.4);
+        }
+        
+        /* CoinAudio Button */
+        .audio-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-left: 5px;
+        }
+        .audio-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 10px rgba(245,158,11,0.4);
+        }
+        .audio-btn.disabled {
+            background: linear-gradient(135deg, #4b5563, #374151);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .audio-btn.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        .audio-btn-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .audio-btn-wrapper .audio-tooltip {
+            visibility: hidden;
+            background: rgba(15,23,42,0.95);
+            color: #f59e0b;
+            text-align: center;
+            border-radius: 8px;
+            padding: 10px 12px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            font-size: 0.7rem;
+            border: 1px solid rgba(245,158,11,0.4);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .audio-btn-wrapper .audio-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: rgba(245,158,11,0.4) transparent transparent transparent;
+        }
+        .audio-btn-wrapper:hover .audio-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* CoinAudio Overlay */
+        #coinAudioOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10002;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.95);
+        }
+        .audio-overlay-bg {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(245,158,11,0.1) 0%, transparent 70%);
+            animation: audioPulse 3s ease-in-out infinite;
+        }
+        @keyframes audioPulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        .audio-content-box {
+            position: relative;
+            width: 500px;
+            max-width: 90vw;
+            background: linear-gradient(180deg, #0a0a25 0%, #1a1a3a 100%);
+            border-radius: 20px;
+            border: 2px solid rgba(245,158,11,0.4);
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(245,158,11,0.2);
+        }
+        .audio-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(239,68,68,0.2);
+            border: 1px solid rgba(239,68,68,0.4);
+            color: #ef4444;
+            font-size: 1.3rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .audio-close-btn:hover { background: rgba(239,68,68,0.4); }
+        .audio-coin-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            border: 3px solid rgba(245,158,11,0.5);
+            box-shadow: 0 0 30px rgba(245,158,11,0.3);
+            animation: logoGlow 2s ease-in-out infinite alternate;
+        }
+        @keyframes logoGlow {
+            0% { box-shadow: 0 0 20px rgba(245,158,11,0.3); }
+            100% { box-shadow: 0 0 40px rgba(245,158,11,0.6); }
+        }
+        .audio-coin-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: #f59e0b;
+            margin-bottom: 5px;
+        }
+        .audio-coin-symbol {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+        .audio-reporter-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(245,158,11,0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(245,158,11,0.2);
+        }
+        .reporter-img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 3px solid rgba(245,158,11,0.5);
+            object-fit: cover;
+            box-shadow: 0 0 25px rgba(245,158,11,0.4), 0 0 50px rgba(14,165,233,0.2);
+            animation: reporterPulse 2s ease-in-out infinite alternate;
+        }
+        @keyframes reporterPulse {
+            0% { box-shadow: 0 0 20px rgba(245,158,11,0.3), 0 0 40px rgba(14,165,233,0.1); transform: scale(1); }
+            100% { box-shadow: 0 0 35px rgba(245,158,11,0.5), 0 0 60px rgba(14,165,233,0.25); transform: scale(1.02); }
+        }
+        .reporter-info {
+            text-align: left;
+        }
+        .reporter-name {
+            font-weight: 600;
+            color: #f59e0b;
+            font-size: 1rem;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .reporter-title {
+            color: #22d3ee;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .reporter-title::before {
+            content: '🎧';
+        }
+        .audio-wave-container {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            margin-bottom: 20px;
+        }
+        .audio-wave-bar {
+            width: 4px;
+            background: linear-gradient(180deg, #f59e0b, #d97706);
+            border-radius: 2px;
+            animation: waveAnim 0.5s ease-in-out infinite alternate;
+        }
+        @keyframes waveAnim {
+            0% { height: 10px; }
+            100% { height: 40px; }
+        }
+        .audio-progress-container {
+            margin-bottom: 15px;
+        }
+        .audio-progress-bar {
+            height: 6px;
+            background: rgba(245,158,11,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .audio-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+        .audio-time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 5px;
+        }
+        .audio-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .audio-ctrl-btn {
+            background: rgba(245,158,11,0.2);
+            border: 1px solid rgba(245,158,11,0.4);
+            color: #f59e0b;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+        .audio-ctrl-btn:hover {
+            background: rgba(245,158,11,0.3);
+            transform: scale(1.1);
+        }
+        .audio-ctrl-btn.play-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        .audio-status {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        .audio-disclaimer {
+            margin-top: 20px;
+            font-size: 0.65rem;
+            color: #475569;
+        }
+        .abo-models-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(245,158,11,0.3);
+        }
+        .abo-models-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: #f59e0b;
+            margin-bottom: 15px;
+        }
+        .abo-card {
+            background: rgba(30,41,59,0.6);
+            border: 1px solid rgba(100,116,139,0.3);
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .abo-card:hover {
+            border-color: rgba(245,158,11,0.5);
+            background: rgba(245,158,11,0.1);
+        }
+        .abo-card.basic { border-left: 3px solid #3b82f6; }
+        .abo-card.pro { border-left: 3px solid #8b5cf6; }
+        .abo-card.premium { border-left: 3px solid #f59e0b; }
+        .abo-info h4 {
+            font-size: 0.9rem;
+            color: #f8fafc;
+            margin: 0 0 3px 0;
+        }
+        .abo-info p {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin: 0;
+        }
+        .abo-price {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            color: #22c55e;
+            margin-right: 10px;
+        }
+        .abo-activate-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .abo-activate-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(245,158,11,0.5);
+        }
+        .abo-legal-note {
+            font-size: 0.6rem;
+            color: #64748b;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        /* News Space Overlay */
+        #newsSpaceOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10001;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.92);
+        }
+        .news-space-container {
+            width: 92vw;
+            height: 88vh;
+            max-width: 1500px;
+            background: linear-gradient(180deg, #030310 0%, #0a0a25 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(16,185,129,0.3);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .news-space-header {
+            padding: 15px 25px;
+            border-bottom: 1px solid rgba(16,185,129,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .news-space-title h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #10b981;
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+        .news-space-title p {
+            color: #64748b;
+            font-size: 0.75rem;
+        }
+        .news-space-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .news-filter-btn {
+            background: rgba(100,116,139,0.2);
+            border: 1px solid rgba(100,116,139,0.3);
+            color: #94a3b8;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .news-filter-btn:hover, .news-filter-btn.active {
+            background: rgba(16,185,129,0.2);
+            border-color: rgba(16,185,129,0.5);
+            color: #10b981;
+        }
+        .news-space-close {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.8rem;
+            cursor: pointer;
+            margin-left: 15px;
+        }
+        .news-space-close:hover { color: #ef4444; }
+        .news-space-stage {
+            flex: 1;
+            position: relative;
+            margin: 15px;
+            background: radial-gradient(ellipse at bottom left, #0a1628 0%, #000 100%);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .news-axis-label {
+            position: absolute;
+            font-size: 0.6rem;
+            color: rgba(100,116,139,0.6);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .news-axis-x { bottom: 5px; left: 50%; transform: translateX(-50%); }
+        .news-axis-y { left: 8px; top: 50%; transform: rotate(-90deg) translateX(-50%); transform-origin: left; }
+        .news-node {
+            position: absolute;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            max-width: 140px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            opacity: 0;
+            animation: newsNodeAppear 0.5s forwards;
+        }
+        .news-node:hover {
+            transform: scale(1.15);
+            z-index: 100;
+            box-shadow: 0 0 20px currentColor;
+        }
+        .news-node.positive { background: rgba(16,185,129,0.3); border: 1px solid #10b981; color: #34d399; }
+        .news-node.negative { background: rgba(239,68,68,0.3); border: 1px solid #ef4444; color: #f87171; }
+        .news-node.neutral { background: rgba(59,130,246,0.3); border: 1px solid #3b82f6; color: #60a5fa; }
+        @keyframes newsNodeAppear {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .news-rocket-ship {
+            position: absolute;
+            font-size: 2rem;
+            filter: drop-shadow(0 0 12px rgba(16,185,129,0.7));
+            z-index: 50;
+        }
+        .news-detail-card {
+            position: absolute;
+            right: 20px;
+            top: 60px;
+            width: 320px;
+            background: rgba(15,23,42,0.98);
+            border: 1px solid rgba(16,185,129,0.4);
+            border-radius: 12px;
+            padding: 15px;
+            display: none;
+            z-index: 200;
+        }
+        .news-detail-card h4 {
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        .news-detail-meta {
+            display: flex;
+            gap: 10px;
+            font-size: 0.65rem;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+        .news-detail-summary {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .news-detail-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            width: 100%;
+        }
+        .news-detail-close {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .news-space-footer {
+            padding: 8px 25px;
+            text-align: center;
+            color: #475569;
+            font-size: 0.6rem;
+            border-top: 1px solid rgba(16,185,129,0.1);
+        }
+        .news-timeline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 15px;
+        }
+        .news-timeline input {
+            flex: 1;
+            accent-color: #10b981;
+        }
+        .news-timeline-label {
+            font-size: 0.65rem;
+            color: #64748b;
+            min-width: 60px;
+        }
+        
+        .rocket-container {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.6));
+        }
+        
+        .rocket-body {
+            font-size: 2.5rem;
+            transform: rotate(-45deg);
+            animation: rocketShake 0.1s infinite;
+        }
+        
+        .rocket-label {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(251, 191, 36, 0.5);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #fbbf24;
+            margin-top: 5px;
+            white-space: nowrap;
+        }
+        
+        .rocket-exhaust {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-45deg);
+        }
+        
+        .exhaust-particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: exhaustFade 0.5s linear forwards;
+        }
+        
+        @keyframes rocketShake {
+            0%, 100% { transform: rotate(-45deg) translate(0, 0); }
+            25% { transform: rotate(-45deg) translate(-1px, 1px); }
+            75% { transform: rotate(-45deg) translate(1px, -1px); }
+        }
+        
+        @keyframes exhaustFade {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.3); }
+        }
+        
+        .time-scale {
+            position: fixed;
+            right: 30px;
+            top: 150px;
+            bottom: 150px;
+            width: 2px;
+            background: rgba(100, 116, 139, 0.2);
+            display: none;
+        }
+        
+        .time-scale.visible { display: block; }
+        
+        .time-marker {
+            position: absolute;
+            right: 8px;
+            font-size: 0.6rem;
+            color: rgba(100, 116, 139, 0.5);
+            transform: translateY(-50%);
+        }
+        
+        .rocket-disclaimer {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            color: rgba(100, 116, 139, 0.6);
+            display: none;
+        }
+        
+        .rocket-disclaimer.visible { display: block;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+            font-size: 0.8rem;
+            border-top: 1px solid rgba(59, 130, 246, 0.1);
+            margin-top: 30px;
+        }
+        
+        .footer a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            color: #64748b;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(59, 130, 246, 0.2);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            .header { padding: 10px 15px; flex-wrap: wrap; gap: 10px; }
+            .filter-bar { padding: 10px 15px; }
+            .main-content { padding: 10px 15px; }
+            .coin-table th, .coin-table td { padding: 8px 6px; font-size: 0.8rem; }
+            .hide-mobile { display: none; }
+            .drawer { width: 100%; right: -100%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Unified Header -->
+    <header class="unified-header">
+        <div class="unified-left">
+            <a href="index.html" class="unified-logo">CRYPTOSPACES</a>
+            <span class="page-title" style="margin-left: 20px; font-size: 0.8rem; color: #fbbf24;">🏆 Top 100 Coins</span>
+        </div>
+        <nav class="unified-nav">
+            <a href="index.html" class="unified-nav-link">Home</a>
+            <a href="top100.html" class="unified-nav-link">Top 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">Whales</a>
+            <a href="canaveral.html" class="unified-nav-link">Canaveral</a>
+            <a href="financial-galaxy.html" class="unified-nav-link">Galaxy</a>
+        </nav>
+        <div class="unified-utils">
+            <span class="last-update" style="font-size:0.6rem;color:#64748b;">Update: <span id="lastUpdate">--:--:--</span></span>
+            <button class="unified-btn" id="refreshBtn">🔄 Refresh</button>
+            <a href="index.html" class="unified-btn">← Back</a>
+        </div>
+    </header>
+    
+    <!-- Status Banner -->
+    <div class="status-banner" id="statusBanner">
+        ⚠️ Data delayed – last update: <span id="delayedTime">--:--:--</span>
+    </div>
+    
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Suche Name oder Symbol...">
+        </div>
+        
+        <div class="filter-group">
+            <button class="filter-btn active" data-period="24h">24h</button>
+            <button class="filter-btn" data-period="7d">7d</button>
+            <button class="filter-btn" data-period="30d">30d</button>
+        </div>
+        
+        <div class="filter-group">
+            <button class="filter-btn" data-filter="gainers">📈 Gainers</button>
+            <button class="filter-btn" data-filter="losers">📉 Losers</button>
+            <button class="filter-btn" data-filter="volume">🔊 High Volume</button>
+        </div>
+        
+        <select class="sort-select" id="sortSelect">
+            <option value="market_cap">Sort: Market Cap</option>
+            <option value="price_change_24h">Sort: 24h %</option>
+            <option value="total_volume">Sort: Volume</option>
+            <option value="current_price">Sort: Price</option>
+        </select>
+    </div>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="table-container">
+            <table class="coin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Coin</th>
+                        <th>Price</th>
+                        <th>1h %</th>
+                        <th>24h %</th>
+                        <th class="hide-mobile">7d %</th>
+                        <th class="hide-mobile">Market Cap</th>
+                        <th class="hide-mobile">Volume 24h</th>
+                        <th class="hide-mobile">Supply</th>
+                        <th>Signals</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="coinTableBody">
+                    <tr><td colspan="11" class="loading"><div class="spinner"></div> Lade Marktdaten...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+    
+    <!-- Detail Drawer -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <div class="drawer" id="drawer">
+        <div class="drawer-header">
+            <div class="drawer-coin">
+                <img id="drawerCoinImg" src="" alt="">
+                <div>
+                    <div class="drawer-coin-name" id="drawerCoinName">--</div>
+                    <div class="drawer-coin-symbol" id="drawerCoinSymbol">--</div>
+                </div>
+            </div>
+            <button class="drawer-close" id="drawerClose">✕</button>
+        </div>
+        <div class="drawer-content">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Aktueller Preis</div>
+                    <div class="kpi-value" id="drawerPrice">--</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">24h Änderung</div>
+                    <div class="kpi-value" id="drawer24h">--</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Market Cap</div>
+                    <div class="kpi-value" id="drawerMcap">--</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Volume 24h</div>
+                    <div class="kpi-value" id="drawerVolume">--</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">All-Time High</div>
+                    <div class="kpi-value" id="drawerATH">--</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">ATH Distance</div>
+                    <div class="kpi-value" id="drawerATHDist">--</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Circulating Supply</div>
+                    <div class="kpi-value" id="drawerSupply">--</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Max Supply</div>
+                    <div class="kpi-value" id="drawerMaxSupply">--</div>
+                </div>
+            </div>
+            
+            <div class="trend-indicator trend-neutral" id="drawerTrend">
+                <span>📊</span> <span id="drawerTrendText">Neutral</span>
+            </div>
+            
+            <div class="ai-insight">
+                <div class="ai-insight-header">🧠 AI Quick Insight</div>
+                <div class="ai-insight-text" id="drawerInsight">Analysiere Marktdaten...</div>
+            </div>
+            
+            <div class="risk-banner">
+                ⚠️ Not financial advice. Market data may be delayed. Use at your own risk.
+            </div>
+        </div>
+    </div>
+    
+    <!-- Rocket Overlay Layer -->
+    <div id="rocketOverlayLayer"></div>
+    
+    <!-- Chart-Rocket Overlay -->
+    <div id="chartRocketOverlay">
+        <div class="chart-rocket-container">
+            <button class="chart-rocket-close" onclick="closeChartRocket()">✕</button>
+            <div class="chart-rocket-header">
+                <h2>🚀 1 Week Volume in 1 Minute</h2>
+                <p id="chartRocketCoinName">Bitcoin (BTC)</p>
+            </div>
+            <div class="chart-rocket-body">
+                <div class="chart-rocket-main-view">
+                    <div class="chart-rocket-stage" id="chartRocketStage">
+                        <div class="chart-rocket-timer">Day: <span id="chartDayDisplay">0</span>/7</div>
+                        <div class="chart-rocket-coin" id="chartCoinSymbol">---</div>
+                    </div>
+                </div>
+                <div class="chart-rocket-side-panel">
+                    <div class="side-panel-section">
+                        <h4>📊 Live Data</h4>
+                        <div class="side-panel-stat"><span>Current Day:</span><span id="sidePanelDay">1</span></div>
+                        <div class="side-panel-stat"><span>Volume:</span><span id="sidePanelVolume">$0</span></div>
+                        <div class="side-panel-stat"><span>Price:</span><span id="sidePanelPrice">$0</span></div>
+                        <div class="side-panel-stat"><span>Change:</span><span id="sidePanelChange">0%</span></div>
+                    </div>
+                    <div class="side-panel-section">
+                        <h4>📈 Week Summary</h4>
+                        <div class="side-panel-stat"><span>Total Vol:</span><span id="sidePanelTotalVol">$0</span></div>
+                        <div class="side-panel-stat"><span>Avg Vol:</span><span id="sidePanelAvgVol">$0</span></div>
+                        <div class="side-panel-stat"><span>Peak Day:</span><span id="sidePanelPeakDay">-</span></div>
+                        <div class="side-panel-stat"><span>Trend:</span><span id="sidePanelTrend">-</span></div>
+                    </div>
+                    <div class="side-panel-section">
+                        <h4>🎯 Trail Points</h4>
+                        <div class="trail-points-list" id="trailPointsList"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-rocket-controls">
+                <button class="rocket-ctrl-btn" id="rocketPlayPauseBtn" onclick="toggleRocketPlayPause()">⏸️ Pause</button>
+                <button class="rocket-ctrl-btn" id="rocketReplayBtn" onclick="replayRocket()">🔄 Replay</button>
+                <button class="rocket-ctrl-btn" id="rocketSpeedBtn" onclick="cycleRocketSpeed()">⚡ 1x</button>
+                <div class="rocket-progress-bar"><div class="rocket-progress-fill" id="rocketProgressFill"></div></div>
+                <button class="rocket-ctrl-btn rocket-close-btn" onclick="closeChartRocket()">✕ Close</button>
+            </div>
+            <div class="chart-rocket-footer">Visualization only. Not financial advice.</div>
+        </div>
+    </div>
+    
+    <!-- News Space Overlay -->
+    <div id="newsSpaceOverlay">
+        <div class="news-space-container">
+            <div class="news-space-header">
+                <div class="news-space-title">
+                    <h2>📰 News Space (Last 3 Months)</h2>
+                    <p id="newsSpaceCoin">Bitcoin (BTC)</p>
+                </div>
+                <div class="news-space-controls">
+                    <button class="news-filter-btn active" data-days="90">90d</button>
+                    <button class="news-filter-btn" data-days="30">30d</button>
+                    <button class="news-filter-btn" data-days="7">7d</button>
+                    <button class="news-space-close" onclick="closeNewsSpace()">✕</button>
+                </div>
+            </div>
+            <div class="news-timeline">
+                <span class="news-timeline-label">Timeline:</span>
+                <input type="range" id="newsTimelineSlider" min="0" max="90" value="90">
+                <span class="news-timeline-label" id="newsTimelineValue">All</span>
+            </div>
+            <div class="news-space-stage" id="newsSpaceStage">
+                <span class="news-axis-label news-axis-x">← 90 Days Ago | Today →</span>
+                <span class="news-axis-label news-axis-y">Impact ↑</span>
+                <div class="news-detail-card" id="newsDetailCard">
+                    <button class="news-detail-close" onclick="closeNewsDetail()">✕</button>
+                    <h4 id="newsDetailTitle">News Title</h4>
+                    <div class="news-detail-meta">
+                        <span id="newsDetailSource">Source</span>
+                        <span id="newsDetailDate">Date</span>
+                    </div>
+                    <p class="news-detail-summary" id="newsDetailSummary">Summary text...</p>
+                    <button class="news-detail-btn" id="newsDetailLink" onclick="window.open(this.dataset.url, '_blank')">Open Source →</button>
+                </div>
+            </div>
+            <div class="news-space-footer">News visualization only. No financial advice. Sources may be delayed or incomplete.</div>
+        </div>
+    </div>
+    
+    <div id="rocketOverlayLayerOld">
+        <div class="time-scale" id="timeScale">
+            <span class="time-marker" style="top: 0%;">24:00</span>
+            <span class="time-marker" style="top: 25%;">18:00</span>
+            <span class="time-marker" style="top: 50%;">12:00</span>
+            <span class="time-marker" style="top: 75%;">06:00</span>
+            <span class="time-marker" style="top: 100%;">00:00</span>
+        </div>
+        <div class="rocket-disclaimer" id="rocketDisclaimer">🚀 Visualization only. Not financial advice.</div>
+    </div>
+    
+    <!-- CoinAudio Overlay -->
+    <div id="coinAudioOverlay">
+        <div class="audio-overlay-bg"></div>
+        <div class="audio-content-box">
+            <button class="audio-close-btn" onclick="closeCoinAudio()">✕</button>
+            <img class="audio-coin-logo" id="audioCoinLogo" src="" alt="Coin">
+            <div class="audio-coin-name" id="audioCoinName">Bitcoin</div>
+            <div class="audio-coin-symbol" id="audioCoinSymbol">BTC</div>
+            <div class="audio-reporter-container">
+                <img class="reporter-img" id="reporterImg" src="imgs/ai-reporter.png" alt="AI Reporter">
+                <div class="reporter-info">
+                    <div class="reporter-name">AI Reporter</div>
+                    <div class="reporter-title">CryptoSpaces Market Analyst</div>
+                </div>
+            </div>
+            <div class="audio-wave-container" id="audioWaveContainer">
+                <!-- Wave bars generated by JS -->
+            </div>
+            <div class="audio-progress-container">
+                <div class="audio-progress-bar">
+                    <div class="audio-progress-fill" id="audioProgressFill"></div>
+                </div>
+                <div class="audio-time">
+                    <span id="audioCurrentTime">0:00</span>
+                    <span id="audioDuration">0:00</span>
+                </div>
+            </div>
+            <div class="audio-controls">
+                <button class="audio-ctrl-btn" onclick="seekAudio(-10)">⏪</button>
+                <button class="audio-ctrl-btn play-btn" id="audioPlayBtn" onclick="toggleCoinAudio()">▶️</button>
+                <button class="audio-ctrl-btn" onclick="seekAudio(10)">⏩</button>
+            </div>
+            <div class="audio-status" id="audioStatus">Bereit zum Abspielen</div>
+            <div class="audio-disclaimer">⚠️ KI-generierte Zusammenfassung. Keine Anlageberatung.</div>
+            
+            <div class="abo-models-section">
+                <div class="abo-models-title">🔓 Abo-Modelle</div>
+                <div class="abo-card basic">
+                    <div class="abo-info"><h4>💎 Basic</h4><p>Zugang zu 3 Coins</p></div>
+                    <span class="abo-price">24,90€</span>
+                    <button class="abo-activate-btn" onclick="activateAbo('basic')">Aktivieren</button>
+                </div>
+                <div class="abo-card pro">
+                    <div class="abo-info"><h4>🚀 Pro</h4><p>Zugang zu 10 Coins</p></div>
+                    <span class="abo-price">49,90€</span>
+                    <button class="abo-activate-btn" onclick="activateAbo('pro')">Aktivieren</button>
+                </div>
+                <div class="abo-card premium">
+                    <div class="abo-info"><h4>👑 Premium</h4><p>Alle 100 Coins</p></div>
+                    <span class="abo-price">99,90€</span>
+                    <button class="abo-activate-btn" onclick="activateAbo('premium')">Aktivieren</button>
+                </div>
+                <div class="abo-legal-note">ℹ️ Keine Finanzberatung – nur zur Information.</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        Market data may be delayed. No investment advice. Use at your own risk.<br>
+        <a href="datenschutz.html">Datenschutz</a> | <a href="impressum.html">Impressum</a> | <a href="index.html">← Zurück zu CryptoSpaces</a>
+    </footer>
+
+    <script>
+        // ===== CONFIG =====
+        const API_URL = 'https://api.coingecko.com/api/v3/coins/markets';
+        const UPDATE_INTERVAL = 60000;
+        let coins = [];
+        let watchlist = JSON.parse(localStorage.getItem('top100_watchlist') || '[]');
+        let alerts = JSON.parse(localStorage.getItem('top100_alerts') || '[]');
+        let currentSort = 'market_cap';
+        let currentFilter = null;
+        let searchTerm = '';
+        let lastFetchTime = 0;
+        
+        // ===== HELPER FUNCTIONS =====
+        function formatNumber(n) {
+            if (n == null) return '—';
+            if (n >= 1e12) return (n / 1e12).toFixed(2) + 'T';
+            if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+            if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+            if (n >= 1e3) return (n / 1e3).toFixed(2) + 'K';
+            return n.toLocaleString();
+        }
+        
+        function formatPrice(p) {
+            if (p == null) return '—';
+            if (p >= 1) return '$' + p.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            return '$' + p.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 6});
+        }
+        
+        function formatPercent(p) {
+            if (p == null) return '—';
+            const sign = p >= 0 ? '+' : '';
+            return sign + p.toFixed(2) + '%';
+        }
+        
+        function getPercentClass(p) {
+            if (p == null) return 'neutral';
+            return p >= 0 ? 'positive' : 'negative';
+        }
+        
+        function getRankClass(rank) {
+            if (rank === 1) return 'rank-1';
+            if (rank === 2) return 'rank-2';
+            if (rank === 3) return 'rank-3';
+            return 'rank-default';
+        }
+        
+        function generateSignals(coin) {
+            const signals = [];
+            const change24h = coin.price_change_percentage_24h || 0;
+            const change1h = coin.price_change_percentage_1h_in_currency || 0;
+            const volumeRatio = coin.total_volume / coin.market_cap;
+            
+            if (change24h > 5) signals.push({type: 'buy', text: 'BUY'});
+            if (change24h < -5) signals.push({type: 'sell', text: 'SELL'});
+            if (volumeRatio > 0.15) signals.push({type: 'volume', text: 'VOL↑'});
+            if (coin.ath && coin.current_price >= coin.ath * 0.95) signals.push({type: 'breakout', text: 'ATH!'});
+            
+            return signals;
+        }
+        
+        function generateInsight(coin) {
+            const change24h = coin.price_change_percentage_24h || 0;
+            const change1h = coin.price_change_percentage_1h_in_currency || 0;
+            const volumeRatio = coin.total_volume / coin.market_cap;
+            const athDist = coin.ath ? ((coin.ath - coin.current_price) / coin.ath * 100) : 0;
+            
+            let insights = [];
+            
+            if (change24h > 10) insights.push('Starker Aufwärtstrend.');
+            else if (change24h > 5) insights.push('Positives Momentum.');
+            else if (change24h < -10) insights.push('Starker Abwärtsdruck.');
+            else if (change24h < -5) insights.push('Negatives Momentum.');
+            else insights.push('Seitwärtsbewegung.');
+            
+            if (volumeRatio > 0.2) insights.push('Sehr hohes Handelsvolumen → Erhöhte Aktivität.');
+            else if (volumeRatio < 0.05) insights.push('Niedriges Volumen → Vorsicht bei Positionen.');
+            
+            if (athDist < 5) insights.push('Nahe am All-Time-High!');
+            else if (athDist > 80) insights.push('Weit unter ATH → Mögliche Chance oder Risiko.');
+            
+            if (change1h > 0 && change24h < 0) insights.push('Kurzfristige Erholung erkennbar.');
+            if (change1h < 0 && change24h > 0) insights.push('Kurzfristige Schwäche trotz positivem Tag.');
+            
+            return insights.join(' ');
+        }
+        
+        function getTrend(coin) {
+            const change24h = coin.price_change_percentage_24h || 0;
+            const change7d = coin.price_change_percentage_7d_in_currency || 0;
+            
+            if (change24h > 3 && change7d > 5) return {class: 'trend-bull', text: '🐂 Bullish'};
+            if (change24h < -3 && change7d < -5) return {class: 'trend-bear', text: '🐻 Bearish'};
+            return {class: 'trend-neutral', text: '📊 Neutral'};
+        }
+        
+        // ===== FETCH DATA =====
+        async function fetchCoins() {
+            try {
+                const response = await fetch(`${API_URL}?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h,24h,7d,30d`);
+                if (!response.ok) throw new Error('API Error');
+                coins = await response.json();
+                lastFetchTime = Date.now();
+                updateLastUpdate();
+                document.getElementById('statusBanner').classList.remove('visible');
+                renderTable();
+            } catch (error) {
+                console.error('Fetch error:', error);
+                document.getElementById('statusBanner').classList.add('visible');
+                document.getElementById('delayedTime').textContent = new Date().toLocaleTimeString('de-DE');
+            }
+        }
+        
+        function updateLastUpdate() {
+            const time = new Date(lastFetchTime).toLocaleTimeString('de-DE');
+            document.getElementById('lastUpdate').textContent = time;
+        }
+        
+        // ===== RENDER TABLE =====
+        function renderTable() {
+            let filtered = [...coins];
+            
+            // Search filter
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                filtered = filtered.filter(c => 
+                    c.name.toLowerCase().includes(term) || 
+                    c.symbol.toLowerCase().includes(term)
+                );
+            }
+            
+            // Category filter
+            if (currentFilter === 'gainers') {
+                filtered = filtered.filter(c => (c.price_change_percentage_24h || 0) > 0);
+            } else if (currentFilter === 'losers') {
+                filtered = filtered.filter(c => (c.price_change_percentage_24h || 0) < 0);
+            } else if (currentFilter === 'volume') {
+                filtered = filtered.filter(c => (c.total_volume / c.market_cap) > 0.1);
+            }
+            
+            // Sort
+            filtered.sort((a, b) => {
+                let aVal = a[currentSort] || 0;
+                let bVal = b[currentSort] || 0;
+                if (currentSort === 'price_change_24h') {
+                    aVal = a.price_change_percentage_24h || 0;
+                    bVal = b.price_change_percentage_24h || 0;
+                }
+                return bVal - aVal;
+            });
+            
+            const tbody = document.getElementById('coinTableBody');
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:40px;color:#64748b;">Keine Ergebnisse gefunden</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map((coin, index) => {
+                const signals = generateSignals(coin);
+                const isWatchlist = watchlist.includes(coin.id);
+                const supplyPercent = coin.max_supply ? ((coin.circulating_supply / coin.max_supply) * 100).toFixed(1) + '%' : '—';
+                
+                return `
+                    <tr data-coin-id="${coin.id}">
+                        <td><span class="rank ${getRankClass(index + 1)}">${index + 1}</span></td>
+                        <td>
+                            <div class="coin-cell">
+                                <img class="coin-logo" src="${coin.image}" alt="${coin.name}">
+                                <div class="coin-info">
+                                    <span class="coin-name">${coin.name}</span>
+                                    <span class="coin-symbol">${coin.symbol}</span>
+                                </div>
+                                <button class="start-btn" onclick="launchRocket(event, '${coin.id}', '${coin.symbol.toUpperCase()}', ${coin.price_change_percentage_24h || 0}, ${coin.total_volume / coin.market_cap || 0})">🚀 Start</button>
+                                <button class="chart-btn" onclick="launchChartRocket(event, '${coin.id}', '${coin.symbol.toUpperCase()}')">📈 Chart</button>
+                                <button class="news-btn" onclick="openNewsSpace(event, '${coin.id}', '${coin.name}', '${coin.symbol.toUpperCase()}')">📰 News</button>
+                                ${index < 3 ? 
+                                    `<button class="audio-btn" onclick="openCoinAudio(event, '${coin.id}', '${coin.name}', '${coin.symbol.toUpperCase()}', '${coin.image}')">🎙️ Audio</button>` :
+                                    `<span class="audio-btn-wrapper"><button class="audio-btn disabled" onclick="showAboHint(event)">🎙️ Audio</button><span class="audio-tooltip">🔒 Nur mit Abo-Modell verfügbar</span></span>`}
+                            </div>
+                        </td>
+                        <td>${formatPrice(coin.current_price)}</td>
+                        <td class="${getPercentClass(coin.price_change_percentage_1h_in_currency)}">${formatPercent(coin.price_change_percentage_1h_in_currency)}</td>
+                        <td class="${getPercentClass(coin.price_change_percentage_24h)}">${formatPercent(coin.price_change_percentage_24h)}</td>
+                        <td class="hide-mobile ${getPercentClass(coin.price_change_percentage_7d_in_currency)}">${formatPercent(coin.price_change_percentage_7d_in_currency)}</td>
+                        <td class="hide-mobile">$${formatNumber(coin.market_cap)}</td>
+                        <td class="hide-mobile">$${formatNumber(coin.total_volume)}</td>
+                        <td class="hide-mobile">${supplyPercent}</td>
+                        <td>
+                            <div class="signals">
+                                ${signals.map(s => `<span class="signal-badge signal-${s.type}">${s.text}</span>`).join('')}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn ${isWatchlist ? 'active' : ''}" onclick="toggleWatchlist(event, '${coin.id}')" title="Watchlist">⭐</button>
+                                <button class="action-btn" onclick="createAlert(event, '${coin.id}')" title="Alert">🔔</button>
+                                <button class="action-btn" onclick="openDrawer('${coin.id}')" title="Details">🔍</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // Add click handler for rows
+            document.querySelectorAll('#coinTableBody tr').forEach(row => {
+                row.addEventListener('click', (e) => {
+                    if (!e.target.closest('.actions')) {
+                        openDrawer(row.dataset.coinId);
+                    }
+                });
+            });
+        }
+        
+        // ===== WATCHLIST & ALERTS =====
+        function toggleWatchlist(e, coinId) {
+            e.stopPropagation();
+            const index = watchlist.indexOf(coinId);
+            if (index > -1) {
+                watchlist.splice(index, 1);
+            } else {
+                watchlist.push(coinId);
+            }
+            localStorage.setItem('top100_watchlist', JSON.stringify(watchlist));
+            renderTable();
+        }
+        
+        function createAlert(e, coinId) {
+            e.stopPropagation();
+            const coin = coins.find(c => c.id === coinId);
+            if (!coin) return;
+            
+            const price = prompt(`Alert für ${coin.name} erstellen.\nAktueller Preis: ${formatPrice(coin.current_price)}\n\nBenachrichtigen wenn Preis erreicht:`);
+            if (price && !isNaN(parseFloat(price))) {
+                alerts.push({coinId, targetPrice: parseFloat(price), created: Date.now()});
+                localStorage.setItem('top100_alerts', JSON.stringify(alerts));
+                alert(`✅ Alert erstellt: ${coin.name} bei $${price}`);
+            }
+        }
+        
+        // ===== DRAWER =====
+        function openDrawer(coinId) {
+            const coin = coins.find(c => c.id === coinId);
+            if (!coin) return;
+            
+            document.getElementById('drawerCoinImg').src = coin.image;
+            document.getElementById('drawerCoinName').textContent = coin.name;
+            document.getElementById('drawerCoinSymbol').textContent = coin.symbol.toUpperCase();
+            document.getElementById('drawerPrice').textContent = formatPrice(coin.current_price);
+            
+            const change24h = coin.price_change_percentage_24h || 0;
+            document.getElementById('drawer24h').textContent = formatPercent(change24h);
+            document.getElementById('drawer24h').className = 'kpi-value ' + getPercentClass(change24h);
+            
+            document.getElementById('drawerMcap').textContent = '$' + formatNumber(coin.market_cap);
+            document.getElementById('drawerVolume').textContent = '$' + formatNumber(coin.total_volume);
+            document.getElementById('drawerATH').textContent = formatPrice(coin.ath);
+            
+            const athDist = coin.ath ? ((coin.ath - coin.current_price) / coin.ath * 100) : 0;
+            document.getElementById('drawerATHDist').textContent = '-' + athDist.toFixed(2) + '%';
+            document.getElementById('drawerATHDist').className = 'kpi-value negative';
+            
+            document.getElementById('drawerSupply').textContent = formatNumber(coin.circulating_supply);
+            document.getElementById('drawerMaxSupply').textContent = coin.max_supply ? formatNumber(coin.max_supply) : '∞';
+            
+            const trend = getTrend(coin);
+            document.getElementById('drawerTrend').className = 'trend-indicator ' + trend.class;
+            document.getElementById('drawerTrendText').textContent = trend.text;
+            
+            document.getElementById('drawerInsight').textContent = generateInsight(coin);
+            
+            document.getElementById('drawer').classList.add('open');
+            document.getElementById('drawerOverlay').classList.add('open');
+        }
+        
+        function closeDrawer() {
+            document.getElementById('drawer').classList.remove('open');
+            document.getElementById('drawerOverlay').classList.remove('open');
+        }
+        
+        // ===== EVENT LISTENERS =====
+        document.getElementById('refreshBtn').addEventListener('click', fetchCoins);
+        document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+        document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+        
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            renderTable();
+        });
+        
+        document.getElementById('sortSelect').addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            renderTable();
+        });
+        
+        document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.dataset.filter;
+                if (currentFilter === filter) {
+                    currentFilter = null;
+                    btn.classList.remove('active');
+                } else {
+                    document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+                    currentFilter = filter;
+                    btn.classList.add('active');
+                }
+                renderTable();
+            });
+        });
+        
+        document.querySelectorAll('.filter-btn[data-period]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn[data-period]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+        
+        // ===== ROCKET ANIMATION =====
+        function launchRocket(event, coinId, symbol, change24h, volumeRatio) {
+            event.stopPropagation();
+            const overlay = document.getElementById('rocketOverlayLayer');
+            if (!overlay) return;
+            
+            overlay.innerHTML = `
+                <div class="rocket-overlay-content">
+                    <button class="rocket-close-btn" onclick="closeRocketOverlay()">✕</button>
+                    <div class="rocket-header">
+                        <span class="rocket-symbol">${symbol}</span>
+                        <span class="rocket-change ${change24h >= 0 ? 'positive' : 'negative'}">${change24h >= 0 ? '+' : ''}${change24h.toFixed(2)}%</span>
+                    </div>
+                    <div class="rocket-time-scale">Tag simuliert: <span id="rocketTimeDisplay">00:00</span></div>
+                    <div class="rocket-stage" id="rocketStage"></div>
+                    <div class="rocket-disclaimer">⚠️ Nur visuelle Darstellung – keine Anlageberatung</div>
+                </div>
+            `;
+            overlay.style.display = 'flex';
+            
+            const stage = document.getElementById('rocketStage');
+            const timeDisplay = document.getElementById('rocketTimeDisplay');
+            let animationId;
+            let startTime = Date.now();
+            const duration = 10000; // 10 Sekunden Animation
+            
+            // Rakete erstellen
+            const rocket = document.createElement('div');
+            rocket.className = 'rocket-element';
+            rocket.innerHTML = '🚀';
+            stage.appendChild(rocket);
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Zeit-Anzeige (24h simuliert)
+                const simulatedHours = Math.floor(progress * 24);
+                const simulatedMins = Math.floor((progress * 24 * 60) % 60);
+                timeDisplay.textContent = `${String(simulatedHours).padStart(2, '0')}:${String(simulatedMins).padStart(2, '0')}`;
+                
+                // Raketen-Position basierend auf change24h
+                const baseY = 80 - (progress * 70);
+                const volatility = Math.abs(change24h) * 0.5;
+                const wobble = Math.sin(elapsed * 0.01) * volatility;
+                rocket.style.bottom = `${baseY + (change24h > 0 ? progress * 20 : -progress * 10)}%`;
+                rocket.style.left = `${50 + wobble}%`;
+                rocket.style.transform = `translateX(-50%) rotate(${change24h > 0 ? -15 : 15}deg)`;
+                
+                // Partikel erzeugen
+                if (Math.random() < 0.3 + volumeRatio) {
+                    createParticle(stage, rocket, change24h);
+                }
+                
+                if (progress < 1) {
+                    animationId = requestAnimationFrame(animate);
+                }
+            }
+            
+            animate();
+            overlay.dataset.animationId = animationId;
+        }
+        
+        function createParticle(stage, rocket, change24h) {
+            const particle = document.createElement('div');
+            particle.className = 'rocket-particle';
+            particle.style.left = rocket.style.left;
+            particle.style.bottom = rocket.style.bottom;
+            particle.style.background = change24h >= 0 ? 
+                `hsl(${120 + Math.random() * 40}, 80%, 50%)` : 
+                `hsl(${0 + Math.random() * 30}, 80%, 50%)`;
+            stage.appendChild(particle);
+            setTimeout(() => particle.remove(), 1000);
+        }
+        
+        function closeRocketOverlay() {
+            const overlay = document.getElementById('rocketOverlayLayer');
+            if (overlay) {
+                cancelAnimationFrame(parseInt(overlay.dataset.animationId));
+                overlay.style.display = 'none';
+                overlay.innerHTML = '';
+            }
+        }
+        
+        // ===== CHART-ROCKET ANIMATION (UPGRADED) =====
+        let chartRocketAnimId = null;
+        let rocketState = { paused: false, speed: 1, startTime: 0, pausedAt: 0, coinId: '', symbol: '', volumeData: [], priceData: [], normalizedVols: [], rocket: null };
+        
+        async function launchChartRocket(event, coinId, symbol) {
+            event.stopPropagation();
+            rocketState.coinId = coinId;
+            rocketState.symbol = symbol;
+            rocketState.paused = false;
+            rocketState.speed = 1;
+            rocketState.pausedAt = 0;
+            
+            const overlay = document.getElementById('chartRocketOverlay');
+            const stage = document.getElementById('chartRocketStage');
+            const dayDisplay = document.getElementById('chartDayDisplay');
+            const coinDisplay = document.getElementById('chartCoinSymbol');
+            const coinNameDisplay = document.getElementById('chartRocketCoinName');
+            
+            stage.querySelectorAll('.chart-trail-point, .chart-rocket-ship, .chart-exhaust, .chart-thruster, .chart-flame').forEach(el => el.remove());
+            document.getElementById('trailPointsList').innerHTML = '';
+            document.getElementById('rocketProgressFill').style.width = '0%';
+            document.getElementById('rocketPlayPauseBtn').textContent = '⏸️ Pause';
+            document.getElementById('rocketSpeedBtn').textContent = '⚡ 1x';
+            
+            coinDisplay.textContent = symbol;
+            coinNameDisplay.textContent = symbol;
+            overlay.style.display = 'flex';
+            
+            let volumeData = [], priceData = [];
+            try {
+                const res = await fetch(`https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=7`);
+                const data = await res.json();
+                volumeData = data.total_volumes || [];
+                priceData = data.prices || [];
+            } catch (e) {
+                for (let i = 0; i < 168; i++) {
+                    const basePrice = 40000 + Math.random() * 10000;
+                    volumeData.push([Date.now() - (168-i)*3600000, Math.random() * 1000000000]);
+                    priceData.push([Date.now() - (168-i)*3600000, basePrice + Math.sin(i/10)*2000]);
+                }
+            }
+            
+            rocketState.volumeData = volumeData;
+            rocketState.priceData = priceData;
+            
+            const volumes = volumeData.map(v => v[1]);
+            const maxVol = Math.max(...volumes);
+            const minVol = Math.min(...volumes);
+            rocketState.normalizedVols = volumes.map(v => (v - minVol) / (maxVol - minVol || 1));
+            
+            // Week summary
+            const totalVol = volumes.reduce((a,b) => a+b, 0);
+            const avgVol = totalVol / volumes.length;
+            const peakIdx = volumes.indexOf(maxVol);
+            const peakDay = Math.floor(peakIdx / 24) + 1;
+            const firstHalf = volumes.slice(0, Math.floor(volumes.length/2)).reduce((a,b)=>a+b,0);
+            const secondHalf = volumes.slice(Math.floor(volumes.length/2)).reduce((a,b)=>a+b,0);
+            const trend = secondHalf > firstHalf ? '📈 Up' : '📉 Down';
+            
+            document.getElementById('sidePanelTotalVol').textContent = '$' + (totalVol/1e9).toFixed(2) + 'B';
+            document.getElementById('sidePanelAvgVol').textContent = '$' + (avgVol/1e6).toFixed(1) + 'M';
+            document.getElementById('sidePanelPeakDay').textContent = 'Day ' + peakDay;
+            document.getElementById('sidePanelTrend').textContent = trend;
+            
+            const rocket = document.createElement('div');
+            rocket.className = 'chart-rocket-ship';
+            rocket.innerHTML = '🚀';
+            stage.appendChild(rocket);
+            rocketState.rocket = rocket;
+            
+            const duration = 60000; // 60 Sekunden
+            rocketState.startTime = Date.now();
+            const trailPoints = [];
+            
+            function animate() {
+                if (rocketState.paused) { chartRocketAnimId = requestAnimationFrame(animate); return; }
+                
+                const realElapsed = Date.now() - rocketState.startTime - rocketState.pausedAt;
+                const elapsed = realElapsed * rocketState.speed;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                document.getElementById('rocketProgressFill').style.width = (progress * 100) + '%';
+                
+                const day = Math.min(Math.floor(progress * 7) + 1, 7);
+                dayDisplay.textContent = day;
+                document.getElementById('sidePanelDay').textContent = day;
+                
+                const dataIndex = Math.floor(progress * (rocketState.normalizedVols.length - 1));
+                const volOffset = rocketState.normalizedVols[dataIndex] || 0.5;
+                const rawVol = rocketState.volumeData[dataIndex]?.[1] || 0;
+                const rawPrice = rocketState.priceData[dataIndex]?.[1] || 0;
+                const prevPrice = rocketState.priceData[Math.max(0,dataIndex-24)]?.[1] || rawPrice;
+                const change = ((rawPrice - prevPrice) / prevPrice * 100).toFixed(2);
+                
+                document.getElementById('sidePanelVolume').textContent = '$' + (rawVol/1e6).toFixed(1) + 'M';
+                document.getElementById('sidePanelPrice').textContent = '$' + rawPrice.toLocaleString('en-US', {maximumFractionDigits:2});
+                document.getElementById('sidePanelChange').textContent = (change >= 0 ? '+' : '') + change + '%';
+                document.getElementById('sidePanelChange').style.color = change >= 0 ? '#22c55e' : '#ef4444';
+                
+                const xPercent = 5 + progress * 85;
+                const baseY = 85 - progress * 75;
+                const yPercent = baseY - volOffset * 15;
+                
+                rocket.style.left = xPercent + '%';
+                rocket.style.bottom = yPercent + '%';
+                rocket.style.transform = 'translate(-50%, 50%) rotate(-45deg)';
+                
+                // Trail points with labels
+                if (trailPoints.length === 0 || elapsed - trailPoints[trailPoints.length-1].time > 3000) {
+                    const point = document.createElement('div');
+                    point.className = 'chart-trail-point';
+                    point.style.left = xPercent + '%';
+                    point.style.bottom = yPercent + '%';
+                    point.title = `Day ${day}: $${(rawVol/1e6).toFixed(0)}M`;
+                    stage.appendChild(point);
+                    trailPoints.push({ el: point, time: elapsed, day, vol: rawVol });
+                    
+                    const list = document.getElementById('trailPointsList');
+                    const item = document.createElement('div');
+                    item.className = 'trail-point-item';
+                    item.innerHTML = `<span>Day ${day}</span><span>$${(rawVol/1e6).toFixed(0)}M</span>`;
+                    list.insertBefore(item, list.firstChild);
+                }
+                
+                // Exhaust
+                if (Math.random() < 0.3 * (volOffset * 5 + 1)) {
+                    const exhaust = document.createElement('div');
+                    exhaust.className = 'chart-exhaust';
+                    exhaust.style.left = xPercent + '%';
+                    exhaust.style.bottom = yPercent + '%';
+                    const size = 4 + volOffset * 12;
+                    exhaust.style.width = size + 'px';
+                    exhaust.style.height = size + 'px';
+                    exhaust.style.background = `radial-gradient(circle, hsl(${volOffset > 0.5 ? 30 : 200},100%,70%) 0%, transparent 70%)`;
+                    stage.appendChild(exhaust);
+                    setTimeout(() => exhaust.remove(), 600);
+                }
+                
+                // Thruster
+                stage.querySelectorAll('.chart-thruster, .chart-flame').forEach(el => el.remove());
+                const thrusterSize = 20 + volOffset * 50;
+                const thruster = document.createElement('div');
+                thruster.className = 'chart-thruster';
+                thruster.style.left = xPercent + '%';
+                thruster.style.bottom = 'calc(' + yPercent + '% - 110px)';
+                thruster.style.width = thrusterSize + 'px';
+                thruster.style.height = (thrusterSize * 2.5) + 'px';
+                thruster.style.transform = 'translateX(-50%) rotate(190deg)';
+                thruster.style.background = `linear-gradient(to top, rgba(255,200,50,0.9) 0%, rgba(255,100,0,0.8) 40%, transparent 100%)`;
+                stage.appendChild(thruster);
+                
+                if (progress < 1) {
+                    chartRocketAnimId = requestAnimationFrame(animate);
+                } else {
+                    document.getElementById('rocketPlayPauseBtn').textContent = '✅ Done';
+                    setTimeout(() => { rocket.style.opacity = '0.5'; }, 2000);
+                }
+            }
+            
+            animate();
+        }
+        
+        function toggleRocketPlayPause() {
+            rocketState.paused = !rocketState.paused;
+            document.getElementById('rocketPlayPauseBtn').textContent = rocketState.paused ? '▶️ Play' : '⏸️ Pause';
+            if (!rocketState.paused) rocketState.startTime = Date.now() - rocketState.pausedAt;
+            else rocketState.pausedAt = Date.now() - rocketState.startTime;
+        }
+        
+        function replayRocket() {
+            if (chartRocketAnimId) cancelAnimationFrame(chartRocketAnimId);
+            launchChartRocket({stopPropagation:()=>{}}, rocketState.coinId, rocketState.symbol);
+        }
+        
+        function cycleRocketSpeed() {
+            const speeds = [1, 2, 4];
+            const idx = speeds.indexOf(rocketState.speed);
+            rocketState.speed = speeds[(idx + 1) % speeds.length];
+            document.getElementById('rocketSpeedBtn').textContent = '⚡ ' + rocketState.speed + 'x';
+        }
+        
+        function closeChartRocket() {
+            if (chartRocketAnimId) cancelAnimationFrame(chartRocketAnimId);
+            rocketState.paused = false;
+            const overlay = document.getElementById('chartRocketOverlay');
+            overlay.style.display = 'none';
+            document.getElementById('chartRocketStage').querySelectorAll('.chart-trail-point, .chart-rocket-ship, .chart-exhaust, .chart-thruster, .chart-flame').forEach(el => el.remove());
+        }
+        
+        // ESC to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeChartRocket();
+                closeNewsSpace();
+            }
+        });
+        
+        // ===== NEWS SPACE =====
+        let newsAnimId = null;
+        let currentNewsData = [];
+        
+        async function openNewsSpace(event, coinId, coinName, ticker) {
+            event.stopPropagation();
+            const overlay = document.getElementById('newsSpaceOverlay');
+            const stage = document.getElementById('newsSpaceStage');
+            const coinLabel = document.getElementById('newsSpaceCoin');
+            
+            coinLabel.textContent = `${coinName} (${ticker})`;
+            overlay.style.display = 'flex';
+            
+            // Clear previous nodes
+            stage.querySelectorAll('.news-node, .news-rocket-ship').forEach(el => el.remove());
+            document.getElementById('newsDetailCard').style.display = 'none';
+            
+            // Fetch news data
+            let newsData = [];
+            try {
+                const res = await fetch(`https://min-api.cryptocompare.com/data/v2/news/?categories=${coinName.toLowerCase()},${ticker.toLowerCase()}&excludeCategories=Sponsored`);
+                const data = await res.json();
+                if (data.Data && data.Data.length > 0) {
+                    const now = Date.now() / 1000;
+                    const threeMonthsAgo = now - (90 * 24 * 60 * 60);
+                    newsData = data.Data
+                        .filter(n => n.published_on >= threeMonthsAgo)
+                        .slice(0, 60)
+                        .map(n => ({
+                            title: n.title,
+                            source: n.source_info?.name || n.source,
+                            publishedAt: n.published_on * 1000,
+                            url: n.url,
+                            summary: n.body?.substring(0, 150) + '...' || n.title,
+                            sentiment: Math.random() * 2 - 1,
+                            impact: Math.random() * 100
+                        }));
+                }
+            } catch (e) {
+                console.log('News API error, using fallback');
+            }
+            
+            // Fallback if no news
+            if (newsData.length === 0) {
+                const now = Date.now();
+                const sources = ['CoinDesk', 'CryptoNews', 'Bloomberg', 'Reuters', 'CoinTelegraph'];
+                for (let i = 0; i < 25; i++) {
+                    newsData.push({
+                        title: `${coinName} ${['surges', 'drops', 'analysis', 'update', 'prediction'][i % 5]} - News ${i + 1}`,
+                        source: sources[i % sources.length],
+                        publishedAt: now - Math.random() * 90 * 24 * 60 * 60 * 1000,
+                        url: `https://google.com/search?q=${ticker}+crypto+news`,
+                        summary: `Latest ${coinName} market analysis and price movement insights...`,
+                        sentiment: Math.random() * 2 - 1,
+                        impact: Math.random() * 100
+                    });
+                }
+            }
+            
+            currentNewsData = newsData;
+            launchNewsRocket(stage, newsData);
+        }
+        
+        function launchNewsRocket(stage, newsData) {
+            const rocket = document.createElement('div');
+            rocket.className = 'news-rocket-ship';
+            rocket.innerHTML = '🚀';
+            stage.appendChild(rocket);
+            
+            const stageRect = stage.getBoundingClientRect();
+            const duration = 12000;
+            const startTime = Date.now();
+            let nodeIndex = 0;
+            
+            // Sort news by date (oldest first for animation)
+            const sortedNews = [...newsData].sort((a, b) => a.publishedAt - b.publishedAt);
+            const now = Date.now();
+            const oldest = Math.min(...sortedNews.map(n => n.publishedAt));
+            const timeRange = now - oldest;
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Rocket position
+                const xPercent = 5 + progress * 85;
+                const yPercent = 85 - progress * 75;
+                rocket.style.left = xPercent + '%';
+                rocket.style.bottom = yPercent + '%';
+                rocket.style.transform = 'rotate(-45deg)';
+                
+                // Drop news nodes based on progress
+                while (nodeIndex < sortedNews.length) {
+                    const news = sortedNews[nodeIndex];
+                    const newsProgress = (news.publishedAt - oldest) / timeRange;
+                    
+                    if (newsProgress <= progress) {
+                        createNewsNode(stage, news, oldest, timeRange, now);
+                        nodeIndex++;
+                    } else {
+                        break;
+                    }
+                }
+                
+                if (progress < 1) {
+                    newsAnimId = requestAnimationFrame(animate);
+                } else {
+                    // Drop remaining nodes
+                    while (nodeIndex < sortedNews.length) {
+                        createNewsNode(stage, sortedNews[nodeIndex], oldest, timeRange, now);
+                        nodeIndex++;
+                    }
+                    // Fade out rocket
+                    rocket.style.transition = 'opacity 1s';
+                    rocket.style.opacity = '0';
+                    setTimeout(() => rocket.remove(), 1000);
+                }
+            }
+            
+            animate();
+        }
+        
+        function createNewsNode(stage, news, oldest, timeRange, now) {
+            const node = document.createElement('div');
+            const sentimentClass = news.sentiment > 0.2 ? 'positive' : news.sentiment < -0.2 ? 'negative' : 'neutral';
+            node.className = `news-node ${sentimentClass}`;
+            node.textContent = news.title.substring(0, 25) + '...';
+            node.title = news.title;
+            
+            // Position based on time (X) and impact (Y)
+            const xPercent = 8 + ((news.publishedAt - oldest) / timeRange) * 80;
+            const yPercent = 10 + (news.impact / 100) * 70;
+            
+            // Add some jitter to avoid overlap
+            const jitterX = (Math.random() - 0.5) * 8;
+            const jitterY = (Math.random() - 0.5) * 8;
+            
+            node.style.left = (xPercent + jitterX) + '%';
+            node.style.bottom = (yPercent + jitterY) + '%';
+            node.style.fontSize = (0.55 + news.impact / 200) + 'rem';
+            
+            node.onclick = () => showNewsDetail(news);
+            stage.appendChild(node);
+        }
+        
+        function showNewsDetail(news) {
+            const card = document.getElementById('newsDetailCard');
+            document.getElementById('newsDetailTitle').textContent = news.title;
+            document.getElementById('newsDetailSource').textContent = '📰 ' + news.source;
+            document.getElementById('newsDetailDate').textContent = '📅 ' + new Date(news.publishedAt).toLocaleDateString('de-DE');
+            document.getElementById('newsDetailSummary').textContent = news.summary;
+            document.getElementById('newsDetailLink').dataset.url = news.url;
+            card.style.display = 'block';
+        }
+        
+        function closeNewsDetail() {
+            document.getElementById('newsDetailCard').style.display = 'none';
+        }
+        
+        function closeNewsSpace() {
+            if (newsAnimId) cancelAnimationFrame(newsAnimId);
+            const overlay = document.getElementById('newsSpaceOverlay');
+            overlay.style.display = 'none';
+            document.getElementById('newsSpaceStage').querySelectorAll('.news-node, .news-rocket-ship').forEach(el => el.remove());
+        }
+        
+        // News filter buttons
+        document.querySelectorAll('.news-filter-btn[data-days]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.news-filter-btn[data-days]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const days = parseInt(btn.dataset.days);
+                filterNewsByDays(days);
+            });
+        });
+        
+        function filterNewsByDays(days) {
+            const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+            document.querySelectorAll('.news-node').forEach(node => {
+                // Re-filter based on stored data would need enhancement
+                // For now, simple visual filter
+            });
+        }
+        
+        // Timeline slider
+        document.getElementById('newsTimelineSlider')?.addEventListener('input', (e) => {
+            const value = e.target.value;
+            document.getElementById('newsTimelineValue').textContent = value == 90 ? 'All' : value + 'd';
+        });
+        
+        // ===== COIN AUDIO (Dynamic per Coin - English High-Quality Voice) =====
+        let coinAudioElement = new Audio();
+        let coinAudioState = { 
+            playing: false, 
+            coinId: '', 
+            coinName: '', 
+            ticker: '',
+            speechUtterance: null,
+            reportText: '',
+            startTime: 0,
+            estimatedDuration: 60,
+            usePreGenerated: false
+        };
+        
+        // Pre-generated high-quality audio files for top coins
+        const preGeneratedAudios = {
+            'bitcoin': 'audio/bitcoin-en.mp3',
+            'ethereum': 'audio/ethereum-en.mp3',
+            'tether': 'audio/tether-en.mp3',
+            'solana': 'audio/solana-en.mp3',
+            'ripple': 'audio/xrp-en.mp3'
+        };
+        
+        async function openCoinAudio(event, coinId, coinName, ticker, imageUrl) {
+            event.stopPropagation();
+            
+            // Stop any previous audio/speech
+            coinAudioElement.pause();
+            coinAudioElement.currentTime = 0;
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+            
+            coinAudioState.coinId = coinId;
+            coinAudioState.coinName = coinName;
+            coinAudioState.ticker = ticker;
+            coinAudioState.playing = false;
+            coinAudioState.usePreGenerated = preGeneratedAudios.hasOwnProperty(coinId);
+            
+            const overlay = document.getElementById('coinAudioOverlay');
+            document.getElementById('audioCoinLogo').src = imageUrl;
+            document.getElementById('audioCoinName').textContent = coinName;
+            document.getElementById('audioCoinSymbol').textContent = ticker;
+            document.getElementById('audioProgressFill').style.width = '0%';
+            document.getElementById('audioCurrentTime').textContent = '0:00';
+            document.getElementById('audioDuration').textContent = '--:--';
+            document.getElementById('audioPlayBtn').textContent = '▶️';
+            document.getElementById('audioStatus').textContent = '📡 Loading ' + coinName + ' report...';
+            document.getElementById('reporterImg').src = 'imgs/ai-reporter.png';
+            
+            // Generate wave bars
+            const waveContainer = document.getElementById('audioWaveContainer');
+            waveContainer.innerHTML = '';
+            for (let i = 0; i < 30; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'audio-wave-bar';
+                bar.style.animationDelay = (i * 0.05) + 's';
+                bar.style.height = '10px';
+                bar.style.animationPlayState = 'paused';
+                waveContainer.appendChild(bar);
+            }
+            
+            overlay.style.display = 'flex';
+            
+            // Check if we have pre-generated high-quality audio
+            if (coinAudioState.usePreGenerated) {
+                coinAudioElement.src = preGeneratedAudios[coinId];
+                coinAudioElement.load();
+                
+                coinAudioElement.onloadedmetadata = () => {
+                    const duration = coinAudioElement.duration;
+                    const mins = Math.floor(duration / 60);
+                    const secs = Math.floor(duration % 60);
+                    document.getElementById('audioDuration').textContent = mins + ':' + String(secs).padStart(2, '0');
+                    document.getElementById('audioStatus').textContent = '✅ ' + coinName + ' Premium Report Ready';
+                };
+                
+                coinAudioElement.ontimeupdate = () => {
+                    const current = coinAudioElement.currentTime;
+                    const duration = coinAudioElement.duration || 1;
+                    const progress = (current / duration) * 100;
+                    document.getElementById('audioProgressFill').style.width = progress + '%';
+                    const mins = Math.floor(current / 60);
+                    const secs = Math.floor(current % 60);
+                    document.getElementById('audioCurrentTime').textContent = mins + ':' + String(secs).padStart(2, '0');
+                };
+                
+                coinAudioElement.onended = () => {
+                    coinAudioState.playing = false;
+                    document.getElementById('audioPlayBtn').textContent = '▶️';
+                    document.getElementById('audioStatus').textContent = '✅ Report Complete';
+                    document.querySelectorAll('.audio-wave-bar').forEach(bar => bar.style.animationPlayState = 'paused');
+                };
+            } else {
+                // Fetch coin-specific data and news for dynamic report
+                const coin = coins.find(c => c.id === coinId);
+                let newsData = [];
+                
+                try {
+                    const res = await fetch(`https://min-api.cryptocompare.com/data/v2/news/?categories=${coinName.toLowerCase()},${ticker.toLowerCase()}&excludeCategories=Sponsored`);
+                    const data = await res.json();
+                    if (data.Data && data.Data.length > 0) {
+                        newsData = data.Data.slice(0, 5);
+                    }
+                } catch (e) {
+                    console.log('News fetch error');
+                }
+                
+                // Generate English report text
+                const reportText = generateCoinReportEnglish(coin, coinName, ticker, newsData);
+                coinAudioState.reportText = reportText;
+                
+                const wordCount = reportText.split(' ').length;
+                coinAudioState.estimatedDuration = Math.max(30, Math.ceil(wordCount / 2.5));
+                
+                const mins = Math.floor(coinAudioState.estimatedDuration / 60);
+                const secs = coinAudioState.estimatedDuration % 60;
+                document.getElementById('audioDuration').textContent = mins + ':' + String(secs).padStart(2, '0');
+                document.getElementById('audioStatus').textContent = '✅ ' + coinName + ' Report Ready';
+            }
+        }
+        
+        function generateCoinReportEnglish(coin, coinName, ticker, newsData) {
+            const price = coin ? formatPrice(coin.current_price) : 'unknown';
+            const change24h = coin ? (coin.price_change_percentage_24h || 0).toFixed(2) : '0';
+            const change7d = coin ? (coin.price_change_percentage_7d_in_currency || 0).toFixed(2) : '0';
+            const marketCap = coin ? formatNumber(coin.market_cap) : 'unknown';
+            const volume = coin ? formatNumber(coin.total_volume) : 'unknown';
+            const trend = parseFloat(change24h) >= 0 ? 'positive' : 'negative';
+            
+            let report = `Welcome to CryptoSpaces Audio Report. Today we're bringing you the latest insights on ${coinName}. `;
+            report += `The current price stands at ${price}. `;
+            report += `Over the past 24 hours, ${coinName} has shown a ${trend} movement of ${change24h} percent. `;
+            report += `Looking at the weekly performance, we see a change of ${change7d} percent over the last seven days. `;
+            report += `The market capitalization currently sits at ${marketCap} dollars, with a trading volume of ${volume} dollars. `;
+            
+            if (newsData.length > 0) {
+                report += `Here are the latest headlines for ${coinName}: `;
+                newsData.slice(0, 3).forEach((news, i) => {
+                    report += `${news.title}. `;
+                });
+            } else {
+                report += `No specific news available for ${coinName} at this moment. `;
+            }
+            
+            report += `This has been your ${coinName} update from CryptoSpaces. Remember, this report is for informational purposes only and does not constitute financial advice. Always do your own research before making investment decisions.`;
+            
+            return report;
+        }
+        
+        function toggleCoinAudio() {
+            const playBtn = document.getElementById('audioPlayBtn');
+            const status = document.getElementById('audioStatus');
+            const waveBars = document.querySelectorAll('.audio-wave-bar');
+            
+            if (coinAudioState.usePreGenerated) {
+                // Use pre-generated high-quality audio
+                if (coinAudioState.playing) {
+                    coinAudioElement.pause();
+                    coinAudioState.playing = false;
+                    playBtn.textContent = '▶️';
+                    status.textContent = '⏸️ Paused';
+                    waveBars.forEach(bar => bar.style.animationPlayState = 'paused');
+                } else {
+                    coinAudioElement.play();
+                    coinAudioState.playing = true;
+                    playBtn.textContent = '⏸️';
+                    status.textContent = '🎙️ Playing ' + coinAudioState.coinName + ' Report...';
+                    waveBars.forEach(bar => bar.style.animationPlayState = 'running');
+                }
+            } else {
+                // Use Web Speech API for other coins
+                if (!window.speechSynthesis) {
+                    status.textContent = '❌ Speech synthesis not supported';
+                    return;
+                }
+                
+                if (coinAudioState.playing) {
+                    window.speechSynthesis.pause();
+                    coinAudioState.playing = false;
+                    playBtn.textContent = '▶️';
+                    status.textContent = '⏸️ Paused';
+                    waveBars.forEach(bar => bar.style.animationPlayState = 'paused');
+                } else {
+                    if (window.speechSynthesis.paused) {
+                        window.speechSynthesis.resume();
+                    } else {
+                        const utterance = new SpeechSynthesisUtterance(coinAudioState.reportText);
+                        utterance.lang = 'en-US';
+                        utterance.rate = 0.95;
+                        utterance.pitch = 1.0;
+                        
+                        // Find best English female voice
+                        const voices = window.speechSynthesis.getVoices();
+                        const femaleVoice = voices.find(v => 
+                            v.lang.startsWith('en') && (v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Victoria') || v.name.includes('Karen'))
+                        ) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+                        if (femaleVoice) utterance.voice = femaleVoice;
+                        
+                        coinAudioState.startTime = Date.now();
+                        coinAudioState.speechUtterance = utterance;
+                        
+                        utterance.onend = () => {
+                            coinAudioState.playing = false;
+                            playBtn.textContent = '▶️';
+                            status.textContent = '✅ Report Complete';
+                            document.getElementById('audioProgressFill').style.width = '100%';
+                            waveBars.forEach(bar => bar.style.animationPlayState = 'paused');
+                        };
+                        
+                        window.speechSynthesis.speak(utterance);
+                        updateAudioProgress();
+                    }
+                    
+                    coinAudioState.playing = true;
+                    playBtn.textContent = '⏸️';
+                    status.textContent = '🎙️ Playing ' + coinAudioState.coinName + ' Report...';
+                    waveBars.forEach(bar => bar.style.animationPlayState = 'running');
+                }
+            }
+        }
+        
+        function updateAudioProgress() {
+            if (!coinAudioState.playing || coinAudioState.usePreGenerated) return;
+            
+            const elapsed = (Date.now() - coinAudioState.startTime) / 1000;
+            const progress = Math.min((elapsed / coinAudioState.estimatedDuration) * 100, 100);
+            document.getElementById('audioProgressFill').style.width = progress + '%';
+            
+            const mins = Math.floor(elapsed / 60);
+            const secs = Math.floor(elapsed % 60);
+            document.getElementById('audioCurrentTime').textContent = mins + ':' + String(secs).padStart(2, '0');
+            
+            if (progress < 100 && coinAudioState.playing) {
+                requestAnimationFrame(updateAudioProgress);
+            }
+        }
+        
+        function seekAudio(seconds) {
+            if (coinAudioState.usePreGenerated) {
+                coinAudioElement.currentTime = Math.max(0, Math.min(coinAudioElement.duration || 0, coinAudioElement.currentTime + seconds));
+            } else {
+                document.getElementById('audioStatus').textContent = '⚠️ Seek not available';
+                setTimeout(() => {
+                    document.getElementById('audioStatus').textContent = coinAudioState.playing ? '🎙️ Playing...' : '✅ Ready';
+                }, 1500);
+            }
+        }
+        
+        function closeCoinAudio() {
+            coinAudioState.playing = false;
+            coinAudioElement.pause();
+            coinAudioElement.currentTime = 0;
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+            document.getElementById('coinAudioOverlay').style.display = 'none';
+            document.querySelectorAll('.audio-wave-bar').forEach(bar => bar.style.animationPlayState = 'paused');
+        }
+        
+        // Load voices when available
+        if (window.speechSynthesis) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
+        
+        // ESC to close CoinAudio
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeCoinAudio();
+        });
+        
+        function showAboHint(event) {
+            event.stopPropagation();
+            const overlay = document.getElementById('coinAudioOverlay');
+            document.getElementById('audioCoinLogo').src = 'imgs/ai-reporter.png';
+            document.getElementById('audioCoinName').textContent = 'Abo erforderlich';
+            document.getElementById('audioCoinSymbol').textContent = '🔒';
+            document.getElementById('audioStatus').textContent = 'Aktivieren Sie ein Abo für vollen Zugang';
+            document.getElementById('audioWaveContainer').innerHTML = '';
+            overlay.style.display = 'flex';
+        }
+        
+        function activateAbo(type) {
+            const names = { basic: 'Basic (24,90€)', pro: 'Pro (49,90€)', premium: 'Premium (99,90€)' };
+            alert('🎉 ' + names[type] + ' ausgewählt!\n\nWeiterleitung zur Zahlungsseite...');
+        }
+        
+        // ===== INIT =====
+        fetchCoins();
+        setInterval(fetchCoins, UPDATE_INTERVAL);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoSpaces - Matrix Vision</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --matrix-green: #00ff41;
+            --matrix-dark-green: #008f11;
+            --matrix-bright: #39ff14;
+            --bg-black: #000000;
+        }
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-black);
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--matrix-green);
+        }
+        #matrixCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(0, 0, 0, 0.85); border-bottom: 1px solid rgba(0, 255, 65, 0.3);
+            backdrop-filter: blur(10px); padding: 12px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo {
+            font-family: 'Orbitron', sans-serif; font-size: 1.2rem; font-weight: 700;
+            background: linear-gradient(90deg, var(--matrix-green), var(--matrix-bright));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: 2px; text-decoration: none;
+        }
+        .nav-links { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        .nav-link {
+            color: var(--matrix-green); text-decoration: none; font-size: 0.7rem;
+            font-family: 'Orbitron', sans-serif; padding: 8px 14px;
+            border: 1px solid rgba(0, 255, 65, 0.3); border-radius: 8px;
+            transition: all 0.2s; background: rgba(0, 255, 65, 0.05);
+        }
+        .nav-link:hover { background: rgba(0, 255, 65, 0.15); border-color: var(--matrix-green); box-shadow: 0 0 15px rgba(0, 255, 65, 0.3); }
+        .nav-link.active { background: rgba(0, 255, 65, 0.2); border-color: var(--matrix-green); }
+        .views-dropdown { position: relative; }
+        .views-toggle {
+            background: rgba(0, 255, 65, 0.1); border: 1px solid rgba(0, 255, 65, 0.4);
+            color: var(--matrix-green); padding: 8px 14px; border-radius: 8px;
+            font-family: 'Orbitron', sans-serif; font-size: 0.65rem; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; transition: all 0.2s;
+        }
+        .views-toggle:hover { background: rgba(0, 255, 65, 0.2); }
+        .views-menu {
+            position: absolute; top: 100%; right: 0;
+            background: rgba(0, 10, 0, 0.95); border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 10px; min-width: 280px; padding: 8px 0;
+            opacity: 0; visibility: hidden; transform: translateY(10px);
+            transition: all 0.2s; backdrop-filter: blur(15px); max-height: 400px; overflow-y: auto;
+        }
+        .views-dropdown.open .views-menu { opacity: 1; visibility: visible; transform: translateY(5px); }
+        .views-menu a {
+            display: block; padding: 10px 18px; color: var(--matrix-green);
+            text-decoration: none; font-size: 0.7rem; transition: all 0.2s;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.1);
+        }
+        .views-menu a:hover { background: rgba(0, 255, 65, 0.15); }
+        .views-menu a.active { background: rgba(0, 255, 65, 0.2); border-left: 3px solid var(--matrix-green); }
+        .timestamp-bg { position: fixed; bottom: 80px; right: 20px; font-size: 0.6rem; color: rgba(0, 255, 65, 0.2); z-index: 2; text-align: right; }
+        .coin-info-panel {
+            position: fixed; z-index: 200; background: rgba(0, 15, 0, 0.95);
+            border: 1px solid var(--matrix-green); border-radius: 12px; padding: 18px;
+            min-width: 300px; max-width: 340px; opacity: 0; visibility: hidden;
+            transform: scale(0.95); transition: all 0.2s; backdrop-filter: blur(15px);
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3); pointer-events: auto;
+        }
+        .coin-info-panel.visible { opacity: 1; visibility: visible; transform: scale(1); }
+        .coin-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid rgba(0, 255, 65, 0.2); }
+        .coin-icon { width: 36px; height: 36px; border-radius: 50%; background: rgba(0, 255, 65, 0.1); }
+        .coin-name { font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 700; color: var(--matrix-bright); }
+        .coin-symbol { font-size: 0.75rem; color: rgba(0, 255, 65, 0.6); }
+        .coin-price { font-size: 1.4rem; font-weight: 700; color: var(--matrix-green); margin-bottom: 5px; }
+        .coin-timestamp { font-size: 0.6rem; color: rgba(0, 255, 65, 0.4); margin-bottom: 15px; }
+        .coin-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .stat-item { background: rgba(0, 255, 65, 0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(0, 255, 65, 0.15); }
+        .stat-label { font-size: 0.6rem; color: rgba(0, 255, 65, 0.5); margin-bottom: 4px; }
+        .stat-value { font-size: 0.85rem; font-weight: 600; color: var(--matrix-green); }
+        .stat-value.positive { color: #10b981; }
+        .stat-value.negative { color: #ef4444; }
+        .mini-chart { height: 70px; background: rgba(0, 255, 65, 0.05); border-radius: 8px; margin-bottom: 12px; position: relative; overflow: hidden; }
+        .mini-chart canvas { width: 100%; height: 100%; }
+        .mini-chart-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.6rem; color: rgba(0, 255, 65, 0.5); }
+        .chart-timeframe { display: flex; gap: 5px; margin-bottom: 12px; }
+        .timeframe-btn {
+            flex: 1; padding: 6px; background: rgba(0, 255, 65, 0.1);
+            border: 1px solid rgba(0, 255, 65, 0.2); border-radius: 4px;
+            color: var(--matrix-green); font-size: 0.6rem; cursor: pointer; transition: all 0.2s;
+        }
+        .timeframe-btn:hover { background: rgba(0, 255, 65, 0.2); }
+        .timeframe-btn.active { background: rgba(0, 255, 65, 0.25); border-color: var(--matrix-green); }
+        .data-source { font-size: 0.55rem; color: rgba(0, 255, 65, 0.4); text-align: center; padding-top: 8px; border-top: 1px solid rgba(0, 255, 65, 0.1); }
+        .disclaimer-footer {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(0, 0, 0, 0.95); border-top: 1px solid rgba(0, 255, 65, 0.4);
+            padding: 14px 30px; text-align: center;
+        }
+        .disclaimer-content { display: flex; align-items: center; justify-content: center; gap: 15px; max-width: 1400px; margin: 0 auto; }
+        .disclaimer-text { font-size: 0.6rem; color: rgba(0, 255, 65, 0.7); line-height: 1.6; text-align: left; flex: 1; }
+        .disclaimer-text-en { font-size: 0.55rem; color: rgba(0, 255, 65, 0.5); margin-top: 6px; font-style: italic; }
+        .info-btn { background: rgba(0, 255, 65, 0.15); border: 1px solid rgba(0, 255, 65, 0.4); color: var(--matrix-green); width: 32px; height: 32px; border-radius: 50%; font-size: 1rem; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+        .info-btn:hover { background: rgba(0, 255, 65, 0.3); box-shadow: 0 0 15px rgba(0, 255, 65, 0.4); }
+        .disclaimer-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.9); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .disclaimer-modal.visible { display: flex; }
+        .modal-content { background: rgba(0, 15, 0, 0.98); border: 1px solid var(--matrix-green); border-radius: 12px; max-width: 700px; width: 90%; max-height: 80vh; overflow-y: auto; padding: 30px; position: relative; box-shadow: 0 0 50px rgba(0, 255, 65, 0.3); }
+        .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: 1px solid rgba(0, 255, 65, 0.3); color: var(--matrix-green); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; transition: all 0.2s; }
+        .modal-close:hover { background: rgba(0, 255, 65, 0.2); border-color: var(--matrix-green); }
+        .modal-title { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: var(--matrix-bright); margin-bottom: 20px; text-align: center; }
+        .modal-section { margin-bottom: 25px; }
+        .modal-section-title { font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: var(--matrix-green); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(0, 255, 65, 0.2); }
+        .modal-text { font-size: 0.75rem; color: rgba(0, 255, 65, 0.8); line-height: 1.8; }
+        /* Info Modal - Large */
+        .info-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.95); z-index: 1001; display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
+        .info-modal.visible { display: flex; }
+        .info-modal-content { background: linear-gradient(135deg, rgba(0, 20, 0, 0.98) 0%, rgba(0, 10, 0, 0.99) 100%); border: 1px solid var(--matrix-green); border-radius: 16px; width: 90%; max-width: 900px; max-height: 85vh; overflow-y: auto; padding: 40px; position: relative; box-shadow: 0 0 80px rgba(0, 255, 65, 0.25), inset 0 0 60px rgba(0, 255, 65, 0.03); }
+        .info-modal-close { position: fixed; top: 25px; right: 25px; background: rgba(0, 0, 0, 0.8); border: 1px solid rgba(0, 255, 65, 0.5); color: var(--matrix-green); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.4rem; transition: all 0.2s; z-index: 1002; }
+        .info-modal-close:hover { background: rgba(0, 255, 65, 0.2); border-color: var(--matrix-green); box-shadow: 0 0 20px rgba(0, 255, 65, 0.5); }
+        .info-modal-title { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; color: var(--matrix-bright); margin-bottom: 30px; text-align: center; text-shadow: 0 0 20px rgba(0, 255, 65, 0.5); letter-spacing: 3px; }
+        .info-section { margin-bottom: 28px; padding: 20px; background: rgba(0, 255, 65, 0.03); border-radius: 10px; border-left: 3px solid rgba(0, 255, 65, 0.4); }
+        .info-section-title { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--matrix-green); margin-bottom: 14px; }
+        .info-section-text { font-size: 0.8rem; color: rgba(0, 255, 65, 0.75); line-height: 1.9; }
+        .info-list { list-style: none; padding: 0; margin: 10px 0; }
+        .info-list li { padding: 6px 0 6px 20px; position: relative; font-size: 0.8rem; color: rgba(0, 255, 65, 0.75); }
+        .info-list li::before { content: ''; position: absolute; left: 0; top: 12px; width: 8px; height: 8px; background: var(--matrix-green); border-radius: 50%; box-shadow: 0 0 8px var(--matrix-green); }
+        .info-warning { list-style: none; padding: 0; margin: 10px 0; }
+        .info-warning li { padding: 8px 0 8px 25px; position: relative; font-size: 0.8rem; color: rgba(239, 68, 68, 0.9); }
+        .info-warning li::before { content: 'X'; position: absolute; left: 0; top: 6px; color: #ef4444; font-weight: bold; }
+        .info-highlight { background: rgba(0, 255, 65, 0.1); border: 1px solid rgba(0, 255, 65, 0.3); border-radius: 8px; padding: 15px 20px; margin-top: 20px; text-align: center; }
+        .info-highlight-text { font-family: 'Orbitron', sans-serif; font-size: 0.85rem; color: var(--matrix-bright); font-style: italic; }
+        .info-btn-help { background: rgba(0, 255, 65, 0.15); border: 1px solid rgba(0, 255, 65, 0.4); color: var(--matrix-green); width: 32px; height: 32px; border-radius: 50%; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+        .info-btn-help:hover { background: rgba(0, 255, 65, 0.3); box-shadow: 0 0 15px rgba(0, 255, 65, 0.4); }
+        .stats-bar {
+            position: fixed; top: 60px; left: 0; right: 0; z-index: 50;
+            background: rgba(0, 0, 0, 0.7); border-bottom: 1px solid rgba(0, 255, 65, 0.15);
+            padding: 8px 30px; display: flex; justify-content: center; gap: 40px; font-size: 0.65rem;
+        }
+        .stat-display { display: flex; align-items: center; gap: 8px; }
+        .stat-display-label { color: rgba(0, 255, 65, 0.5); }
+        .stat-display-value { color: var(--matrix-green); font-weight: 600; }
+        .cluster-indicator { position: fixed; top: 100px; left: 20px; z-index: 50; font-size: 0.6rem; }
+        .cluster-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; padding: 6px 10px; background: rgba(0, 255, 65, 0.05); border-radius: 6px; border: 1px solid rgba(0, 255, 65, 0.15); }
+        .cluster-color { width: 10px; height: 10px; border-radius: 50%; }
+        .cluster-label { color: rgba(0, 255, 65, 0.7); }
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-black); z-index: 1000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-text { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; color: var(--matrix-green); margin-bottom: 20px; letter-spacing: 5px; }
+        .loading-bar { width: 300px; height: 4px; background: rgba(0, 255, 65, 0.2); border-radius: 2px; overflow: hidden; }
+        .loading-progress { height: 100%; width: 0%; background: var(--matrix-green); box-shadow: 0 0 10px var(--matrix-green); transition: width 0.3s; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 255, 65, 0.05); }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 255, 65, 0.3); border-radius: 3px; }
+        @media (max-width: 768px) {
+            .header { padding: 10px 15px; flex-wrap: wrap; gap: 10px; }
+            .nav-links { gap: 8px; }
+            .nav-link { font-size: 0.6rem; padding: 6px 10px; }
+            .stats-bar { gap: 15px; font-size: 0.55rem; flex-wrap: wrap; padding: 6px 15px; top: 80px; }
+            .cluster-indicator { display: none; }
+        }
+
+        /* Matrix Vision History Panel */
+        .vision-tab {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, rgba(0,255,65,0.15), rgba(0,143,17,0.1));
+            border: 1px solid rgba(0,255,65,0.5);
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            padding: 15px 10px;
+            cursor: pointer;
+            z-index: 300;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            color: var(--matrix-green);
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            box-shadow: -4px 0 20px rgba(0,255,65,0.2);
+        }
+        .vision-tab:hover {
+            background: linear-gradient(135deg, rgba(0,255,65,0.25), rgba(0,143,17,0.2));
+            padding-right: 15px;
+        }
+        .vision-tab.hidden { display: none; }
+
+        .vision-panel {
+            position: fixed;
+            right: -420px;
+            top: 100px;
+            bottom: 80px;
+            width: 400px;
+            background: rgba(0, 10, 0, 0.95);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(0,255,65,0.4);
+            border-right: none;
+            border-radius: 16px 0 0 16px;
+            z-index: 350;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -10px 0 40px rgba(0,0,0,0.8), 0 0 30px rgba(0,255,65,0.1);
+        }
+        .vision-panel.open { right: 0; }
+
+        .vision-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(0,255,65,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .vision-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            background: linear-gradient(90deg, var(--matrix-green), var(--matrix-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+        .vision-close {
+            background: rgba(239,68,68,0.2);
+            border: 1px solid rgba(239,68,68,0.4);
+            color: #ef4444;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .vision-close:hover { background: rgba(239,68,68,0.4); }
+
+        .vision-filters {
+            padding: 15px 20px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid rgba(0,255,65,0.15);
+            flex-wrap: wrap;
+        }
+        .vfilter-btn {
+            padding: 6px 12px;
+            border: 1px solid rgba(0,255,65,0.3);
+            background: rgba(0,255,65,0.05);
+            color: rgba(0,255,65,0.7);
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .vfilter-btn:hover { background: rgba(0,255,65,0.12); }
+        .vfilter-btn.active {
+            background: linear-gradient(135deg, var(--matrix-dark-green), var(--matrix-green));
+            border-color: var(--matrix-green);
+            color: #000;
+            font-weight: 600;
+        }
+
+        .vision-timeline {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(0,255,65,0.15);
+        }
+        .matrix-trace {
+            height: 32px;
+            background: rgba(0,10,0,0.8);
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,255,65,0.1);
+        }
+        .trace-marker {
+            position: absolute;
+            top: 4px;
+            width: 6px;
+            height: 24px;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 8px currentColor;
+        }
+        .trace-marker:hover { transform: scaleY(1.3); filter: brightness(1.4); }
+        .trace-marker.liquidity-surge { background: #10b981; color: #10b981; }
+        .trace-marker.liquidity-drain { background: #ef4444; color: #ef4444; }
+        .trace-marker.volatility-shock { background: #f59e0b; color: #f59e0b; }
+        .trace-marker.sector-rotation { background: #8b5cf6; color: #8b5cf6; }
+        .trace-marker.dominance-shift { background: #3b82f6; color: #3b82f6; }
+        .trace-marker.risk-mode { background: #ec4899; color: #ec4899; }
+
+        .vision-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px 20px;
+        }
+        .vision-content::-webkit-scrollbar { width: 4px; }
+        .vision-content::-webkit-scrollbar-track { background: rgba(0,255,65,0.05); }
+        .vision-content::-webkit-scrollbar-thumb { background: var(--matrix-dark-green); border-radius: 2px; }
+
+        .force-event {
+            background: rgba(0,255,65,0.03);
+            border: 1px solid rgba(0,255,65,0.15);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .force-event:hover {
+            background: rgba(0,255,65,0.08);
+            border-color: rgba(0,255,65,0.35);
+            transform: translateX(-4px);
+        }
+        .force-event.highlighted {
+            background: rgba(0,255,65,0.12);
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 20px rgba(0,255,65,0.2);
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        .event-type-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.55rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .event-type-badge.liquidity-surge { background: rgba(16,185,129,0.2); color: #10b981; }
+        .event-type-badge.liquidity-drain { background: rgba(239,68,68,0.2); color: #ef4444; }
+        .event-type-badge.volatility-shock { background: rgba(245,158,11,0.2); color: #f59e0b; }
+        .event-type-badge.sector-rotation { background: rgba(139,92,246,0.2); color: #8b5cf6; }
+        .event-type-badge.dominance-shift { background: rgba(59,130,246,0.2); color: #3b82f6; }
+        .event-type-badge.risk-mode { background: rgba(236,72,153,0.2); color: #ec4899; }
+        .event-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            color: rgba(0,255,65,0.5);
+        }
+        .event-zone {
+            font-size: 0.7rem;
+            color: var(--matrix-green);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .event-coins {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .coin-tag {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.55rem;
+            background: rgba(0,255,65,0.1);
+            color: var(--matrix-bright);
+            border: 1px solid rgba(0,255,65,0.2);
+        }
+        .event-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            font-size: 0.55rem;
+        }
+        .metric-mini {
+            text-align: center;
+            padding: 5px;
+            background: rgba(0,10,0,0.6);
+            border-radius: 4px;
+            border: 1px solid rgba(0,255,65,0.08);
+        }
+        .metric-mini-label { color: rgba(0,255,65,0.5); margin-bottom: 2px; }
+        .metric-mini-value { font-weight: 600; font-family: 'JetBrains Mono', monospace; color: var(--matrix-green); }
+        .metric-mini-value.positive { color: #10b981; }
+        .metric-mini-value.negative { color: #ef4444; }
+        .intensity-badge {
+            font-size: 0.5rem;
+            padding: 2px 5px;
+            border-radius: 3px;
+            margin-left: 6px;
+        }
+        .intensity-high { background: rgba(239,68,68,0.2); color: #ef4444; }
+        .intensity-medium { background: rgba(245,158,11,0.2); color: #f59e0b; }
+        .intensity-low { background: rgba(16,185,129,0.2); color: #10b981; }
+
+        .vision-footer {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(0,255,65,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .replay-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: linear-gradient(135deg, rgba(0,255,65,0.15), rgba(0,143,17,0.1));
+            border: 1px solid rgba(0,255,65,0.4);
+            color: var(--matrix-green);
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .replay-btn:hover { background: linear-gradient(135deg, rgba(0,255,65,0.25), rgba(0,143,17,0.2)); box-shadow: 0 0 15px rgba(0,255,65,0.3); }
+        .footer-info {
+            font-size: 0.5rem;
+            color: rgba(0,255,65,0.4);
+            text-align: right;
+        }
+
+        .matrix-overlay {
+            position: fixed;
+            background: rgba(0,15,0,0.95);
+            border: 1px solid var(--matrix-green);
+            border-radius: 10px;
+            padding: 12px 16px;
+            z-index: 400;
+            max-width: 280px;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 0 30px rgba(0,255,65,0.3);
+        }
+        .matrix-overlay.visible { opacity: 1; transform: scale(1); }
+        .overlay-title { font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: var(--matrix-bright); margin-bottom: 6px; }
+        .overlay-time { font-size: 0.55rem; color: rgba(0,255,65,0.6); margin-bottom: 8px; }
+        .overlay-metrics { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.6rem; color: var(--matrix-green); }
+        .overlay-clusters { margin-top: 8px; font-size: 0.55rem; color: rgba(0,255,65,0.7); }
+    </style>
+    <link rel="stylesheet" href="membership-gating.css">
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-text">MATRIX VISION</div>
+        <div class="loading-bar"><div class="loading-progress" id="loadingProgress"></div></div>
+    </div>
+
+    <canvas id="matrixCanvas"></canvas>
+
+    <header class="header">
+        <a href="index.html" class="logo">CRYPTOSPACES</a>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="canaveral.html" class="nav-link">Canaveral</a>
+            <a href="financial-galaxy.html" class="nav-link">Financial Galaxy</a>
+            <div class="views-dropdown" id="viewsDropdown">
+                <button class="views-toggle" id="viewsToggle">
+                    <span>Visual Views</span>
+                    <span class="chevron">&#9660;</span>
+                </button>
+                <div class="views-menu">
+                    <a href="cryptoglobus.html">CryptoGlobus</a>
+                    <a href="crypto-matrix-vision.html" class="active">Matrix Vision</a>
+                    <a href="reletav.html">Regulation, Legal & Tax</a>
+                    <a href="medurev.html">MEDUREV</a>
+                    <a href="ex-triv.html">VTP - DeFi</a>
+                    <a href="cscs.html">VTP - Stablecoins</a>
+                    <a href="lyps.html">LYPS</a>
+                    <a href="orbit-system.html">Orbit System</a>
+                    <a href="gravity.html">Galaxy Mode</a>
+                    <a href="nft-digital.html">NFT & Digital</a>
+                    <a href="game-vev.html">Gaming</a>
+                    <a href="misvav.html">Mining & Staking</a>
+                    <a href="iddrviis.html">Identity & DID</a>
+                    <a href="geowhales.html">GeoWhales</a>
+                </div>
+            </div>
+            <a href="about.html" class="nav-link">Info</a>
+        </nav>
+    </header>
+
+    <div class="stats-bar">
+        <div class="stat-display"><span class="stat-display-label">Coins:</span><span class="stat-display-value" id="activeCoins">--</span></div>
+        <div class="stat-display"><span class="stat-display-label">Aktivitaet:</span><span class="stat-display-value" id="marketActivity">--</span></div>
+        <div class="stat-display"><span class="stat-display-label">Volatilitaet:</span><span class="stat-display-value" id="avgVolatility">--</span></div>
+        <div class="stat-display"><span class="stat-display-label">Update:</span><span class="stat-display-value" id="lastUpdate">--</span></div>
+    </div>
+
+    <div class="cluster-indicator" id="clusterIndicator">
+        <div class="cluster-item"><div class="cluster-color" style="background:#3b82f6;"></div><span class="cluster-label">Layer 1</span></div>
+        <div class="cluster-item"><div class="cluster-color" style="background:#8b5cf6;"></div><span class="cluster-label">DeFi</span></div>
+        <div class="cluster-item"><div class="cluster-color" style="background:#f59e0b;"></div><span class="cluster-label">Meme</span></div>
+        <div class="cluster-item"><div class="cluster-color" style="background:#ec4899;"></div><span class="cluster-label">Gaming</span></div>
+        <div class="cluster-item"><div class="cluster-color" style="background:#10b981;"></div><span class="cluster-label">Stablecoins</span></div>
+    </div>
+
+    <div class="timestamp-bg" id="timestampBg"></div>
+
+    <!-- Matrix Vision Tab -->
+    <div class="vision-tab" id="visionTab" onclick="toggleVisionPanel()">
+        ⚡ CAPITAL FORCES
+    </div>
+
+    <!-- Matrix Vision Panel -->
+    <div class="vision-panel" id="visionPanel">
+        <div class="vision-header">
+            <span class="vision-title">🕳️ Matrix Vision · Capital Forces</span>
+            <button class="vision-close" onclick="toggleVisionPanel()">×</button>
+        </div>
+        <div class="vision-filters">
+            <button class="vfilter-btn active" data-range="7" onclick="filterVision(7)">7D</button>
+            <button class="vfilter-btn" data-range="30" onclick="filterVision(30)">1M</button>
+            <button class="vfilter-btn" data-range="90" onclick="filterVision(90)">3M</button>
+            <button class="vfilter-btn" data-range="180" onclick="filterVision(180)">6M</button>
+            <button class="vfilter-btn" data-range="365" onclick="filterVision(365)">12M</button>
+        </div>
+        <div class="vision-timeline">
+            <div class="matrix-trace" id="matrixTrace"></div>
+        </div>
+        <div class="vision-content" id="visionContent"></div>
+        <div class="vision-footer">
+            <button class="replay-btn" onclick="replayMatrixForces()">
+                <span>▶</span> Replay selected period
+            </button>
+            <div class="footer-info">
+                <div>Visualization only</div>
+                <div>No trading signals. No financial advice.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Matrix Overlay (appears on main canvas) -->
+    <div class="matrix-overlay" id="matrixOverlay">
+        <div class="overlay-title" id="overlayTitle">--</div>
+        <div class="overlay-time" id="overlayTime">--</div>
+        <div class="overlay-metrics" id="overlayMetrics"></div>
+        <div class="overlay-clusters" id="overlayClusters"></div>
+    </div>
+
+    <div class="coin-info-panel" id="coinInfoPanel">
+        <div class="coin-header">
+            <img class="coin-icon" id="panelIcon" src="" alt="" style="display:none;">
+            <div>
+                <div class="coin-name" id="panelName">--</div>
+                <div class="coin-symbol" id="panelSymbol">--</div>
+            </div>
+        </div>
+        <div class="coin-price" id="panelPrice">--</div>
+        <div class="coin-timestamp" id="panelTimestamp">--</div>
+        <div class="coin-stats">
+            <div class="stat-item"><div class="stat-label">24h Volumen</div><div class="stat-value" id="panelVolume">--</div></div>
+            <div class="stat-item"><div class="stat-label">24h Aenderung</div><div class="stat-value" id="panelChange">--</div></div>
+        </div>
+        <div class="chart-timeframe">
+            <button class="timeframe-btn active" data-tf="5m" data-days="1">5m</button>
+            <button class="timeframe-btn" data-tf="15m" data-days="1">15m</button>
+            <button class="timeframe-btn" data-tf="1h" data-days="7">1h</button>
+        </div>
+        <div class="mini-chart">
+            <canvas id="miniChartCanvas"></canvas>
+            <div class="mini-chart-loading" id="chartLoading" style="display:none;">Lade...</div>
+        </div>
+        <div class="data-source">Datenquelle: CoinGecko API</div>
+    </div>
+
+    <footer class="disclaimer-footer">
+        <div class="disclaimer-content">
+            <div>
+                <p class="disclaimer-text">
+                    Rechtlicher Hinweis: Die Crypto-Matrix ist eine rein visuelle, datenbasierte Darstellung oeffentlich zugaenglicher Marktdaten. Diese Darstellung stellt keine Anlageberatung, keine Finanzanalyse im Sinne des WpHG und keine Kauf- oder Verkaufsempfehlung dar.
+                </p>
+                <p class="disclaimer-text disclaimer-text-en">
+                    Legal Notice: This visualization does not constitute investment advice, financial analysis, nor any recommendation to buy or sell digital assets.
+                </p>
+            </div>
+            <button class="info-btn" id="infoBtn" title="Vollstaendiger Disclaimer">i</button>
+            <button class="info-btn-help" id="helpBtn" title="Was ist die Crypto-Matrix?">?</button>
+        </div>
+    </footer>
+
+    <div class="disclaimer-modal" id="disclaimerModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">X</button>
+            <div class="modal-title">RECHTLICHER HINWEIS / LEGAL NOTICE</div>
+            <div class="modal-section">
+                <div class="modal-section-title">DEUTSCH</div>
+                <p class="modal-text">
+                    Rechtlicher Hinweis: Die Crypto-Matrix ist eine rein visuelle, datenbasierte Darstellung oeffentlich zugaenglicher Marktdaten. Die Inhalte dienen ausschliesslich der Information und Veranschaulichung von Marktaktivitaet. Diese Darstellung stellt keine Anlageberatung, keine Finanzanalyse im Sinne des WpHG und keine Kauf- oder Verkaufsempfehlung dar. Kryptowerte unterliegen starken Schwankungen und koennen zum vollstaendigen Verlust des eingesetzten Kapitals fuehren.
+                </p>
+            </div>
+            <div class="modal-section">
+                <div class="modal-section-title">ENGLISH</div>
+                <p class="modal-text">
+                    Legal Notice: The Crypto-Matrix is a purely visual, data-driven representation of publicly available market data. This visualization does not constitute investment advice, financial analysis, nor any recommendation to buy or sell digital assets. Cryptocurrencies are highly volatile and may result in total loss of invested capital.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div class="info-modal" id="infoModal">
+        <button class="info-modal-close" id="infoModalClose">X</button>
+        <div class="info-modal-content">
+            <div class="info-modal-title">CRYPTO-MATRIX - WAS DU HIER SIEHST</div>
+            
+            <div class="info-section">
+                <div class="info-section-title">Was ist die Crypto-Matrix?</div>
+                <p class="info-section-text">
+                    Die Crypto-Matrix ist eine vollbildige, datenbasierte Marktvisualisierung. Sie zeigt, wie aktiv der Kryptomarkt gerade ist - nicht, wohin er sich entwickeln wird. Coins fallen als abstrakte Datenelemente von oben nach unten. Ihre Bewegung spiegelt Marktdynamik, nicht Bewertung.
+                </p>
+            </div>
+
+            <div class="info-section">
+                <div class="info-section-title">Welche Daten fliessen ein?</div>
+                <ul class="info-list">
+                    <li>Handelsvolumen</li>
+                    <li>Transaktionsfrequenz</li>
+                    <li>Kurzfristige Volatilitaet</li>
+                    <li>Liquiditaetsverhalten</li>
+                    <li>Zeitliche Aktivitaetsmuster</li>
+                </ul>
+                <p class="info-section-text">
+                    Alle Daten werden in Echtzeit verarbeitet und nicht interpretiert, sondern visualisiert.
+                </p>
+            </div>
+
+            <div class="info-section">
+                <div class="info-section-title">Wie ist die Bewegung zu verstehen?</div>
+                <ul class="info-list">
+                    <li>Schnelle Bewegung = hohe Marktaktivitaet</li>
+                    <li>Langsame Bewegung = ruhiger Markt</li>
+                    <li>Turbulenzen = Phasen erhoehter Volatilitaet</li>
+                </ul>
+                <p class="info-section-text" style="color: rgba(251, 191, 36, 0.9); margin-top: 10px;">
+                    Wichtig: Auffaellige Bewegung ist keine Aussage ueber zukuenftige Kurse.
+                </p>
+            </div>
+
+            <div class="info-section">
+                <div class="info-section-title">Was passiert bei Hover?</div>
+                <p class="info-section-text">
+                    Informationsfenster mit: Name, Preis, 24h-Volumen, Veraenderung, Mini-Chart, Datenquelle. Diese Informationen dienen der Einordnung, nicht der Entscheidung.
+                </p>
+            </div>
+
+            <div class="info-section">
+                <div class="info-section-title">Was diese Ansicht NICHT ist:</div>
+                <ul class="info-warning">
+                    <li>Kein Trading-Tool</li>
+                    <li>Kein Prognose-System</li>
+                    <li>Kein Signalgeber</li>
+                    <li>Kein Ranking</li>
+                    <li>Kein Ersatz fuer eigene Recherche</li>
+                </ul>
+            </div>
+
+            <div class="info-highlight">
+                <p class="info-highlight-text">"Die Crypto-Matrix zeigt den Puls des Marktes. Nicht seine Zukunft."</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            API_BASE: 'https://api.coingecko.com/api/v3',
+            REFRESH_INTERVAL: 60000,
+            MAX_COINS: 100,
+            HOVER_DISPLAY_TIME: 5000,
+            COLUMN_COUNT: 35,
+            MIN_SPEED: 0.3,
+            MAX_SPEED: 6,
+            FONT_SIZE: 14
+        };
+
+        // Cluster-Kategorien fuer korrelierte Coins
+        const CLUSTERS = {
+            layer1: { coins: ['bitcoin', 'ethereum', 'solana', 'cardano', 'avalanche-2', 'polkadot', 'near', 'cosmos', 'algorand', 'fantom', 'tron', 'toncoin'], color: '#3b82f6', xOffset: 0 },
+            defi: { coins: ['uniswap', 'aave', 'chainlink', 'maker', 'lido-dao', 'compound-governance-token', 'curve-dao-token', 'pancakeswap-token', 'sushi', '1inch', 'yearn-finance', 'synthetix-network-token'], color: '#8b5cf6', xOffset: 0.2 },
+            meme: { coins: ['dogecoin', 'shiba-inu', 'pepe', 'floki', 'bonk', 'dogwifcoin', 'brett', 'mog-coin', 'popcat'], color: '#f59e0b', xOffset: 0.4 },
+            gaming: { coins: ['the-sandbox', 'axie-infinity', 'decentraland', 'gala', 'immutable-x', 'enjincoin', 'illuvium', 'stepn', 'apecoin'], color: '#ec4899', xOffset: 0.6 },
+            stable: { coins: ['tether', 'usd-coin', 'dai', 'first-digital-usd', 'trueusd', 'frax', 'paxos-standard', 'gemini-dollar'], color: '#10b981', xOffset: 0.8 }
+        };
+
+        let coins = [];
+        let columns = [];
+        let canvas, ctx;
+        let hoveredCoin = null;
+        let hoverTimeout = null;
+        let mouseX = 0, mouseY = 0;
+        let currentTimeframe = '5m';
+        let chartCache = {};
+
+        async function init() {
+            setupCanvas();
+            await loadCoinData();
+            initColumns();
+            startAnimation();
+            setupEventListeners();
+            startDataRefresh();
+            hideLoading();
+        }
+
+        function setupCanvas() {
+            canvas = document.getElementById('matrixCanvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+        }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            if (coins.length > 0) initColumns();
+        }
+
+        async function loadCoinData() {
+            updateLoadingProgress(20);
+            try {
+                const response = await fetch(
+                    `${CONFIG.API_BASE}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${CONFIG.MAX_COINS}&page=1&sparkline=true&price_change_percentage=1h,24h,7d`
+                );
+                const data = await response.json();
+                updateLoadingProgress(60);
+                
+                coins = data.map(coin => ({
+                    id: coin.id,
+                    symbol: coin.symbol.toUpperCase(),
+                    name: coin.name,
+                    price: coin.current_price,
+                    change24h: coin.price_change_percentage_24h || 0,
+                    change1h: coin.price_change_percentage_1h_in_currency || 0,
+                    volume: coin.total_volume,
+                    marketCap: coin.market_cap,
+                    image: coin.image,
+                    sparkline: coin.sparkline_in_7d?.price || [],
+                    volatility: calculateVolatility(coin),
+                    activity: calculateActivity(coin),
+                    cluster: getCluster(coin.id)
+                }));
+
+                updateStats();
+                updateLoadingProgress(100);
+            } catch (error) {
+                console.error('Error loading coin data:', error);
+                coins = generateFallbackData();
+            }
+        }
+
+        function getCluster(coinId) {
+            for (const [name, cluster] of Object.entries(CLUSTERS)) {
+                if (cluster.coins.includes(coinId)) return { name, ...cluster };
+            }
+            return { name: 'other', color: '#00ff41', xOffset: Math.random() };
+        }
+
+        function calculateVolatility(coin) {
+            const change1h = Math.abs(coin.price_change_percentage_1h_in_currency || 0);
+            const change24h = Math.abs(coin.price_change_percentage_24h || 0);
+            return (change1h * 2 + change24h) / 3;
+        }
+
+        function calculateActivity(coin) {
+            const volumeRatio = coin.total_volume / coin.market_cap;
+            const priceMovement = Math.abs(coin.price_change_percentage_24h || 0);
+            return Math.min(100, (volumeRatio * 1000 + priceMovement) * 2);
+        }
+
+        function generateFallbackData() {
+            const symbols = ['BTC', 'ETH', 'BNB', 'XRP', 'ADA', 'SOL', 'DOGE', 'DOT', 'MATIC', 'SHIB'];
+            return symbols.map((symbol) => ({
+                id: symbol.toLowerCase(), symbol, name: symbol,
+                price: Math.random() * 50000, change24h: (Math.random() - 0.5) * 20,
+                change1h: (Math.random() - 0.5) * 5, volume: Math.random() * 1e9,
+                marketCap: Math.random() * 1e11, image: '',
+                sparkline: Array(168).fill(0).map(() => Math.random() * 100),
+                volatility: Math.random() * 10, activity: Math.random() * 100,
+                cluster: { name: 'other', color: '#00ff41', xOffset: Math.random() }
+            }));
+        }
+
+        // CLUSTER-EFFEKT: Korrelierte Coins werden in Zonen gruppiert
+        function initColumns() {
+            const columnWidth = canvas.width / CONFIG.COLUMN_COUNT;
+            columns = [];
+
+            // Sortiere Coins nach Cluster
+            const sortedCoins = [...coins].sort((a, b) => a.cluster.xOffset - b.cluster.xOffset);
+
+            for (let i = 0; i < CONFIG.COLUMN_COUNT; i++) {
+                // Waehle Coin basierend auf Cluster-Position
+                const clusterIndex = Math.floor((i / CONFIG.COLUMN_COUNT) * sortedCoins.length);
+                const coin = sortedCoins[Math.min(clusterIndex, sortedCoins.length - 1)];
+                
+                // Cluster-basierte X-Position mit leichter Variation
+                const clusterX = canvas.width * coin.cluster.xOffset;
+                const variation = (Math.random() - 0.5) * (canvas.width * 0.15);
+                const x = Math.max(20, Math.min(canvas.width - 20, clusterX + variation));
+                
+                columns.push(createColumn(x, coin));
+            }
+        }
+
+        function createColumn(x, coin) {
+            const speed = mapActivityToSpeed(coin.activity);
+            const brightness = mapVolumeToBrightness(coin.volume);
+            const wobble = coin.volatility > 3 ? coin.volatility * 0.8 : 0;
+            
+            return {
+                x, y: Math.random() * -canvas.height * 1.5,
+                speed, coin, brightness, wobble,
+                wobbleOffset: Math.random() * Math.PI * 2,
+                characters: generateCharacterStream(coin),
+                trailLength: Math.floor(8 + coin.activity / 8),
+                clusterColor: coin.cluster.color
+            };
+        }
+
+        function mapActivityToSpeed(activity) {
+            return CONFIG.MIN_SPEED + (activity / 100) * (CONFIG.MAX_SPEED - CONFIG.MIN_SPEED);
+        }
+
+        function mapVolumeToBrightness(volume) {
+            const maxVol = Math.max(...coins.map(c => c.volume));
+            return 0.4 + (volume / maxVol) * 0.6;
+        }
+
+        function generateCharacterStream(coin) {
+            const stream = [];
+            const ticker = coin.symbol;
+            const price = formatCompactPrice(coin.price);
+            const change = coin.change24h >= 0 ? `+${coin.change24h.toFixed(1)}` : coin.change24h.toFixed(1);
+            const matrixChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$%&#@';
+            
+            stream.push(ticker, price, change + '%');
+            for (let i = 0; i < 18; i++) {
+                stream.push(Math.random() > 0.6 ? ticker : matrixChars[Math.floor(Math.random() * matrixChars.length)]);
+            }
+            return stream;
+        }
+
+        function formatCompactPrice(price) {
+            if (price >= 1000) return '$' + (price / 1000).toFixed(1) + 'K';
+            if (price >= 1) return '$' + price.toFixed(2);
+            return '$' + price.toFixed(4);
+        }
+
+        function startAnimation() {
+            function animate() {
+                draw();
+                update();
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.font = `${CONFIG.FONT_SIZE}px JetBrains Mono`;
+
+            columns.forEach((col) => {
+                const wobbleX = col.wobble * Math.sin(Date.now() / 150 + col.wobbleOffset);
+                const distortY = col.coin.volatility > 5 ? Math.sin(Date.now() / 100) * 2 : 0;
+                const drawX = col.x + wobbleX;
+
+                col.characters.forEach((char, charIndex) => {
+                    const charY = col.y - charIndex * CONFIG.FONT_SIZE * 1.4 + distortY;
+                    
+                    if (charY > 0 && charY < canvas.height) {
+                        const alpha = Math.max(0, 1 - charIndex / col.trailLength) * col.brightness;
+                        
+                        if (charIndex === 0) {
+                            ctx.fillStyle = `rgba(57, 255, 20, ${alpha})`;
+                            ctx.shadowColor = col.clusterColor;
+                            ctx.shadowBlur = 20;
+                        } else if (charIndex < 3) {
+                            // Cluster-Farbe fuer Info-Zeichen
+                            const rgb = hexToRgb(col.clusterColor);
+                            ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha * 0.9})`;
+                            ctx.shadowBlur = 10;
+                        } else {
+                            ctx.fillStyle = `rgba(0, 143, 17, ${alpha * 0.5})`;
+                            ctx.shadowBlur = 0;
+                        }
+                        ctx.fillText(char, drawX, charY);
+                    }
+                });
+                ctx.shadowBlur = 0;
+
+                if (isMouseNearColumn(col, drawX)) {
+                    if (!hoveredCoin || hoveredCoin.id !== col.coin.id) {
+                        showCoinInfo(col.coin);
+                    }
+                }
+            });
+            updateTimestamp();
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : { r: 0, g: 255, b: 65 };
+        }
+
+        function update() {
+            columns.forEach((col, i) => {
+                col.y += col.speed;
+                if (col.y > canvas.height + col.trailLength * CONFIG.FONT_SIZE * 1.5) {
+                    // Neuen Coin aus gleichem Cluster waehlen
+                    const clusterCoins = coins.filter(c => c.cluster.name === col.coin.cluster.name);
+                    const newCoin = clusterCoins.length > 0 ? clusterCoins[Math.floor(Math.random() * clusterCoins.length)] : coins[Math.floor(Math.random() * coins.length)];
+                    
+                    const clusterX = canvas.width * newCoin.cluster.xOffset;
+                    const variation = (Math.random() - 0.5) * (canvas.width * 0.15);
+                    const newX = Math.max(20, Math.min(canvas.width - 20, clusterX + variation));
+                    
+                    Object.assign(col, createColumn(newX, newCoin));
+                    col.y = -Math.random() * 300;
+                }
+            });
+        }
+
+        function isMouseNearColumn(col, drawX) {
+            const dist = Math.abs(mouseX - drawX);
+            const yInRange = mouseY > col.y - col.trailLength * CONFIG.FONT_SIZE * 1.5 && mouseY < col.y + 50;
+            return dist < 40 && yInRange;
+        }
+
+        // FUNKTIONALE CHART-ZEITFENSTER mit robustem Fallback
+        async function loadChartData(coinId, days) {
+            const cacheKey = `${coinId}_${days}`;
+            if (chartCache[cacheKey] && Date.now() - chartCache[cacheKey].time < 60000) {
+                return chartCache[cacheKey].data;
+            }
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+                
+                const response = await fetch(
+                    `${CONFIG.API_BASE}/coins/${coinId}/market_chart?vs_currency=usd&days=${days}`,
+                    { signal: controller.signal }
+                );
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) return null;
+                const data = await response.json();
+                if (!data.prices || data.prices.length === 0) return null;
+                
+                const prices = data.prices.map(p => p[1]);
+                chartCache[cacheKey] = { data: prices, time: Date.now() };
+                return prices;
+            } catch (error) {
+                // Stille Fehlerbehandlung - Fallback auf Sparkline-Daten
+                return null;
+            }
+        }
+
+        function showCoinInfo(coin) {
+            hoveredCoin = coin;
+            const panel = document.getElementById('coinInfoPanel');
+            
+            const iconEl = document.getElementById('panelIcon');
+            if (coin.image) { iconEl.src = coin.image; iconEl.style.display = 'block'; }
+            else { iconEl.style.display = 'none'; }
+            
+            document.getElementById('panelName').textContent = coin.name;
+            document.getElementById('panelSymbol').textContent = coin.symbol + ' | ' + coin.cluster.name.toUpperCase();
+            document.getElementById('panelPrice').textContent = formatPrice(coin.price);
+            document.getElementById('panelTimestamp').textContent = 'Stand: ' + new Date().toLocaleTimeString('de-DE');
+            document.getElementById('panelVolume').textContent = formatVolume(coin.volume);
+            
+            const changeEl = document.getElementById('panelChange');
+            changeEl.textContent = (coin.change24h >= 0 ? '+' : '') + coin.change24h.toFixed(2) + '%';
+            changeEl.className = 'stat-value ' + (coin.change24h >= 0 ? 'positive' : 'negative');
+
+            // Chart mit aktuellem Zeitfenster laden
+            updateChart(coin);
+
+            let panelX = mouseX + 25;
+            let panelY = mouseY - 120;
+            if (panelX + 350 > window.innerWidth) panelX = mouseX - 370;
+            if (panelY < 110) panelY = 110;
+            if (panelY + 400 > window.innerHeight - 70) panelY = window.innerHeight - 470;
+
+            panel.style.left = panelX + 'px';
+            panel.style.top = panelY + 'px';
+            panel.classList.add('visible');
+
+            clearTimeout(hoverTimeout);
+            hoverTimeout = setTimeout(() => {
+                panel.classList.remove('visible');
+                hoveredCoin = null;
+            }, CONFIG.HOVER_DISPLAY_TIME);
+        }
+
+        function updateChart(coin) {
+            const activeBtn = document.querySelector('.timeframe-btn.active');
+            const tf = activeBtn ? activeBtn.dataset.tf : '5m';
+            
+            // Nutze primaer Sparkline-Daten (7 Tage, 168 Punkte)
+            // und sample sie entsprechend dem Zeitfenster
+            let chartData = coin.sparkline;
+            
+            if (chartData && chartData.length > 0) {
+                let sampledData;
+                if (tf === '5m') {
+                    // Letzte ~6 Stunden (ca. 72 Punkte der 168)
+                    sampledData = chartData.slice(-72);
+                } else if (tf === '15m') {
+                    // Letzte ~24 Stunden
+                    sampledData = chartData.slice(-24).filter((_, i) => i % 1 === 0);
+                } else {
+                    // Volle 7 Tage
+                    sampledData = chartData.filter((_, i) => i % 4 === 0);
+                }
+                drawMiniChart(sampledData);
+            }
+        }
+
+        function drawMiniChart(data) {
+            const chartCanvas = document.getElementById('miniChartCanvas');
+            const chartCtx = chartCanvas.getContext('2d');
+            chartCanvas.width = chartCanvas.parentElement.offsetWidth || 280;
+            chartCanvas.height = 70;
+            
+            if (!data || data.length < 2) return;
+
+            const padding = 5;
+            const width = chartCanvas.width - padding * 2;
+            const height = chartCanvas.height - padding * 2;
+            const min = Math.min(...data);
+            const max = Math.max(...data);
+            const range = max - min || 1;
+
+            chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+            chartCtx.beginPath();
+            chartCtx.strokeStyle = '#00ff41';
+            chartCtx.lineWidth = 1.5;
+            
+            data.forEach((val, i) => {
+                const x = padding + (i / (data.length - 1)) * width;
+                const y = padding + height - ((val - min) / range) * height;
+                if (i === 0) chartCtx.moveTo(x, y);
+                else chartCtx.lineTo(x, y);
+            });
+            chartCtx.stroke();
+
+            chartCtx.lineTo(padding + width, padding + height);
+            chartCtx.lineTo(padding, padding + height);
+            chartCtx.closePath();
+            
+            const gradient = chartCtx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, 'rgba(0, 255, 65, 0.25)');
+            gradient.addColorStop(1, 'rgba(0, 255, 65, 0)');
+            chartCtx.fillStyle = gradient;
+            chartCtx.fill();
+        }
+
+        function formatPrice(price) {
+            if (price >= 1) return '$' + price.toLocaleString('de-DE', { maximumFractionDigits: 2 });
+            return '$' + price.toFixed(6);
+        }
+
+        function formatVolume(volume) {
+            if (volume >= 1e9) return '$' + (volume / 1e9).toFixed(2) + 'B';
+            if (volume >= 1e6) return '$' + (volume / 1e6).toFixed(2) + 'M';
+            return '$' + volume.toLocaleString('de-DE');
+        }
+
+        function updateStats() {
+            document.getElementById('activeCoins').textContent = coins.length;
+            const avgActivity = coins.reduce((sum, c) => sum + c.activity, 0) / coins.length;
+            document.getElementById('marketActivity').textContent = avgActivity > 70 ? 'Hoch' : avgActivity > 40 ? 'Mittel' : 'Niedrig';
+            const avgVol = coins.reduce((sum, c) => sum + c.volatility, 0) / coins.length;
+            document.getElementById('avgVolatility').textContent = avgVol.toFixed(2) + '%';
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('de-DE');
+        }
+
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('timestampBg').innerHTML = `${now.toLocaleDateString('de-DE')}<br>${now.toLocaleTimeString('de-DE')}`;
+        }
+
+        function updateLoadingProgress(percent) {
+            document.getElementById('loadingProgress').style.width = percent + '%';
+        }
+
+        function hideLoading() {
+            setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 500);
+        }
+
+        function setupEventListeners() {
+            canvas.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+            canvas.addEventListener('mouseleave', () => {
+                document.getElementById('coinInfoPanel').classList.remove('visible');
+                hoveredCoin = null;
+            });
+
+            document.getElementById('viewsToggle').addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById('viewsDropdown').classList.toggle('open');
+            });
+            document.addEventListener('click', () => document.getElementById('viewsDropdown').classList.remove('open'));
+
+            // Funktionale Zeitfenster-Buttons
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.timeframe-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentTimeframe = btn.dataset.tf;
+                    if (hoveredCoin) updateChart(hoveredCoin);
+                });
+            });
+
+            // Panel bei Maus-Interaktion offen halten
+            document.getElementById('coinInfoPanel').addEventListener('mouseenter', () => {
+                clearTimeout(hoverTimeout);
+            });
+            document.getElementById('coinInfoPanel').addEventListener('mouseleave', () => {
+                hoverTimeout = setTimeout(() => {
+                    document.getElementById('coinInfoPanel').classList.remove('visible');
+                    hoveredCoin = null;
+                }, 1000);
+            });
+
+            // Disclaimer Modal
+            const modal = document.getElementById('disclaimerModal');
+            document.getElementById('infoBtn').addEventListener('click', () => modal.classList.add('visible'));
+            document.getElementById('modalClose').addEventListener('click', () => modal.classList.remove('visible'));
+            modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('visible'); });
+
+            // Info Modal
+            const infoModal = document.getElementById('infoModal');
+            document.getElementById('helpBtn').addEventListener('click', () => infoModal.classList.add('visible'));
+            document.getElementById('infoModalClose').addEventListener('click', () => infoModal.classList.remove('visible'));
+            infoModal.addEventListener('click', (e) => { if (e.target === infoModal) infoModal.classList.remove('visible'); });
+
+            // ESC zum Schliessen
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    modal.classList.remove('visible');
+                    infoModal.classList.remove('visible');
+                }
+            });
+        }
+
+        function startDataRefresh() {
+            setInterval(async () => {
+                await loadCoinData();
+                initColumns();
+            }, CONFIG.REFRESH_INTERVAL);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+
+        // ========== MATRIX VISION HISTORY PANEL ==========
+        let visionPanelOpen = false;
+        let currentVisionRange = 7;
+        let matrixForceEvents = [];
+        let visionAutoHideTimer = null;
+        let activeOverlays = [];
+
+        function toggleVisionPanel() {
+            visionPanelOpen = !visionPanelOpen;
+            const panel = document.getElementById('visionPanel');
+            const tab = document.getElementById('visionTab');
+            panel.classList.toggle('open', visionPanelOpen);
+            tab.classList.toggle('hidden', visionPanelOpen);
+            if (visionPanelOpen) {
+                generateMatrixForceEvents();
+                renderVisionPanel();
+                startVisionAutoHide();
+            } else {
+                clearVisionAutoHide();
+            }
+        }
+
+        function startVisionAutoHide() {
+            clearVisionAutoHide();
+            visionAutoHideTimer = setTimeout(() => {
+                if (visionPanelOpen) toggleVisionPanel();
+            }, 15000);
+        }
+
+        function clearVisionAutoHide() {
+            if (visionAutoHideTimer) {
+                clearTimeout(visionAutoHideTimer);
+                visionAutoHideTimer = null;
+            }
+        }
+
+        document.getElementById('visionPanel').addEventListener('mouseenter', clearVisionAutoHide);
+        document.getElementById('visionPanel').addEventListener('mouseleave', () => {
+            if (visionPanelOpen) startVisionAutoHide();
+        });
+
+        function filterVision(days) {
+            currentVisionRange = days;
+            document.querySelectorAll('.vfilter-btn').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.range) === days);
+            });
+            generateMatrixForceEvents();
+            renderVisionPanel();
+        }
+
+        const forceTypes = [
+            { type: 'liquidity-surge', name: 'Liquidity Surge', icon: '📈' },
+            { type: 'liquidity-drain', name: 'Liquidity Drain', icon: '📉' },
+            { type: 'volatility-shock', name: 'Volatility Shock', icon: '⚡' },
+            { type: 'sector-rotation', name: 'Sector Rotation', icon: '🔄' },
+            { type: 'dominance-shift', name: 'Dominance Shift', icon: '👑' },
+            { type: 'risk-mode', name: 'Risk-On / Risk-Off', icon: '🎯' }
+        ];
+
+        const matrixZones = ['Large Caps', 'Mid Caps', 'DeFi', 'Meme', 'Gaming', 'L2/Scaling', 'AI Tokens', 'Stablecoins'];
+        const clusterCoins = {
+            'Large Caps': ['BTC', 'ETH', 'BNB', 'SOL', 'XRP'],
+            'Mid Caps': ['ADA', 'AVAX', 'DOT', 'MATIC', 'LINK'],
+            'DeFi': ['UNI', 'AAVE', 'MKR', 'CRV', 'COMP'],
+            'Meme': ['DOGE', 'SHIB', 'PEPE', 'FLOKI', 'BONK'],
+            'Gaming': ['AXS', 'SAND', 'MANA', 'GALA', 'IMX'],
+            'L2/Scaling': ['ARB', 'OP', 'MATIC', 'IMX', 'STRK'],
+            'AI Tokens': ['FET', 'AGIX', 'OCEAN', 'RNDR', 'TAO'],
+            'Stablecoins': ['USDT', 'USDC', 'DAI', 'FDUSD', 'TUSD']
+        };
+
+        function generateMatrixForceEvents() {
+            matrixForceEvents = [];
+            const eventCount = Math.floor(currentVisionRange / 3) + 4;
+            
+            for (let i = 0; i < eventCount; i++) {
+                const force = forceTypes[Math.floor(Math.random() * forceTypes.length)];
+                const zone = matrixZones[Math.floor(Math.random() * matrixZones.length)];
+                const daysAgo = Math.floor(Math.random() * currentVisionRange);
+                const date = new Date();
+                date.setDate(date.getDate() - daysAgo);
+                
+                const zoneCoins = clusterCoins[zone] || ['BTC', 'ETH'];
+                const numCoins = 3 + Math.floor(Math.random() * 5);
+                const affectedCoins = zoneCoins.slice(0, Math.min(numCoins, zoneCoins.length));
+                
+                const volumeChange = (Math.random() - 0.3) * 80;
+                const volatilityChange = 5 + Math.random() * 40;
+                const priceChange = (Math.random() - 0.4) * 15;
+                const dominanceChange = (Math.random() - 0.5) * 3;
+                const intensity = volatilityChange > 30 ? 'High' : volatilityChange > 15 ? 'Medium' : 'Low';
+                
+                matrixForceEvents.push({
+                    forceType: force.type,
+                    forceName: force.name,
+                    forceIcon: force.icon,
+                    zone,
+                    affectedCoins,
+                    volumeChange: volumeChange.toFixed(1),
+                    volatilityChange: volatilityChange.toFixed(1),
+                    priceChange: priceChange.toFixed(2),
+                    dominanceChange: dominanceChange.toFixed(2),
+                    intensity,
+                    date,
+                    daysAgo
+                });
+            }
+            matrixForceEvents.sort((a, b) => a.daysAgo - b.daysAgo);
+        }
+
+        function renderVisionPanel() {
+            renderMatrixTrace();
+            renderForceEventList();
+        }
+
+        function renderMatrixTrace() {
+            const trace = document.getElementById('matrixTrace');
+            trace.innerHTML = '';
+            matrixForceEvents.forEach((event, idx) => {
+                const pos = (1 - event.daysAgo / currentVisionRange) * 100;
+                const marker = document.createElement('div');
+                marker.className = `trace-marker ${event.forceType}`;
+                marker.style.left = `calc(${pos}% - 3px)`;
+                marker.title = `${event.forceName} - ${event.zone} (${event.daysAgo}d ago)`;
+                marker.onclick = () => highlightForceEvent(idx);
+                trace.appendChild(marker);
+            });
+        }
+
+        function renderForceEventList() {
+            const container = document.getElementById('visionContent');
+            if (matrixForceEvents.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(0,255,65,0.5);font-size:0.7rem;">Matrix feed limited for this period.</div>';
+                return;
+            }
+            container.innerHTML = matrixForceEvents.map((event, idx) => `
+                <div class="force-event" data-idx="${idx}" onclick="highlightForceEvent(${idx})">
+                    <div class="event-header">
+                        <div>
+                            <span class="event-type-badge ${event.forceType}">${event.forceIcon} ${event.forceName}</span>
+                            <span class="intensity-badge intensity-${event.intensity.toLowerCase()}">${event.intensity}</span>
+                        </div>
+                        <span class="event-time">${event.daysAgo === 0 ? 'Today' : event.daysAgo + 'd ago'}</span>
+                    </div>
+                    <div class="event-zone">▸ Matrix Zone: ${event.zone}</div>
+                    <div class="event-coins">
+                        ${event.affectedCoins.map(c => `<span class="coin-tag">${c}</span>`).join('')}
+                    </div>
+                    <div class="event-metrics">
+                        <div class="metric-mini">
+                            <div class="metric-mini-label">Vol Δ</div>
+                            <div class="metric-mini-value ${parseFloat(event.volumeChange) >= 0 ? 'positive' : 'negative'}">${parseFloat(event.volumeChange) >= 0 ? '+' : ''}${event.volumeChange}%</div>
+                        </div>
+                        <div class="metric-mini">
+                            <div class="metric-mini-label">Volatility</div>
+                            <div class="metric-mini-value">${event.volatilityChange}%</div>
+                        </div>
+                        <div class="metric-mini">
+                            <div class="metric-mini-label">Price Δ</div>
+                            <div class="metric-mini-value ${parseFloat(event.priceChange) >= 0 ? 'positive' : 'negative'}">${parseFloat(event.priceChange) >= 0 ? '+' : ''}${event.priceChange}%</div>
+                        </div>
+                        <div class="metric-mini">
+                            <div class="metric-mini-label">Dom Δ</div>
+                            <div class="metric-mini-value ${parseFloat(event.dominanceChange) >= 0 ? 'positive' : 'negative'}">${parseFloat(event.dominanceChange) >= 0 ? '+' : ''}${event.dominanceChange}%</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function highlightForceEvent(idx) {
+            document.querySelectorAll('.force-event').forEach(el => el.classList.remove('highlighted'));
+            const eventEl = document.querySelector(`.force-event[data-idx="${idx}"]`);
+            if (eventEl) {
+                eventEl.classList.add('highlighted');
+                eventEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            const event = matrixForceEvents[idx];
+            highlightMatrixZone(event);
+            showMatrixOverlay(event);
+        }
+
+        function highlightMatrixZone(event) {
+            // Pulse effect on matching columns in the matrix
+            const zoneClusterMap = {
+                'Large Caps': 'layer1',
+                'Mid Caps': 'layer1',
+                'DeFi': 'defi',
+                'Meme': 'meme',
+                'Gaming': 'gaming',
+                'L2/Scaling': 'defi',
+                'AI Tokens': 'defi',
+                'Stablecoins': 'stable'
+            };
+            const targetCluster = zoneClusterMap[event.zone] || 'other';
+            
+            // Temporarily boost speed of matching columns
+            columns.forEach(col => {
+                if (col.coin.cluster.name === targetCluster) {
+                    const originalSpeed = col.speed;
+                    col.speed = col.speed * 2.5;
+                    col.brightness = 1;
+                    setTimeout(() => {
+                        col.speed = originalSpeed;
+                        col.brightness = mapVolumeToBrightness(col.coin.volume);
+                    }, 3000);
+                }
+            });
+        }
+
+        function showMatrixOverlay(event) {
+            const overlay = document.getElementById('matrixOverlay');
+            document.getElementById('overlayTitle').textContent = `${event.forceIcon} ${event.forceName}`;
+            document.getElementById('overlayTime').textContent = event.date.toLocaleDateString('de-DE') + ' · ' + event.zone;
+            document.getElementById('overlayMetrics').innerHTML = `
+                <span>VolΔ: ${event.volumeChange}%</span>
+                <span>PriceΔ: ${event.priceChange}%</span>
+                <span>Volatility: ${event.volatilityChange}%</span>
+            `;
+            document.getElementById('overlayClusters').textContent = 'Affected: ' + event.affectedCoins.join(', ');
+            
+            // Position near center-right of screen
+            overlay.style.left = (window.innerWidth * 0.5 - 140) + 'px';
+            overlay.style.top = (window.innerHeight * 0.3) + 'px';
+            overlay.classList.add('visible');
+            
+            setTimeout(() => {
+                overlay.classList.remove('visible');
+            }, 5000);
+        }
+
+        function replayMatrixForces() {
+            if (matrixForceEvents.length === 0) return;
+            let idx = 0;
+            const replayInterval = setInterval(() => {
+                if (idx >= matrixForceEvents.length) {
+                    clearInterval(replayInterval);
+                    return;
+                }
+                highlightForceEvent(idx);
+                idx++;
+            }, 1500);
+        }
+    </script>
+    <script src="membership-gating.js"></script>
+</body>
+</html>

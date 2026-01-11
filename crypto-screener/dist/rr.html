@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RR - Relative Relationships | Correlation & Capital Migration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --space-black: #000510;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --text-light: #f1f5f9;
+            /* Original Vars */
+            --primary: #06b6d4;
+            --secondary: #3b82f6;
+            --accent: #a855f7;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0a0f1e;
+            --bg-darker: #030712;
+            --text: #f8fafc;
+        }
+        /* Unified Header Styles */
+        .unified-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0, 5, 16, 0.95) 0%, rgba(0, 5, 16, 0) 100%);
+            padding: 15px 30px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+        }
+        .unified-left { display: flex; align-items: center; gap: 20px; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+        .unified-nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .unified-nav-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            padding: 7px 12px;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: rgba(14, 165, 233, 0.05);
+            text-transform: uppercase;
+        }
+        .unified-nav-link:hover {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+        }
+        .unified-utils {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .unified-btn {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(34, 211, 238, 0.1));
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            color: var(--text-light);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .unified-btn:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(34, 211, 238, 0.2));
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+        @media (max-width: 900px) {
+            .unified-nav { display: none; }
+            .unified-header { padding: 10px 15px; }
+        }
+
+        /* Toolbar Adaptation */
+        .app-toolbar {
+            position: fixed;
+            top: 80px; left: 0; right: 0;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 90;
+            border-bottom: 1px solid rgba(34,197,94,0.2);
+            height: 60px;
+        }
+        .canvas-container { position: fixed; top: 140px !important; left: 0; right: 0; bottom: 50px; }
+        .legend, .state-panel { top: 155px !important; }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--text);
+            padding-top: 80px;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.4s ease-out;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-title { font-size: 2rem; font-weight: 900; background: linear-gradient(90deg, var(--success), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 5px; margin-bottom: 8px; }
+        .loading-sub { font-size: 0.7rem; color: rgba(248,250,252,0.6); margin-bottom: 25px; letter-spacing: 2px; }
+        .progress-container { width: 280px; height: 6px; background: rgba(34,197,94,0.15); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--success), var(--accent)); border-radius: 3px; transition: width 0.1s linear; }
+        .progress-percent { margin-top: 10px; font-size: 0.7rem; color: var(--success); }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(34,197,94,0.2);
+        }
+        .title-wrap {}
+        .title { font-size: 1.4rem; font-weight: 900; background: linear-gradient(90deg, var(--success), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 4px; }
+        .title-sub { font-size: 0.5rem; color: rgba(248,250,252,0.5); letter-spacing: 1px; margin-top: 2px; }
+        .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn {
+            background: rgba(34,197,94,0.15);
+            border: 1px solid rgba(34,197,94,0.4);
+            color: var(--success);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: rgba(34,197,94,0.25); border-color: var(--success); }
+        .btn.active { background: rgba(34,197,94,0.4); border-color: var(--success); }
+        .btn-nav { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.4); color: var(--secondary); text-decoration: none; }
+        .btn-nav:hover { background: rgba(59,130,246,0.25); }
+        .btn-time { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.4); color: var(--accent); }
+        .btn-time.active { background: rgba(168,85,247,0.4); }
+        .divider { color: rgba(255,255,255,0.15); margin: 0 5px; }
+
+        /* Einheitliche Page Link Buttons */
+        .page-links { display: flex; gap: 6px; flex-wrap: wrap; }
+        .page-link {
+            background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(168,85,247,0.2));
+            border: 1px solid rgba(34,197,94,0.5);
+            color: var(--success);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-link::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(34,197,94,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        .page-link:hover::before { left: 100%; }
+        .page-link:hover {
+            background: linear-gradient(135deg, rgba(34,197,94,0.4), rgba(168,85,247,0.35));
+            border-color: var(--success);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34,197,94,0.35);
+            color: var(--success);
+        }
+        .page-link .icon { font-size: 0.9rem; }
+
+        /* Canvas */
+        .canvas-container { position: fixed; top: 60px; left: 0; right: 0; bottom: 50px; }
+        #mainCanvas { width: 100%; height: 100%; }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            padding: 10px 20px;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.6rem;
+            color: rgba(248,250,252,0.5);
+            border-top: 1px solid rgba(34,197,94,0.2);
+        }
+        .stats { display: flex; gap: 20px; }
+        .stat-val { color: var(--success); font-weight: 600; }
+        .disclaimer { color: var(--warning); font-style: italic; }
+
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: rgba(10,15,30,0.95);
+            border: 1px solid rgba(34,197,94,0.5);
+            border-radius: 12px;
+            padding: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            z-index: 200;
+            min-width: 200px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .tooltip.visible { opacity: 1; }
+        .tooltip-name { font-size: 1.1rem; font-weight: 700; color: var(--success); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .tooltip-role { font-size: 0.6rem; padding: 3px 8px; border-radius: 4px; background: rgba(168,85,247,0.3); color: var(--accent); }
+        .tooltip-section { margin: 10px 0; padding-top: 8px; border-top: 1px solid rgba(34,197,94,0.2); }
+        .tooltip-section-title { font-size: 0.6rem; color: rgba(248,250,252,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tooltip-row { display: flex; justify-content: space-between; font-size: 0.7rem; margin: 4px 0; }
+        .tooltip-label { color: rgba(248,250,252,0.6); }
+        .tooltip-value { font-family: 'JetBrains Mono', monospace; }
+        .tooltip-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 3px; overflow: hidden; }
+        .tooltip-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+        .correlation-list { margin-top: 6px; }
+        .correlation-item { display: flex; align-items: center; gap: 6px; font-size: 0.65rem; margin: 3px 0; }
+        .correlation-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+        /* Legend */
+        .legend {
+            position: fixed;
+            left: 20px;
+            top: 80px;
+            background: rgba(10,15,30,0.85);
+            border: 1px solid rgba(34,197,94,0.2);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.6rem;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+        }
+        .legend-title { color: var(--success); font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin: 6px 0; color: rgba(248,250,252,0.7); }
+        .legend-line { width: 24px; height: 3px; border-radius: 2px; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+
+        /* State Panel */
+        .state-panel {
+            position: fixed;
+            right: 20px;
+            top: 80px;
+            background: rgba(10,15,30,0.85);
+            border: 1px solid rgba(168,85,247,0.3);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.6rem;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+            min-width: 160px;
+        }
+        .state-title { color: var(--accent); font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; }
+        .state-item { display: flex; align-items: center; gap: 8px; margin: 6px 0; padding: 6px 8px; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+        .state-item:hover { background: rgba(168,85,247,0.15); }
+        .state-item.active { background: rgba(168,85,247,0.25); }
+        .state-icon { font-size: 0.8rem; width: 16px; text-align: center; }
+        .state-label { color: rgba(248,250,252,0.8); }
+
+        /* Cluster Labels */
+        .cluster-label {
+            position: fixed;
+            font-size: 0.55rem;
+            color: rgba(248,250,252,0.4);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            pointer-events: none;
+            z-index: 80;
+        }
+    </style>
+</head>
+<body>
+<header class="unified-header">
+        <div class="unified-left">
+            <a href="index.html" class="unified-logo">CRYPTOSPACES</a>
+            <span class="page-title" style="margin-left:20px; font-family:'Orbitron'; font-weight:700; color:var(--accent-cyan);">RR</span>
+        </div>
+        <nav class="unified-nav">
+            <a href="top100.html" class="unified-nav-link">Top 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">Whales</a>
+            <a href="our-vision.html" class="unified-nav-link">Vision</a>
+        </nav>
+        <div class="unified-utils">
+            <a href="index.html" class="unified-btn">← Back</a>
+        </div>
+    </header>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-title">RR</div>
+        <div class="loading-sub">Relative Relationships - Correlation & Capital Migration</div>
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+    <div class="app-toolbar">
+        <div class="controls">
+            <button class="btn btn-time active" data-time="short">Kurzfristig</button>
+            <button class="btn btn-time" data-time="24h">24h</button>
+            <button class="btn btn-time" data-time="7d">7d</button>
+            <span class="divider">|</span>
+            <button class="btn active" id="toggleBonds">Bonds</button>
+            <button class="btn active" id="toggleClusters">Cluster</button>
+            <button class="btn active" id="toggleLeadLag">Lead-Lag</button>
+            <span class="divider">|</span>
+            <div class="page-links">
+                <a href="ex-triv.html" class="page-link">EXTRIV</a>
+                <a href="lyps.html" class="page-link"><span class="icon">🔥</span>LYPS</a>
+                <a href="cscs.html" class="page-link"><span class="icon">💧</span>CSCS</a>
+                <a href="nft-digital.html" class="page-link"><span class="icon">🎨</span>NFT</a>
+                <a href="game-vev.html" class="page-link"><span class="icon">🎮</span>GAME</a>
+                <a href="misvav.html" class="page-link"><span class="icon">⛏️</span>MIS</a>
+                <a href="sacorcs.html" class="page-link"><span class="icon">🛡️</span>SAC</a>
+                <a href="orbit-system.html" class="page-link">Orbit</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-title">CORRELATION BONDS</div>
+        <div class="legend-item"><div class="legend-line" style="background: linear-gradient(90deg, #22c55e, #86efac);"></div> Positiv stark</div>
+        <div class="legend-item"><div class="legend-line" style="background: rgba(34,197,94,0.4);"></div> Positiv schwach</div>
+        <div class="legend-item"><div class="legend-line" style="background: rgba(239,68,68,0.4);"></div> Negativ schwach</div>
+        <div class="legend-item"><div class="legend-line" style="background: linear-gradient(90deg, #ef4444, #fca5a5);"></div> Negativ stark</div>
+        <div style="margin: 10px 0; border-top: 1px solid rgba(34,197,94,0.2);"></div>
+        <div class="legend-title">ROLLEN</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--accent); box-shadow: 0 0 10px var(--accent);"></div> Leader</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--secondary);"></div> Follower</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--warning);"></div> Isoliert</div>
+    </div>
+
+    <div class="state-panel">
+        <div class="state-title">MARKET STATE</div>
+        <div class="state-item active" data-state="correlated"><span class="state-icon">=</span><span class="state-label">Hohe Korrelation</span></div>
+        <div class="state-item" data-state="rotation"><span class="state-icon">~</span><span class="state-label">Rotationsphase</span></div>
+        <div class="state-item" data-state="fragmented"><span class="state-icon">x</span><span class="state-label">Fragmentierung</span></div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-name"><span id="ttName">BTC</span><span class="tooltip-role" id="ttRole">Leader</span></div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Relationship Profile</div>
+            <div class="tooltip-row"><span class="tooltip-label">Cluster</span><span class="tooltip-value" id="ttCluster">Layer 1</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Bonds</span><span class="tooltip-value" id="ttBonds">8 aktiv</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Avg. Correlation</span><span class="tooltip-value" id="ttAvgCorr">Stark</span></div>
+        </div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Top Correlations</div>
+            <div class="correlation-list" id="ttCorrelations"></div>
+        </div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Lead-Lag Position</div>
+            <div class="tooltip-bar"><div class="tooltip-bar-fill" id="ttLeadBar" style="width: 70%; background: var(--accent);"></div></div>
+            <div class="tooltip-row" style="margin-top: 4px;"><span class="tooltip-label">Follower</span><span class="tooltip-label">Leader</span></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="stats">
+            <span>Assets: <span class="stat-val" id="statAssets">20</span></span>
+            <span>Active Bonds: <span class="stat-val" id="statBonds">48</span></span>
+            <span>Clusters: <span class="stat-val" id="statClusters">4</span></span>
+            <span>State: <span class="stat-val" id="statState">Hohe Korrelation</span></span>
+        </div>
+        <div class="disclaimer">Simulierte Daten - Keine Anlageberatung</div>
+    </div>
+
+    <script>
+    // ==================== DATA ====================
+    const ASSETS = [
+        { symbol: 'BTC', cluster: 'layer1', baseInfluence: 1.0 },
+        { symbol: 'ETH', cluster: 'layer1', baseInfluence: 0.9 },
+        { symbol: 'SOL', cluster: 'layer1', baseInfluence: 0.7 },
+        { symbol: 'BNB', cluster: 'exchange', baseInfluence: 0.6 },
+        { symbol: 'XRP', cluster: 'legacy', baseInfluence: 0.5 },
+        { symbol: 'ADA', cluster: 'layer1', baseInfluence: 0.5 },
+        { symbol: 'AVAX', cluster: 'layer1', baseInfluence: 0.55 },
+        { symbol: 'DOT', cluster: 'layer1', baseInfluence: 0.45 },
+        { symbol: 'LINK', cluster: 'defi', baseInfluence: 0.6 },
+        { symbol: 'MATIC', cluster: 'layer2', baseInfluence: 0.5 },
+        { symbol: 'UNI', cluster: 'defi', baseInfluence: 0.45 },
+        { symbol: 'ATOM', cluster: 'layer1', baseInfluence: 0.4 },
+        { symbol: 'LTC', cluster: 'legacy', baseInfluence: 0.35 },
+        { symbol: 'OP', cluster: 'layer2', baseInfluence: 0.45 },
+        { symbol: 'ARB', cluster: 'layer2', baseInfluence: 0.5 },
+        { symbol: 'INJ', cluster: 'defi', baseInfluence: 0.4 },
+        { symbol: 'AAVE', cluster: 'defi', baseInfluence: 0.45 },
+        { symbol: 'MKR', cluster: 'defi', baseInfluence: 0.35 },
+        { symbol: 'CRV', cluster: 'defi', baseInfluence: 0.3 },
+        { symbol: 'DOGE', cluster: 'meme', baseInfluence: 0.25 }
+    ];
+
+    const CLUSTER_CONFIG = {
+        layer1: { color: '#06b6d4', name: 'Layer 1', centerAngle: 0 },
+        layer2: { color: '#8b5cf6', name: 'Layer 2', centerAngle: Math.PI * 0.4 },
+        defi: { color: '#22c55e', name: 'DeFi', centerAngle: Math.PI * 0.8 },
+        exchange: { color: '#f59e0b', name: 'Exchange', centerAngle: Math.PI * 1.2 },
+        legacy: { color: '#6b7280', name: 'Legacy', centerAngle: Math.PI * 1.5 },
+        meme: { color: '#ec4899', name: 'Meme', centerAngle: Math.PI * 1.8 }
+    };
+
+    const STATE_CONFIG = {
+        correlated: { bondStrength: 1.0, clusterTightness: 0.8, breakChance: 0.0, driftSpeed: 0.2 },
+        rotation: { bondStrength: 0.6, clusterTightness: 0.4, breakChance: 0.1, driftSpeed: 0.8 },
+        fragmented: { bondStrength: 0.3, clusterTightness: 0.2, breakChance: 0.4, driftSpeed: 1.2 }
+    };
+
+    // ==================== STATE ====================
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+
+    let width, height, centerX, centerY;
+    let nodes = [];
+    let bonds = [];
+    let brokenBonds = [];
+    let animId = null;
+    let hoveredNode = null;
+    let currentState = 'correlated';
+    let showBonds = true, showClusters = true, showLeadLag = true;
+    let time = 0;
+
+    // ==================== PHYSICS ====================
+    const DAMPING = 0.92;
+    const REPULSION = 800;
+    const BOND_STIFFNESS = 0.03;
+    const CLUSTER_PULL = 0.002;
+
+    // ==================== INITIALIZATION ====================
+    function resize() {
+        width = canvas.width = canvas.parentElement.clientWidth;
+        height = canvas.height = canvas.parentElement.clientHeight;
+        centerX = width / 2;
+        centerY = height / 2;
+        if (nodes.length === 0) {
+            initNodes();
+            initBonds();
+        }
+    }
+
+    function initNodes() {
+        nodes = [];
+        const clusterCenters = {};
+        const radius = Math.min(width, height) * 0.3;
+
+        // Calculate cluster centers
+        Object.keys(CLUSTER_CONFIG).forEach(cluster => {
+            const config = CLUSTER_CONFIG[cluster];
+            clusterCenters[cluster] = {
+                x: centerX + Math.cos(config.centerAngle) * radius * 0.6,
+                y: centerY + Math.sin(config.centerAngle) * radius * 0.6
+            };
+        });
+
+        ASSETS.forEach((asset, i) => {
+            const clusterCenter = clusterCenters[asset.cluster];
+            const spreadAngle = Math.random() * Math.PI * 2;
+            const spreadDist = 30 + Math.random() * 80;
+
+            nodes.push({
+                ...asset,
+                x: clusterCenter.x + Math.cos(spreadAngle) * spreadDist,
+                y: clusterCenter.y + Math.sin(spreadAngle) * spreadDist,
+                vx: 0,
+                vy: 0,
+                targetX: clusterCenter.x,
+                targetY: clusterCenter.y,
+                size: 20 + asset.baseInfluence * 25,
+                influence: asset.baseInfluence,
+                isLeader: asset.baseInfluence > 0.6,
+                leadLagScore: asset.baseInfluence,
+                trailHistory: [],
+                pulsePhase: Math.random() * Math.PI * 2
+            });
+        });
+
+        updateStats();
+    }
+
+    function initBonds() {
+        bonds = [];
+        brokenBonds = [];
+
+        // Create bonds based on cluster relationships and influence
+        nodes.forEach((nodeA, i) => {
+            nodes.forEach((nodeB, j) => {
+                if (i >= j) return;
+
+                // Higher chance of bond within same cluster
+                const sameCluster = nodeA.cluster === nodeB.cluster;
+                const bondChance = sameCluster ? 0.7 : 0.25;
+
+                if (Math.random() < bondChance) {
+                    // Correlation strength based on cluster and influence similarity
+                    const influenceSim = 1 - Math.abs(nodeA.influence - nodeB.influence);
+                    const baseCorrelation = sameCluster ? 0.5 + Math.random() * 0.5 : -0.3 + Math.random() * 0.6;
+                    const correlation = baseCorrelation * (0.5 + influenceSim * 0.5);
+
+                    bonds.push({
+                        nodeA,
+                        nodeB,
+                        correlation,
+                        isPositive: correlation > 0,
+                        strength: Math.abs(correlation),
+                        restLength: 80 + (1 - Math.abs(correlation)) * 100,
+                        stress: 0,
+                        broken: false,
+                        breakProgress: 0
+                    });
+                }
+            });
+        });
+
+        updateStats();
+    }
+
+    function updateStats() {
+        document.getElementById('statAssets').textContent = nodes.length;
+        document.getElementById('statBonds').textContent = bonds.filter(b => !b.broken).length;
+        document.getElementById('statClusters').textContent = Object.keys(CLUSTER_CONFIG).length;
+    }
+
+    // ==================== PHYSICS UPDATE ====================
+    function updatePhysics() {
+        const stateConfig = STATE_CONFIG[currentState];
+
+        // Update cluster centers based on state (rotation)
+        if (currentState === 'rotation') {
+            Object.keys(CLUSTER_CONFIG).forEach(cluster => {
+                CLUSTER_CONFIG[cluster].centerAngle += 0.002 * stateConfig.driftSpeed;
+            });
+        }
+
+        // Calculate cluster centers
+        const radius = Math.min(width, height) * 0.3;
+        const clusterCenters = {};
+        Object.keys(CLUSTER_CONFIG).forEach(cluster => {
+            const config = CLUSTER_CONFIG[cluster];
+            clusterCenters[cluster] = {
+                x: centerX + Math.cos(config.centerAngle) * radius * (0.4 + stateConfig.clusterTightness * 0.3),
+                y: centerY + Math.sin(config.centerAngle) * radius * (0.4 + stateConfig.clusterTightness * 0.3)
+            };
+        });
+
+        nodes.forEach(node => {
+            let fx = 0, fy = 0;
+
+            // Cluster attraction
+            if (showClusters) {
+                const clusterCenter = clusterCenters[node.cluster];
+                const dx = clusterCenter.x - node.x;
+                const dy = clusterCenter.y - node.y;
+                fx += dx * CLUSTER_PULL * stateConfig.clusterTightness;
+                fy += dy * CLUSTER_PULL * stateConfig.clusterTightness;
+            }
+
+            // Node repulsion
+            nodes.forEach(other => {
+                if (other === node) return;
+                const dx = node.x - other.x;
+                const dy = node.y - other.y;
+                const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                const force = REPULSION / (dist * dist);
+                fx += (dx / dist) * force * 0.01;
+                fy += (dy / dist) * force * 0.01;
+            });
+
+            // Bond forces
+            if (showBonds) {
+                bonds.forEach(bond => {
+                    if (bond.broken) return;
+                    let other = null;
+                    if (bond.nodeA === node) other = bond.nodeB;
+                    else if (bond.nodeB === node) other = bond.nodeA;
+                    if (!other) return;
+
+                    const dx = other.x - node.x;
+                    const dy = other.y - node.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                    const displacement = dist - bond.restLength * stateConfig.bondStrength;
+                    const force = displacement * BOND_STIFFNESS * bond.strength;
+
+                    fx += (dx / dist) * force;
+                    fy += (dy / dist) * force;
+
+                    // Update bond stress
+                    bond.stress = Math.abs(displacement) / bond.restLength;
+                });
+            }
+
+            // Keep within bounds
+            const margin = 80;
+            if (node.x < margin) fx += (margin - node.x) * 0.1;
+            if (node.x > width - margin) fx += (width - margin - node.x) * 0.1;
+            if (node.y < margin) fy += (margin - node.y) * 0.1;
+            if (node.y > height - margin) fy += (height - margin - node.y) * 0.1;
+
+            // Apply forces
+            node.vx = (node.vx + fx) * DAMPING;
+            node.vy = (node.vy + fy) * DAMPING;
+            node.x += node.vx;
+            node.y += node.vy;
+
+            // Update trail for leaders
+            if (node.isLeader && showLeadLag) {
+                node.trailHistory.unshift({ x: node.x, y: node.y });
+                if (node.trailHistory.length > 15) node.trailHistory.pop();
+            }
+
+            // Update pulse
+            node.pulsePhase += 0.05;
+        });
+
+        // Check for bond breaking in fragmented state
+        if (stateConfig.breakChance > 0) {
+            bonds.forEach(bond => {
+                if (bond.broken) return;
+                if (bond.stress > 0.8 && Math.random() < stateConfig.breakChance * 0.01) {
+                    bond.broken = true;
+                    bond.breakProgress = 0;
+                    brokenBonds.push({
+                        ...bond,
+                        particles: createBreakParticles(bond)
+                    });
+                }
+            });
+        }
+
+        // Update broken bond animations
+        brokenBonds = brokenBonds.filter(bond => {
+            bond.breakProgress += 0.02;
+            bond.particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.02;
+            });
+            return bond.breakProgress < 1;
+        });
+
+        updateStats();
+    }
+
+    function createBreakParticles(bond) {
+        const midX = (bond.nodeA.x + bond.nodeB.x) / 2;
+        const midY = (bond.nodeA.y + bond.nodeB.y) / 2;
+        const particles = [];
+        for (let i = 0; i < 8; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 2 + Math.random() * 3;
+            particles.push({
+                x: midX,
+                y: midY,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 1
+            });
+        }
+        return particles;
+    }
+
+    // ==================== DRAWING ====================
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+        time += 0.016;
+
+        // Background
+        const bgGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(width, height) * 0.7);
+        bgGrad.addColorStop(0, 'rgba(34,197,94,0.03)');
+        bgGrad.addColorStop(0.5, 'rgba(168,85,247,0.02)');
+        bgGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, width, height);
+
+        // Draw cluster zones
+        if (showClusters) {
+            drawClusterZones();
+        }
+
+        // Draw bonds
+        if (showBonds) {
+            drawBonds();
+            drawBrokenBonds();
+        }
+
+        // Draw leader trails
+        if (showLeadLag) {
+            drawLeaderTrails();
+        }
+
+        // Draw nodes
+        drawNodes();
+    }
+
+    function drawClusterZones() {
+        const radius = Math.min(width, height) * 0.3;
+
+        Object.entries(CLUSTER_CONFIG).forEach(([key, config]) => {
+            const cx = centerX + Math.cos(config.centerAngle) * radius * 0.5;
+            const cy = centerY + Math.sin(config.centerAngle) * radius * 0.5;
+
+            // Cluster zone
+            const zoneGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 120);
+            zoneGrad.addColorStop(0, config.color + '15');
+            zoneGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = zoneGrad;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 120, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cluster label
+            ctx.font = "600 9px 'Orbitron', sans-serif";
+            ctx.fillStyle = config.color + '60';
+            ctx.textAlign = 'center';
+            ctx.fillText(config.name.toUpperCase(), cx, cy - 100);
+        });
+    }
+
+    function drawBonds() {
+        bonds.forEach(bond => {
+            if (bond.broken) return;
+
+            const { nodeA, nodeB, isPositive, strength, stress } = bond;
+            const stateConfig = STATE_CONFIG[currentState];
+
+            // Bond color based on correlation
+            let color;
+            if (isPositive) {
+                const alpha = 0.2 + strength * 0.6 * stateConfig.bondStrength;
+                color = `rgba(34, 197, 94, ${alpha})`;
+            } else {
+                const alpha = 0.2 + strength * 0.6 * stateConfig.bondStrength;
+                color = `rgba(239, 68, 68, ${alpha})`;
+            }
+
+            // Stressed bonds pulse
+            const stressWidth = stress > 0.5 ? 1 + Math.sin(time * 10) * stress : 0;
+
+            // Draw bond line
+            ctx.beginPath();
+            ctx.moveTo(nodeA.x, nodeA.y);
+
+            // Add curve for visual interest
+            const midX = (nodeA.x + nodeB.x) / 2;
+            const midY = (nodeA.y + nodeB.y) / 2;
+            const perpX = -(nodeB.y - nodeA.y) * 0.1 * (isPositive ? 1 : -1);
+            const perpY = (nodeB.x - nodeA.x) * 0.1 * (isPositive ? 1 : -1);
+
+            ctx.quadraticCurveTo(midX + perpX, midY + perpY, nodeB.x, nodeB.y);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1 + strength * 3 + stressWidth;
+            ctx.stroke();
+
+            // Tension indicator for stressed bonds
+            if (stress > 0.6) {
+                ctx.strokeStyle = `rgba(255, 255, 255, ${stress * 0.3})`;
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 4]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        });
+    }
+
+    function drawBrokenBonds() {
+        brokenBonds.forEach(bond => {
+            // Draw particles
+            bond.particles.forEach(p => {
+                if (p.life <= 0) return;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 3 * p.life, 0, Math.PI * 2);
+                ctx.fillStyle = bond.isPositive
+                    ? `rgba(34, 197, 94, ${p.life * 0.8})`
+                    : `rgba(239, 68, 68, ${p.life * 0.8})`;
+                ctx.fill();
+            });
+        });
+    }
+
+    function drawLeaderTrails() {
+        nodes.forEach(node => {
+            if (!node.isLeader || node.trailHistory.length < 2) return;
+
+            ctx.beginPath();
+            ctx.moveTo(node.trailHistory[0].x, node.trailHistory[0].y);
+
+            for (let i = 1; i < node.trailHistory.length; i++) {
+                ctx.lineTo(node.trailHistory[i].x, node.trailHistory[i].y);
+            }
+
+            const grad = ctx.createLinearGradient(
+                node.x, node.y,
+                node.trailHistory[node.trailHistory.length - 1].x,
+                node.trailHistory[node.trailHistory.length - 1].y
+            );
+            grad.addColorStop(0, 'rgba(168, 85, 247, 0.6)');
+            grad.addColorStop(1, 'transparent');
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        });
+    }
+
+    function drawNodes() {
+        const stateConfig = STATE_CONFIG[currentState];
+
+        nodes.forEach(node => {
+            const isHovered = hoveredNode === node;
+            const pulse = 1 + Math.sin(node.pulsePhase) * 0.08;
+            const size = node.size * pulse * (isHovered ? 1.2 : 1);
+            const clusterColor = CLUSTER_CONFIG[node.cluster].color;
+
+            // Leader glow
+            if (node.isLeader && showLeadLag) {
+                const glowSize = size * 2;
+                const glowGrad = ctx.createRadialGradient(node.x, node.y, size * 0.5, node.x, node.y, glowSize);
+                glowGrad.addColorStop(0, 'rgba(168, 85, 247, 0.4)');
+                glowGrad.addColorStop(0.5, 'rgba(168, 85, 247, 0.15)');
+                glowGrad.addColorStop(1, 'transparent');
+                ctx.fillStyle = glowGrad;
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, glowSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Node body
+            const bodyGrad = ctx.createRadialGradient(
+                node.x - size * 0.2, node.y - size * 0.2, 0,
+                node.x, node.y, size
+            );
+            bodyGrad.addColorStop(0, clusterColor);
+            bodyGrad.addColorStop(0.6, clusterColor + 'cc');
+            bodyGrad.addColorStop(1, '#0a0f1e');
+            ctx.fillStyle = bodyGrad;
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, size, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Leader indicator ring
+            if (node.isLeader && showLeadLag) {
+                ctx.strokeStyle = 'rgba(168, 85, 247, 0.7)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, size + 4, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Symbol
+            ctx.font = `bold ${Math.max(9, size * 0.4)}px 'Orbitron', sans-serif`;
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(node.symbol, node.x, node.y);
+
+            // Hover ring
+            if (isHovered) {
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, size + 8, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        });
+    }
+
+    // ==================== INTERACTION ====================
+    function findNode(mx, my) {
+        const rect = canvas.getBoundingClientRect();
+        const x = mx - rect.left, y = my - rect.top;
+        for (let node of nodes) {
+            if (Math.hypot(x - node.x, y - node.y) <= node.size * 1.3) return node;
+        }
+        return null;
+    }
+
+    function showTooltip(node, x, y) {
+        document.getElementById('ttName').textContent = node.symbol;
+        document.getElementById('ttRole').textContent = node.isLeader ? 'Leader' : 'Follower';
+        document.getElementById('ttRole').style.background = node.isLeader
+            ? 'rgba(168,85,247,0.3)'
+            : 'rgba(59,130,246,0.3)';
+        document.getElementById('ttCluster').textContent = CLUSTER_CONFIG[node.cluster].name;
+
+        // Count active bonds
+        const activeBonds = bonds.filter(b => !b.broken && (b.nodeA === node || b.nodeB === node));
+        document.getElementById('ttBonds').textContent = activeBonds.length + ' aktiv';
+
+        // Average correlation
+        const avgCorr = activeBonds.length > 0
+            ? activeBonds.reduce((sum, b) => sum + Math.abs(b.correlation), 0) / activeBonds.length
+            : 0;
+        document.getElementById('ttAvgCorr').textContent = avgCorr > 0.6 ? 'Stark' : avgCorr > 0.3 ? 'Mittel' : 'Schwach';
+
+        // Top correlations
+        const corrList = document.getElementById('ttCorrelations');
+        corrList.innerHTML = '';
+        activeBonds.sort((a, b) => Math.abs(b.correlation) - Math.abs(a.correlation)).slice(0, 4).forEach(bond => {
+            const other = bond.nodeA === node ? bond.nodeB : bond.nodeA;
+            const item = document.createElement('div');
+            item.className = 'correlation-item';
+            item.innerHTML = `
+                <div class="correlation-dot" style="background: ${bond.isPositive ? 'var(--success)' : 'var(--danger)'}"></div>
+                <span>${other.symbol}</span>
+                <span style="color: rgba(248,250,252,0.5)">${bond.isPositive ? '+' : '-'}</span>
+            `;
+            corrList.appendChild(item);
+        });
+
+        // Lead-Lag bar
+        document.getElementById('ttLeadBar').style.width = (node.leadLagScore * 100) + '%';
+
+        tooltip.style.left = (x + 15) + 'px';
+        tooltip.style.top = (y + 15) + 'px';
+        tooltip.classList.add('visible');
+    }
+
+    canvas.addEventListener('mousemove', e => {
+        const node = findNode(e.clientX, e.clientY);
+        hoveredNode = node;
+        canvas.style.cursor = node ? 'pointer' : 'default';
+        if (node) {
+            showTooltip(node, e.clientX, e.clientY);
+        } else {
+            tooltip.classList.remove('visible');
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        hoveredNode = null;
+        tooltip.classList.remove('visible');
+    });
+
+    // ==================== CONTROLS ====================
+    document.querySelectorAll('.btn-time').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.btn-time').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            // Reinitialize with different randomization
+            initNodes();
+            initBonds();
+        });
+    });
+
+    document.getElementById('toggleBonds').addEventListener('click', function() {
+        showBonds = !showBonds;
+        this.classList.toggle('active', showBonds);
+    });
+
+    document.getElementById('toggleClusters').addEventListener('click', function() {
+        showClusters = !showClusters;
+        this.classList.toggle('active', showClusters);
+    });
+
+    document.getElementById('toggleLeadLag').addEventListener('click', function() {
+        showLeadLag = !showLeadLag;
+        this.classList.toggle('active', showLeadLag);
+    });
+
+    document.querySelectorAll('.state-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.state-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            currentState = this.dataset.state;
+            document.getElementById('statState').textContent = this.querySelector('.state-label').textContent;
+            // Reset broken bonds on state change
+            bonds.forEach(b => b.broken = false);
+            brokenBonds = [];
+        });
+    });
+
+    // ==================== ANIMATION ====================
+    function animate() {
+        updatePhysics();
+        draw();
+        animId = requestAnimationFrame(animate);
+    }
+
+    // ==================== INIT ====================
+    const overlay = document.getElementById('loadingOverlay');
+    const progressBar = document.getElementById('progressBar');
+    const progressPercent = document.getElementById('progressPercent');
+
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 8 + Math.random() * 12;
+            if (progress > 90) progress = 90;
+            progressBar.style.width = progress + '%';
+            progressPercent.textContent = Math.round(progress) + '%';
+        }
+    }, 60);
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    setTimeout(() => {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressPercent.textContent = '100%';
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            animate();
+        }, 200);
+    }, 400);
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cancelAnimationFrame(animId);
+        } else {
+            animate();
+        }
+    });
+    </script>
+</body>
+</html>

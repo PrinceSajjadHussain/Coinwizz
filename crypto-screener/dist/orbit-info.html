@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Orbit System - How Market Dynamics Become Visible</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #0a0a1a 0%, #000005 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            line-height: 1.7;
+        }
+        .header {
+            position: fixed; top: 0; left: 0; right: 0;
+            padding: 16px 24px;
+            background: rgba(10,10,18,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+        }
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: #3b82f6;
+            letter-spacing: 2px;
+        }
+        .btn-back {
+            background: rgba(251,191,36,0.2);
+            border: 1px solid rgba(251,191,36,0.5);
+            color: #fbbf24;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-back:hover { background: rgba(251,191,36,0.3); }
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 100px 24px 60px;
+        }
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: #3b82f6;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .subtitle {
+            text-align: center;
+            color: rgba(248,250,252,0.6);
+            font-size: 1rem;
+            margin-bottom: 48px;
+        }
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: #f8fafc;
+            margin: 48px 0 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(59,130,246,0.3);
+        }
+        h3 { font-size: 1rem; color: #3b82f6; margin: 24px 0 12px; }
+        p { margin-bottom: 16px; color: rgba(248,250,252,0.85); }
+        ul { margin: 16px 0; padding-left: 24px; }
+        li { margin-bottom: 8px; color: rgba(248,250,252,0.75); }
+        li::marker { color: #3b82f6; }
+        strong { color: #3b82f6; font-weight: 600; }
+        .highlight-box {
+            background: rgba(59,130,246,0.08);
+            border-left: 3px solid #3b82f6;
+            padding: 16px 20px;
+            margin: 24px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .orbit-card {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        .orbit-card h3 { margin-top: 0; }
+        .warning-box {
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 32px 0;
+        }
+        .warning-box p { color: rgba(248,250,252,0.7); margin: 8px 0; }
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(59,130,246,0.3), transparent);
+            margin: 48px 0;
+        }
+        .final-section {
+            text-align: center;
+            padding: 40px;
+            background: rgba(59,130,246,0.05);
+            border-radius: 16px;
+            margin-top: 48px;
+        }
+    </style>
+</head>
+<body>
+<div style="position:fixed;top:10px;right:10px;z-index:9999;display:flex;gap:8px;">
+<a href="index.html" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);color:#3b82f6;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Home</a>
+<a href="financial-galaxy.html" style="background:rgba(34,211,238,0.2);border:1px solid rgba(34,211,238,0.4);color:#22d3ee;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Financial Galaxy</a>
+</div>
+    <div class="header">
+        <div class="header-title">⚛️ ORBIT SYSTEM</div>
+        <a href="orbit-system.html" class="btn-back">← Back to Orbit</a>
+    </div>
+
+    <div class="content">
+        <h1>The Orbit System</h1>
+        <p class="subtitle">How Market Dynamics Become Visible</p>
+
+        <p>The Orbit System is not a chart. It is a <strong>dynamic market model</strong>.</p>
+        <p>Instead of showing static prices, the Orbit System visualizes movement, pressure, acceleration, and interaction between crypto assets.</p>
+        
+        <div class="highlight-box">Every coin is placed into an orbit for a reason.</div>
+
+        <div class="divider"></div>
+
+        <h2>What Is the Orbit System?</h2>
+        <p>The Orbit System represents the market as a gravitational environment.</p>
+        <ul>
+            <li>Coins are objects in motion</li>
+            <li>Orbits represent market states</li>
+            <li>Distance, speed, and stability are signals</li>
+            <li>Movement is meaning</li>
+        </ul>
+        <p>This system answers a different question than traditional tools:</p>
+        <div class="highlight-box">
+            Not "What is the price?"<br>but <strong>"What is the market doing?"</strong>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>What the Constellation Means</h2>
+        <p>Each constellation inside the Orbit System is a snapshot of collective behavior. It shows:</p>
+        <ul>
+            <li>Which assets attract attention</li>
+            <li>Which assets lose gravity</li>
+            <li>Where energy builds up</li>
+            <li>Where instability increases</li>
+        </ul>
+        <p><strong>Markets move before price moves.</strong> The Orbit System is designed to make that visible.</p>
+
+        <div class="divider"></div>
+
+        <h2>What Members Can Expect to See</h2>
+
+        <div class="orbit-card">
+            <h3>1. Orbital Position</h3>
+            <p>Where a coin is located tells you how central or peripheral it currently is.</p>
+            <ul>
+                <li><strong>Inner orbits</strong> → high relevance, strong interaction</li>
+                <li><strong>Outer orbits</strong> → low engagement, weak pull</li>
+            </ul>
+            <p>This is context, not judgment.</p>
+        </div>
+
+        <div class="orbit-card">
+            <h3>2. Orbital Speed</h3>
+            <p>Speed reflects market pressure and activity intensity.</p>
+            <ul>
+                <li><strong>Accelerating coins</strong> → rising interest or stress</li>
+                <li><strong>Slowing coins</strong> → fading attention or consolidation</li>
+            </ul>
+            <p>Speed does not mean "buy" or "sell". It means something is changing.</p>
+        </div>
+
+        <div class="orbit-card">
+            <h3>3. Stability vs. Instability</h3>
+            <p>Stable orbits indicate balanced participation. Unstable orbits indicate tension.</p>
+            <p>This helps members recognize: Calm phases, transition phases, pre-movement zones.</p>
+            <p><strong>Often, the most important moments happen before volatility appears.</strong></p>
+        </div>
+
+        <div class="orbit-card">
+            <h3>4. Relative Relationships</h3>
+            <p>Coins are not isolated. The Orbit System shows:</p>
+            <ul>
+                <li>Which assets move together</li>
+                <li>Which assets decouple</li>
+                <li>Which assets react first</li>
+            </ul>
+            <p>This reveals <strong>sector rotation and capital migration</strong> visually.</p>
+        </div>
+
+        <div class="orbit-card">
+            <h3>5. Time-Based Behavior</h3>
+            <p>The Orbit System reflects short-term shifts, intra-day dynamics, and emerging momentum changes.</p>
+            <p>It is not a prediction engine. It is a <strong>behavioral mirror</strong>.</p>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>What the Orbit System Is NOT</h2>
+        <div class="warning-box">
+            <p>❌ No trading signals</p>
+            <p>❌ No profit promises</p>
+            <p>❌ No financial advice</p>
+            <p>❌ No fixed outcomes</p>
+            <p style="margin-top: 16px;"><strong>It does not tell you what to do. It shows you what is happening.</strong></p>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>How Orbit and Galaxy Systems Work Together</h2>
+        <ul>
+            <li><strong>Galaxy Systems</strong> show which sector matters</li>
+            <li><strong>Orbit Systems</strong> show how assets behave inside that sector</li>
+        </ul>
+        <p>Together they form: <strong>Macro structure</strong> (galaxies) + <strong>Micro dynamics</strong> (orbits)</p>
+        <p>This combination creates situational awareness, not noise.</p>
+
+        <div class="divider"></div>
+
+        <h2>Who This System Is For</h2>
+        <p>The Orbit System is designed for members who:</p>
+        <ul>
+            <li>Want to understand market behavior, not chase signals</li>
+            <li>Value structure over hype</li>
+            <li>Prefer clarity over complexity</li>
+            <li>Think in systems, not tips</li>
+        </ul>
+
+        <div class="final-section">
+            <h2>Final Thought</h2>
+            <p>Markets don't move randomly.<br>They move through pressure, attention, and interaction.</p>
+            <p style="margin-top: 16px; color: #3b82f6;"><strong>The Orbit System exists to make that movement visible.</strong></p>
+        </div>
+    </div>
+</body>
+</html>

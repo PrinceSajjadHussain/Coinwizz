@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo Chambers | CryptoSpaces</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --space-black: #000510;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --text-light: #f1f5f9;
+        }
+        /* Unified Header Styles */
+        .unified-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0, 5, 16, 0.95) 0%, rgba(0, 5, 16, 0) 100%);
+            padding: 15px 30px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+        }
+        .unified-left { display: flex; align-items: center; gap: 20px; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+        .unified-nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .unified-nav-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            padding: 7px 12px;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: rgba(14, 165, 233, 0.05);
+            text-transform: uppercase;
+        }
+        .unified-nav-link:hover {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+        }
+        .unified-utils {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .unified-btn {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(34, 211, 238, 0.1));
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            color: var(--text-light);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .unified-btn:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(34, 211, 238, 0.2));
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+        .unified-btn.active {
+            background: rgba(14, 165, 233, 0.3);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+        @media (max-width: 900px) {
+            .unified-nav { display: none; }
+            .unified-header { padding: 10px 15px; }
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--space-black);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow: hidden;
+            padding-top: 80px;
+        }
+        
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(180deg, rgba(10,10,15,0.95) 0%, transparent 100%);
+        }
+        
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 14px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 6px;
+            background: rgba(139, 92, 246, 0.1);
+            color: #a78bfa;
+            font-family: inherit;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: rgba(139, 92, 246, 0.25);
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+        
+        .btn.active {
+            background: rgba(139, 92, 246, 0.3);
+            border-color: #8b5cf6;
+        }
+        
+        /* Title Overlay */
+        .title-overlay {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 50;
+            pointer-events: none;
+        }
+        
+        .title-main {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #a78bfa 0%, #818cf8 50%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+        
+        .title-sub {
+            font-size: 0.8rem;
+            color: #64748b;
+            letter-spacing: 2px;
+        }
+        
+        /* Main Stage */
+        .stage {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: radial-gradient(ellipse at 50% 120%, #1a1a2e 0%, #0a0a0f 60%);
+        }
+        
+        /* Baseline */
+        .baseline {
+            position: absolute;
+            bottom: 15%;
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(100, 116, 139, 0.3), transparent);
+        }
+        
+        .baseline-label {
+            position: absolute;
+            left: 0;
+            bottom: -20px;
+            font-size: 0.55rem;
+            color: #475569;
+            letter-spacing: 1px;
+        }
+        
+        /* Bubbles */
+        .bubble-container {
+            position: absolute;
+            bottom: 15%;
+            left: 5%;
+            right: 5%;
+            height: 70%;
+        }
+        
+        .crypto-bubble {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                        bottom 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+                        filter 0.5s ease;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+        }
+        
+        .crypto-bubble img {
+            width: 45%;
+            height: 45%;
+            border-radius: 50%;
+        }
+        
+        .crypto-bubble .ticker {
+            font-size: 0.5rem;
+            font-weight: 600;
+            margin-top: 2px;
+            color: #e2e8f0;
+        }
+        
+        .crypto-bubble.resonating {
+            animation: resonate 0.8s ease-in-out;
+        }
+        
+        .crypto-bubble.distorting {
+            animation: distort 1.2s ease-in-out;
+        }
+        
+        @keyframes resonate {
+            0% { transform: scale(1) translateY(0); }
+            25% { transform: scale(1.15) translateY(-20px); }
+            50% { transform: scale(1.05) translateY(-35px); }
+            75% { transform: scale(1.1) translateY(-25px); }
+            100% { transform: scale(1) translateY(0); }
+        }
+        
+        @keyframes distort {
+            0% { transform: scale(1) skew(0deg); filter: hue-rotate(0deg); }
+            25% { transform: scale(1.1) skew(5deg); filter: hue-rotate(20deg); }
+            50% { transform: scale(0.95) skew(-3deg); filter: hue-rotate(-10deg); }
+            75% { transform: scale(1.05) skew(2deg); filter: hue-rotate(10deg); }
+            100% { transform: scale(1) skew(0deg); filter: hue-rotate(0deg); }
+        }
+        
+        /* Influencer Figure */
+        .influencer {
+            position: absolute;
+            bottom: calc(20% + 100px);
+            left: -80px;
+            width: 60px;
+            height: 80px;
+            z-index: 30;
+            transition: left 0.1s linear;
+        }
+        
+        .influencer-body {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .influencer-head {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #475569, #334155);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #e2e8f0;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+        
+        .influencer-torso {
+            width: 30px;
+            height: 35px;
+            background: linear-gradient(180deg, #475569, #1e293b);
+            border-radius: 8px 8px 15px 15px;
+            margin-top: -5px;
+        }
+        
+        .influencer-label {
+            font-size: 0.55rem;
+            color: #64748b;
+            margin-top: 5px;
+            letter-spacing: 1px;
+        }
+        
+        .influencer-icon {
+            width: 90px;
+            height: auto;
+            display: block;
+            object-fit: contain;
+            pointer-events: none;
+            user-select: none;
+        }
+        
+        /* Speech Bubble */
+        .speech-bubble {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .speech-bubble.visible { opacity: 1; }
+        
+        .speech-bubble.youtube { background: #ff0000; color: white; }
+        .speech-bubble.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; }
+        .speech-bubble.x { background: #000; color: white; border: 1px solid #333; }
+        .speech-bubble.meta { background: #0866ff; color: white; }
+        
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: inherit;
+        }
+        
+        /* Sound Waves */
+        .sound-wave {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid;
+            pointer-events: none;
+            animation: waveExpand 3s ease-out forwards;
+        }
+        
+        .sound-wave.youtube { border-color: rgba(255, 0, 0, 0.4); }
+        .sound-wave.instagram { border-color: rgba(225, 48, 108, 0.4); }
+        .sound-wave.x { border-color: rgba(255, 255, 255, 0.3); }
+        .sound-wave.meta { border-color: rgba(8, 102, 255, 0.4); }
+        
+        @keyframes waveExpand {
+            0% { width: 20px; height: 20px; opacity: 0.8; }
+            100% { width: 600px; height: 600px; opacity: 0; }
+        }
+        
+        /* Legend */
+        .legend {
+            position: fixed;
+            bottom: 60px;
+            right: 25px;
+            font-size: 0.55rem;
+            color: #475569;
+            text-align: right;
+            line-height: 1.6;
+            max-width: 220px;
+        }
+        
+        /* Platform Indicator */
+        .platform-indicator {
+            position: fixed;
+            bottom: 60px;
+            left: 25px;
+            display: flex;
+            gap: 15px;
+            font-size: 0.6rem;
+        }
+        
+        .platform-dot {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #475569;
+            transition: all 0.3s;
+        }
+        
+        .platform-dot.active { color: #e2e8f0; }
+        
+        .platform-dot .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        
+        .platform-dot.active .dot {
+            box-shadow: 0 0 10px currentColor;
+        }
+        
+        .dot.youtube { background: #ff0000; }
+        .dot.instagram { background: #e1306c; }
+        .dot.x { background: #fff; }
+        .dot.meta { background: #0866ff; }
+        
+        /* Disclaimer */
+        .disclaimer {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.55rem;
+            color: #334155;
+            text-align: center;
+        }
+        
+        /* Ambient particles */
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(139, 92, 246, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 8s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+            50% { transform: translateY(-30px) translateX(10px); opacity: 0.6; }
+        }
+        
+        /* Coin Info Overlay */
+        .coin-overlay {
+            position: absolute;
+            width: 220px;
+            background: rgba(15, 15, 25, 0.95);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 12px 14px;
+            z-index: 200;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2), 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .coin-overlay.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .coin-overlay::before {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(139, 92, 246, 0.3);
+        }
+        .overlay-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .overlay-coin-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+        }
+        .overlay-platform-tag {
+            font-size: 0.55rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .overlay-platform-tag.youtube { background: rgba(255,0,0,0.2); color: #ff6b6b; }
+        .overlay-platform-tag.instagram { background: rgba(225,48,108,0.2); color: #f472b6; }
+        .overlay-platform-tag.x { background: rgba(255,255,255,0.1); color: #e2e8f0; }
+        .overlay-platform-tag.meta { background: rgba(8,102,255,0.2); color: #60a5fa; }
+        .overlay-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 12px;
+            margin-bottom: 10px;
+        }
+        .overlay-stat {
+            display: flex;
+            flex-direction: column;
+        }
+        .overlay-stat-label {
+            font-size: 0.5rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .overlay-stat-value {
+            font-size: 0.75rem;
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+        .overlay-stat-value.positive { color: #22c55e; }
+        .overlay-stat-value.negative { color: #ef4444; }
+        .overlay-narrative {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .narrative-tag {
+            font-size: 0.5rem;
+            padding: 2px 6px;
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 8px;
+            color: #a78bfa;
+        }
+        .overlay-statement {
+            font-size: 0.55rem;
+            color: #f59e0b;
+            font-style: italic;
+            padding-top: 6px;
+            border-top: 1px solid rgba(139, 92, 246, 0.15);
+        }
+        .overlay-limited {
+            font-size: 0.5rem;
+            color: #64748b;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        /* Whale History Panel */
+        .history-tab {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(30, 20, 50, 0.95);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            padding: 12px 8px;
+            cursor: pointer;
+            z-index: 1500;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            color: #a78bfa;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+        .history-tab:hover { background: rgba(50, 30, 80, 0.95); }
+        .history-tab.hidden { display: none; }
+
+        .history-panel {
+            position: fixed;
+            right: -380px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 360px;
+            max-height: 70vh;
+            background: rgba(15, 10, 30, 0.97);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            z-index: 1600;
+            transition: right 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -5px 0 30px rgba(139, 92, 246, 0.2);
+        }
+        .history-panel.open { right: 0; }
+
+        .history-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            position: relative;
+        }
+        .history-close {
+            position: absolute;
+            top: 12px; right: 12px;
+            background: none;
+            border: none;
+            color: rgba(248, 250, 252, 0.5);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .history-close:hover { color: #a78bfa; }
+        .history-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: #a78bfa;
+            letter-spacing: 1px;
+        }
+        .history-subtitle {
+            font-size: 0.55rem;
+            color: rgba(248, 250, 252, 0.5);
+            margin-top: 4px;
+        }
+        .history-viz-note {
+            font-size: 0.5rem;
+            color: rgba(248, 250, 252, 0.3);
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        .time-filters {
+            display: flex;
+            gap: 6px;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+        }
+        .time-btn {
+            flex: 1;
+            padding: 8px 4px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 6px;
+            color: rgba(248, 250, 252, 0.6);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .time-btn:hover { background: rgba(139, 92, 246, 0.2); }
+        .time-btn.active {
+            background: rgba(139, 92, 246, 0.3);
+            border-color: #a78bfa;
+            color: #a78bfa;
+        }
+        .time-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .history-timeline {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+        }
+        .timeline-bar {
+            height: 40px;
+            background: rgba(30, 20, 50, 0.5);
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+        .timeline-peak {
+            position: absolute;
+            bottom: 0;
+            width: 4px;
+            background: #22c55e;
+            border-radius: 2px 2px 0 0;
+            transition: all 0.3s;
+        }
+        .timeline-peak.sell { background: #ef4444; }
+
+        .history-events {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        .history-events::-webkit-scrollbar { width: 4px; }
+        .history-events::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.3); border-radius: 2px; }
+
+        .event-item {
+            padding: 10px 16px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .event-item:hover { background: rgba(139, 92, 246, 0.1); }
+        .event-item.highlighted { background: rgba(34, 197, 94, 0.15); }
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .event-type {
+            font-size: 0.6rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .event-type.buy { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .event-type.sell { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .event-time { font-size: 0.5rem; color: rgba(248, 250, 252, 0.4); }
+        .event-coin { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .event-coin-icon { width: 20px; height: 20px; border-radius: 50%; background: #1e293b; }
+        .event-coin-icon img { width: 100%; height: 100%; border-radius: 50%; }
+        .event-coin-symbol { font-size: 0.7rem; font-weight: 600; color: #e2e8f0; }
+        .event-details { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 0.55rem; }
+        .event-detail { display: flex; justify-content: space-between; }
+        .event-label { color: rgba(248, 250, 252, 0.5); }
+        .event-value { color: #e2e8f0; }
+        .event-value.high { color: #ef4444; }
+        .event-value.medium { color: #fbbf24; }
+        .event-value.low { color: #22c55e; }
+
+        .replay-btn {
+            margin: 12px 16px;
+            padding: 10px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.2));
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: 8px;
+            color: #a78bfa;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .replay-btn:hover { background: rgba(139, 92, 246, 0.3); }
+
+        .history-footer {
+            padding: 10px 16px;
+            border-top: 1px solid rgba(139, 92, 246, 0.15);
+            font-size: 0.45rem;
+            color: rgba(248, 250, 252, 0.3);
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .history-panel { width: 300px; right: -320px; max-height: 60vh; }
+            .history-tab { padding: 10px 6px; font-size: 0.5rem; }
+        }
+    </style>
+    <link rel="stylesheet" href="membership-gating.css">
+</head>
+<body>
+<!-- Header -->
+    <header class="unified-header">
+        <div class="unified-left">
+            <a href="index.html" class="unified-logo">CRYPTOSPACES</a>
+            <span class="page-title" style="margin-left:20px; font-family:'Orbitron'; font-weight:700; color:var(--accent-cyan);">ECHO CHAMBERS</span>
+        </div>
+        <nav class="unified-nav">
+            <a href="top100.html" class="unified-nav-link">Top 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">Whales</a>
+            <a href="our-vision.html" class="unified-nav-link">Vision</a>
+        </nav>
+        <div class="unified-utils">
+            <button class="unified-btn active" data-filter="all">All</button>
+            <button class="unified-btn" data-filter="youtube">YouTube</button>
+            <button class="unified-btn" data-filter="x">X</button>
+            <button class="unified-btn" onclick="replayNarrative()">↻ Replay</button>
+            <button class="unified-btn" onclick="resetToBaseline()">Reset</button>
+            <a href="index.html" class="unified-btn">← Back</a>
+        </div>
+    </header>
+    
+    <!-- Title Overlay -->
+    <div class="title-overlay">
+        <div class="title-main">ECHO CHAMBERS</div>
+        <div class="title-sub">Narrative Resonance · Attention moves before capital – but it is unstable</div>
+    </div>
+    
+    <!-- Main Stage -->
+    <div class="stage" id="stage">
+        <!-- Baseline -->
+        <div class="baseline">
+            <span class="baseline-label">BASELINE · NO ATTENTION</span>
+        </div>
+        
+        <!-- Bubble Container -->
+        <div class="bubble-container" id="bubbleContainer"></div>
+        
+        <!-- Influencer Figure -->
+        <div class="influencer" id="influencer">
+            <div class="influencer-body">
+                <img id="influencerIcon" class="influencer-icon" src="assets/img/influencer.png" alt="Influencer" draggable="false" />
+                <span class="influencer-label">SOCIAL MEDIA INFLUENCER</span>
+            </div>
+            <div class="speech-bubble" id="speechBubble">📺 YouTube</div>
+        </div>
+    </div>
+    
+    <!-- Platform Indicator -->
+    <div class="platform-indicator">
+        <div class="platform-dot" data-platform="youtube">
+            <span class="dot youtube"></span>
+            <span>YouTube</span>
+        </div>
+        <div class="platform-dot" data-platform="instagram">
+            <span class="dot instagram"></span>
+            <span>Instagram</span>
+        </div>
+        <div class="platform-dot" data-platform="x">
+            <span class="dot x"></span>
+            <span>X</span>
+        </div>
+        <div class="platform-dot" data-platform="meta">
+            <span class="dot meta"></span>
+            <span>Meta</span>
+        </div>
+    </div>
+    
+    <!-- Legend -->
+    <div class="legend">
+        Bubbles react to narrative pressure<br>
+        Movement ≠ buying or selling<br>
+        Attention can lift or distort – not sustain
+    </div>
+    
+    <!-- Influencer News Tab -->
+    <div class="history-tab" id="historyTab" onclick="toggleHistoryPanel()">📡 INFLUENCER-NEWS</div>
+
+    <!-- Influencer News Panel -->
+    <div class="history-panel" id="historyPanel">
+        <div class="history-header">
+            <button class="history-close" onclick="toggleHistoryPanel()">✕</button>
+            <div class="history-title">Influencer-News · Echo Chambers</div>
+            <div class="history-subtitle">Platform impulses · Time-stamped · Narrative-based</div>
+            <div class="history-viz-note">Visualization only</div>
+        </div>
+        <div class="time-filters">
+            <button class="time-btn active" data-period="7d" onclick="setTimePeriod('7d')">7D</button>
+            <button class="time-btn" data-period="1m" onclick="setTimePeriod('1m')">1M</button>
+            <button class="time-btn" data-period="3m" onclick="setTimePeriod('3m')">3M</button>
+            <button class="time-btn" data-period="6m" onclick="setTimePeriod('6m')">6M</button>
+            <button class="time-btn" data-period="12m" onclick="setTimePeriod('12m')">12M</button>
+        </div>
+        <div class="history-timeline"><div class="timeline-bar" id="timelineBar"></div></div>
+        <div class="history-events" id="historyEvents"></div>
+        <button class="replay-btn" onclick="replayNarrativeEvents()">▶ Replay selected narrative period</button>
+        <div class="history-footer">Narrative visualization only. No trading signals. No financial advice.</div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+        Narrative visualization only. No trading signals. No financial advice.
+    </div>
+    
+    <!-- Coin Overlays Container -->
+    <div id="overlayContainer"></div>
+    
+    <script>
+        const API_URL = 'https://api.coingecko.com/api/v3/coins/markets';
+        const PLATFORMS = ['youtube', 'instagram', 'x', 'meta'];
+        const PLATFORM_CONFIG = {
+            youtube: { icon: '📺', speed: 0.7, waveSize: 1.2, label: 'YouTube' },
+            instagram: { icon: '📸', speed: 1.0, waveSize: 1.0, label: 'Instagram' },
+            x: { icon: '𝕏', speed: 1.5, waveSize: 0.8, label: 'X' },
+            meta: { icon: '🌐', speed: 0.9, waveSize: 1.1, label: 'Meta' }
+        };
+        
+        // Narrative categories
+        const NARRATIVES = {
+            ai: ['render', 'fetch-ai', 'singularitynet', 'ocean-protocol', 'numeraire'],
+            meme: ['dogecoin', 'shiba-inu', 'pepe', 'floki', 'bonk', 'dogwifcoin'],
+            l2: ['arbitrum', 'optimism', 'polygon', 'immutable-x', 'starknet'],
+            gaming: ['the-sandbox', 'axie-infinity', 'gala', 'illuvium', 'enjincoin'],
+            defi: ['uniswap', 'aave', 'maker', 'compound', 'curve-dao-token']
+        };
+        
+        let allCoins = [];
+        let selectedCoins = [];
+        let bubbles = [];
+        let influencerX = -80;
+        let currentPlatformIndex = 0;
+        let animationRunning = true;
+        let currentFilter = 'all';
+        
+        // Fetch coins
+        async function fetchCoins() {
+            try {
+                const res = await fetch(`${API_URL}?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h`);
+                allCoins = await res.json();
+                selectNarrativeCoins();
+                createBubbles();
+                startAnimation();
+            } catch (e) {
+                console.error('Fetch error:', e);
+                // Fallback
+                createFallbackBubbles();
+                startAnimation();
+            }
+        }
+        
+        // Select 20 coins based on narrative potential
+        function selectNarrativeCoins() {
+            // Mix of high attention coins
+            const highVolatility = allCoins
+                .filter(c => Math.abs(c.price_change_percentage_24h || 0) > 3)
+                .slice(0, 8);
+            
+            const midCaps = allCoins.slice(20, 50).slice(0, 6);
+            const topCoins = allCoins.slice(0, 6);
+            
+            selectedCoins = [...new Set([...highVolatility, ...midCaps, ...topCoins])].slice(0, 20);
+            
+            // Add narrative tags
+            selectedCoins.forEach(coin => {
+                coin.narratives = [];
+                Object.entries(NARRATIVES).forEach(([narrative, ids]) => {
+                    if (ids.includes(coin.id)) {
+                        coin.narratives.push(narrative);
+                    }
+                });
+                // Assign resonance factor
+                coin.resonanceFactor = 0.5 + Math.random() * 0.5;
+            });
+        }
+        
+        // Create bubbles
+        function createBubbles() {
+            const container = document.getElementById('bubbleContainer');
+            container.innerHTML = '';
+            bubbles = [];
+            
+            selectedCoins.forEach((coin, i) => {
+                const bubble = document.createElement('div');
+                bubble.className = 'crypto-bubble';
+                bubble.id = `bubble-${coin.id}`;
+                bubble.dataset.coinId = coin.id;
+                
+                const size = 50 + Math.random() * 30;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                
+                // Position on baseline with spacing
+                const xPos = 5 + (i / selectedCoins.length) * 85;
+                bubble.style.left = xPos + '%';
+                bubble.style.bottom = '0px';
+                
+                // Neutral purple gradient
+                const hue = 250 + Math.random() * 30;
+                bubble.style.background = `radial-gradient(circle at 30% 30%, hsl(${hue}, 60%, 50%), hsl(${hue}, 50%, 25%))`;
+                
+                bubble.innerHTML = `
+                    <img src="${coin.image}" alt="${coin.symbol}">
+                    <span class="ticker">${coin.symbol.toUpperCase()}</span>
+                `;
+                
+                container.appendChild(bubble);
+                bubbles.push({
+                    element: bubble,
+                    coin: coin,
+                    baseX: xPos,
+                    currentY: 0,
+                    targetY: 0,
+                    velocity: 0
+                });
+            });
+            
+            // Add ambient particles
+            addAmbientParticles();
+        }
+        
+        function createFallbackBubbles() {
+            const fallbackCoins = [
+                { id: 'bitcoin', symbol: 'btc', image: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png' },
+                { id: 'ethereum', symbol: 'eth', image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
+                { id: 'dogecoin', symbol: 'doge', image: 'https://assets.coingecko.com/coins/images/5/small/dogecoin.png' }
+            ];
+            selectedCoins = fallbackCoins.map(c => ({ ...c, resonanceFactor: 0.7, narratives: [] }));
+            createBubbles();
+        }
+        
+        function addAmbientParticles() {
+            const stage = document.getElementById('stage');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                stage.appendChild(particle);
+            }
+        }
+        
+        // Influencer icon switching (female/male)
+        const INFLUENCER_IMAGES = ['assets/img/influencer.png', 'assets/img/men-influencer.png'];
+        let currentInfluencerIndex = 0;
+        setInterval(() => {
+            currentInfluencerIndex = (currentInfluencerIndex + 1) % INFLUENCER_IMAGES.length;
+            const iconEl = document.getElementById('influencerIcon');
+            if (iconEl) iconEl.src = INFLUENCER_IMAGES[currentInfluencerIndex];
+        }, 6000);
+        
+        // Animation loop
+        function startAnimation() {
+            const influencer = document.getElementById('influencer');
+            const speechBubble = document.getElementById('speechBubble');
+            let lastPlatformChange = 0;
+            let lastWaveTime = 0;
+            
+            function animate(timestamp) {
+                if (!animationRunning) {
+                    requestAnimationFrame(animate);
+                    return;
+                }
+                
+                // Move influencer
+                influencerX += 0.5;
+                if (influencerX > window.innerWidth + 100) {
+                    influencerX = -80;
+                }
+                influencer.style.left = influencerX + 'px';
+                
+                // Change platform every 4 seconds
+                if (timestamp - lastPlatformChange > 4000) {
+                    currentPlatformIndex = (currentPlatformIndex + 1) % PLATFORMS.length;
+                    const platform = PLATFORMS[currentPlatformIndex];
+                    const config = PLATFORM_CONFIG[platform];
+                    
+                    speechBubble.className = `speech-bubble ${platform} visible`;
+                    speechBubble.textContent = `${config.icon} ${config.label}`;
+                    
+                    // Update platform indicators
+                    document.querySelectorAll('.platform-dot').forEach(dot => {
+                        dot.classList.toggle('active', dot.dataset.platform === platform);
+                    });
+                    
+                    lastPlatformChange = timestamp;
+                    
+                    // Hide bubble after 2s
+                    setTimeout(() => {
+                        speechBubble.classList.remove('visible');
+                    }, 2000);
+                }
+                
+                // Emit waves every 2 seconds
+                if (timestamp - lastWaveTime > 2000 && influencerX > 0 && influencerX < window.innerWidth) {
+                    emitWave(PLATFORMS[currentPlatformIndex]);
+                    lastWaveTime = timestamp;
+                }
+                
+                // Update bubble physics
+                bubbles.forEach(b => {
+                    // Drift back to baseline
+                    b.targetY *= 0.995;
+                    
+                    // Spring physics
+                    const springForce = (b.targetY - b.currentY) * 0.05;
+                    b.velocity += springForce;
+                    b.velocity *= 0.92; // Damping
+                    b.currentY += b.velocity;
+                    
+                    // Add micro-drift
+                    const drift = Math.sin(timestamp * 0.001 + b.baseX) * 2;
+                    b.element.style.bottom = (b.currentY + drift) + 'px';
+                });
+                
+                requestAnimationFrame(animate);
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Emit sound wave
+        function emitWave(platform) {
+            if (currentFilter !== 'all' && currentFilter !== platform) return;
+            
+            const stage = document.getElementById('stage');
+            const influencer = document.getElementById('influencer');
+            const rect = influencer.getBoundingClientRect();
+            
+            const wave = document.createElement('div');
+            wave.className = `sound-wave ${platform}`;
+            wave.style.left = (rect.left + rect.width / 2) + 'px';
+            wave.style.top = (rect.top + rect.height / 2) + 'px';
+            wave.style.transform = 'translate(-50%, -50%)';
+            
+            const config = PLATFORM_CONFIG[platform];
+            wave.style.animationDuration = (3 / config.speed) + 's';
+            
+            stage.appendChild(wave);
+            
+            // Affect bubbles
+            setTimeout(() => {
+                affectBubbles(platform, rect.left + rect.width / 2);
+            }, 500);
+            
+            // Remove wave after animation
+            setTimeout(() => wave.remove(), 3000 / config.speed);
+        }
+        
+        // Active overlays tracking
+        let activeOverlays = [];
+        const MAX_OVERLAYS = 3;
+        
+        // Affect bubbles based on wave
+        function affectBubbles(platform, waveOriginX) {
+            const config = PLATFORM_CONFIG[platform];
+            let affectedBubbles = [];
+            
+            bubbles.forEach(b => {
+                const bubbleRect = b.element.getBoundingClientRect();
+                const distance = Math.abs(bubbleRect.left - waveOriginX);
+                
+                if (distance < 400) {
+                    const intensity = (1 - distance / 400) * b.coin.resonanceFactor * config.waveSize;
+                    const reaction = Math.random();
+                    let reactionType = 'none';
+                    
+                    if (reaction < 0.4) {
+                        b.targetY += intensity * 150;
+                        b.element.classList.add('resonating');
+                        reactionType = 'rise';
+                    } else if (reaction < 0.6) {
+                        b.targetY -= intensity * 50;
+                        b.element.classList.add('distorting');
+                        reactionType = 'fall';
+                    } else {
+                        b.element.classList.add('distorting');
+                        reactionType = 'distort';
+                    }
+                    
+                    if (reactionType !== 'none') {
+                        affectedBubbles.push({ bubble: b, intensity, reactionType });
+                    }
+                    
+                    setTimeout(() => {
+                        b.element.classList.remove('resonating', 'distorting');
+                    }, 1200);
+                }
+            });
+            
+            // Show overlays for top affected bubbles
+            affectedBubbles.sort((a, b) => b.intensity - a.intensity);
+            affectedBubbles.slice(0, MAX_OVERLAYS).forEach(({ bubble, intensity, reactionType }) => {
+                showCoinOverlay(bubble, platform, intensity, reactionType);
+            });
+        }
+        
+        // Generate narrative data
+        function generateNarrativeData(coin, platform) {
+            const mentions = Math.floor(50 + Math.random() * 500);
+            const velocity = Math.random() > 0.5 ? '+' + (10 + Math.floor(Math.random() * 90)) + '%' : '-' + Math.floor(Math.random() * 30) + '%';
+            const sentiments = ['Positive', 'Neutral', 'Mixed'];
+            return {
+                mentions: mentions,
+                velocity: velocity,
+                sentiment: sentiments[Math.floor(Math.random() * sentiments.length)]
+            };
+        }
+        
+        // Show coin overlay
+        function showCoinOverlay(bubble, platform, intensity, reactionType) {
+            const coin = bubble.coin;
+            const existingOverlay = activeOverlays.find(o => o.coinId === coin.id);
+            
+            if (existingOverlay) {
+                // Update existing overlay
+                updateOverlayContent(existingOverlay.element, coin, platform, intensity);
+                existingOverlay.timeout && clearTimeout(existingOverlay.timeout);
+                existingOverlay.timeout = setTimeout(() => hideOverlay(existingOverlay), 5000);
+                return;
+            }
+            
+            if (activeOverlays.length >= MAX_OVERLAYS) {
+                const oldest = activeOverlays.shift();
+                hideOverlay(oldest, true);
+            }
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'coin-overlay';
+            overlay.dataset.coinId = coin.id;
+            
+            updateOverlayContent(overlay, coin, platform, intensity);
+            
+            document.getElementById('overlayContainer').appendChild(overlay);
+            
+            // Position near bubble (shifted 300px up)
+            const bubbleRect = bubble.element.getBoundingClientRect();
+            let left = bubbleRect.left + bubbleRect.width / 2 - 110;
+            let top = bubbleRect.top - 480;
+            
+            // Keep in safe zone
+            left = Math.max(10, Math.min(left, window.innerWidth - 230));
+            top = Math.max(80, Math.min(top, window.innerHeight - 250));
+            
+            overlay.style.left = left + 'px';
+            overlay.style.top = top + 'px';
+            
+            requestAnimationFrame(() => overlay.classList.add('visible'));
+            
+            const overlayObj = {
+                element: overlay,
+                coinId: coin.id,
+                timeout: setTimeout(() => hideOverlay(overlayObj), 5000)
+            };
+            activeOverlays.push(overlayObj);
+        }
+        
+        // Update overlay content
+        function updateOverlayContent(overlay, coin, platform, intensity) {
+            const narrativeData = generateNarrativeData(coin, platform);
+            const price = coin.current_price ? '$' + coin.current_price.toLocaleString('en-US', {maximumFractionDigits: 2}) : 'N/A';
+            const change = coin.price_change_percentage_24h;
+            const changeStr = change ? (change >= 0 ? '+' : '') + change.toFixed(2) + '%' : 'N/A';
+            const changeClass = change >= 0 ? 'positive' : 'negative';
+            const volume = coin.total_volume ? '$' + (coin.total_volume / 1e6).toFixed(1) + 'M' : 'N/A';
+            const mcap = coin.market_cap ? '$' + (coin.market_cap / 1e9).toFixed(2) + 'B' : 'N/A';
+            const narratives = coin.narratives || [];
+            const hasData = coin.current_price;
+            
+            overlay.innerHTML = `
+                <div class="overlay-header">
+                    <span class="overlay-coin-name">${coin.symbol.toUpperCase()}</span>
+                    <span class="overlay-platform-tag ${platform}">${PLATFORM_CONFIG[platform].label}</span>
+                </div>
+                ${hasData ? `
+                <div class="overlay-stats">
+                    <div class="overlay-stat">
+                        <span class="overlay-stat-label">Price</span>
+                        <span class="overlay-stat-value">${price}</span>
+                    </div>
+                    <div class="overlay-stat">
+                        <span class="overlay-stat-label">24h Change</span>
+                        <span class="overlay-stat-value ${changeClass}">${changeStr}</span>
+                    </div>
+                    <div class="overlay-stat">
+                        <span class="overlay-stat-label">Volume 24h</span>
+                        <span class="overlay-stat-value">${volume}</span>
+                    </div>
+                    <div class="overlay-stat">
+                        <span class="overlay-stat-label">Mentions</span>
+                        <span class="overlay-stat-value">${narrativeData.mentions}</span>
+                    </div>
+                    <div class="overlay-stat">
+                        <span class="overlay-stat-label">Velocity</span>
+                        <span class="overlay-stat-value">${narrativeData.velocity}</span>
+                    </div>
+                    <div class="overlay-stat">
+                        <span class="overlay-stat-label">Sentiment</span>
+                        <span class="overlay-stat-value">${narrativeData.sentiment}</span>
+                    </div>
+                </div>
+                ${narratives.length > 0 ? `<div class="overlay-narrative">${narratives.map(n => `<span class="narrative-tag">${n.toUpperCase()}</span>`).join('')}</div>` : ''}
+                <div class="overlay-statement">⚠ Narrative pressure detected. Movement may be unstable.</div>
+                ` : `<div class="overlay-limited">Data limited – showing base info only</div>`}
+            `;
+        }
+        
+        // Hide overlay
+        function hideOverlay(overlayObj, immediate = false) {
+            if (!overlayObj || !overlayObj.element) return;
+            overlayObj.element.classList.remove('visible');
+            if (overlayObj.timeout) clearTimeout(overlayObj.timeout);
+            setTimeout(() => {
+                overlayObj.element.remove();
+                activeOverlays = activeOverlays.filter(o => o !== overlayObj);
+            }, immediate ? 0 : 300);
+        }
+        
+        // Controls
+        function replayNarrative() {
+            influencerX = -80;
+            currentPlatformIndex = 0;
+        }
+        
+        function resetToBaseline() {
+            bubbles.forEach(b => {
+                b.targetY = 0;
+                b.currentY = 0;
+                b.velocity = 0;
+                b.element.style.bottom = '0px';
+            });
+        }
+        
+        // Filter buttons
+        document.querySelectorAll('.btn[data-filter]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.btn[data-filter]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+            });
+        });
+        
+        // ESC to go back
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                window.location.href = 'index.html';
+            }
+        });
+        
+        // ==================== HISTORY PANEL ====================
+        let historyPanelOpen = false;
+        let currentHistoryPeriod = '7d';
+        let autoHideTimer = null;
+        const historyPanel = document.getElementById('historyPanel');
+        const historyTab = document.getElementById('historyTab');
+
+        function toggleHistoryPanel() {
+            historyPanelOpen = !historyPanelOpen;
+            historyPanel.classList.toggle('open', historyPanelOpen);
+            historyTab.classList.toggle('hidden', historyPanelOpen);
+            if (historyPanelOpen) { generateHistoryEvents(); resetAutoHide(); }
+            else { clearAutoHide(); }
+        }
+
+        function resetAutoHide() {
+            clearAutoHide();
+            autoHideTimer = setTimeout(() => { if (historyPanelOpen) toggleHistoryPanel(); }, 15000);
+        }
+        function clearAutoHide() { if (autoHideTimer) clearTimeout(autoHideTimer); }
+        historyPanel.addEventListener('mousemove', resetAutoHide);
+        historyPanel.addEventListener('scroll', resetAutoHide);
+
+        function setTimePeriod(period) {
+            currentHistoryPeriod = period;
+            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.period === period));
+            generateHistoryEvents();
+            resetAutoHide();
+        }
+
+        const INFLUENCER_PLATFORMS = ['YouTube', 'X', 'Instagram', 'Meta'];
+        const INFLUENCER_TYPES = ['Creator', 'Analyst', 'Broadcaster', 'Anonymous Node'];
+        const NARRATIVE_CATEGORIES = ['AI', 'Meme', 'L2', 'Gaming', 'DeFi', 'Macro', 'Regulation', 'Infrastructure'];
+        const NARRATIVE_COINS = [
+            { id: 'bitcoin', symbol: 'BTC', image: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png' },
+            { id: 'ethereum', symbol: 'ETH', image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
+            { id: 'solana', symbol: 'SOL', image: 'https://assets.coingecko.com/coins/images/4128/small/solana.png' },
+            { id: 'dogecoin', symbol: 'DOGE', image: 'https://assets.coingecko.com/coins/images/5/small/dogecoin.png' },
+            { id: 'render-token', symbol: 'RNDR', image: 'https://assets.coingecko.com/coins/images/11636/small/rndr.png' },
+            { id: 'arbitrum', symbol: 'ARB', image: 'https://assets.coingecko.com/coins/images/16547/small/photo_2023-03-29_21.47.00.jpeg' },
+            { id: 'pepe', symbol: 'PEPE', image: 'https://assets.coingecko.com/coins/images/29850/small/pepe-token.jpeg' },
+            { id: 'chainlink', symbol: 'LINK', image: 'https://assets.coingecko.com/coins/images/877/small/chainlink-new-logo.png' }
+        ];
+        const NARRATIVE_DESCRIPTIONS = [
+            'Institutional interest narrative emerging',
+            'Community sentiment shift observed',
+            'Technical development announcement discussed',
+            'Macro correlation narrative forming',
+            'Regulatory clarity narrative spreading',
+            'Ecosystem growth mentioned prominently',
+            'Cross-chain integration topic trending',
+            'Layer 2 scaling narrative gaining traction'
+        ];
+
+        function generateHistoryEvents() {
+            const eventsContainer = document.getElementById('historyEvents');
+            const timelineBar = document.getElementById('timelineBar');
+            const periodDays = { '7d': 7, '1m': 30, '3m': 90, '6m': 180, '12m': 365 };
+            const days = periodDays[currentHistoryPeriod];
+            const eventCount = Math.min(days, 18 + Math.floor(Math.random() * 12));
+            const events = [];
+            for (let i = 0; i < eventCount; i++) {
+                const platform = INFLUENCER_PLATFORMS[Math.floor(Math.random() * INFLUENCER_PLATFORMS.length)];
+                const influencerType = INFLUENCER_TYPES[Math.floor(Math.random() * INFLUENCER_TYPES.length)];
+                const narrative = NARRATIVE_CATEGORIES[Math.floor(Math.random() * NARRATIVE_CATEGORIES.length)];
+                const coins = [];
+                const coinCount = 1 + Math.floor(Math.random() * 3);
+                for (let c = 0; c < coinCount; c++) {
+                    const coin = NARRATIVE_COINS[Math.floor(Math.random() * NARRATIVE_COINS.length)];
+                    if (!coins.find(x => x.id === coin.id)) coins.push(coin);
+                }
+                const daysAgo = Math.floor(Math.random() * days);
+                const date = new Date(); date.setDate(date.getDate() - daysAgo);
+                date.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
+                const resonanceScore = Math.random();
+                const mentions = 50 + Math.floor(Math.random() * 450);
+                const velocity = Math.random() > 0.4 ? '+' + (10 + Math.floor(Math.random() * 80)) + '%' : '-' + Math.floor(Math.random() * 25) + '%';
+                events.push({ platform, influencerType, narrative, coins, date, daysAgo, mentions, velocity,
+                    resonance: resonanceScore > 0.66 ? 'High' : resonanceScore > 0.33 ? 'Medium' : 'Low',
+                    description: NARRATIVE_DESCRIPTIONS[Math.floor(Math.random() * NARRATIVE_DESCRIPTIONS.length)]
+                });
+            }
+            events.sort((a, b) => (a.resonance === 'High' ? 0 : a.resonance === 'Medium' ? 1 : 2) - (b.resonance === 'High' ? 0 : b.resonance === 'Medium' ? 1 : 2));
+            timelineBar.innerHTML = '';
+            const platformColors = { 'YouTube': '#ef4444', 'X': '#a78bfa', 'Instagram': '#f472b6', 'Meta': '#60a5fa' };
+            events.forEach(e => {
+                const peak = document.createElement('div');
+                peak.className = 'timeline-peak';
+                peak.style.left = `${(e.daysAgo / days) * 100}%`;
+                peak.style.height = `${20 + (e.resonance === 'High' ? 20 : e.resonance === 'Medium' ? 12 : 5)}px`;
+                peak.style.background = platformColors[e.platform];
+                peak.title = `${e.platform} · ${e.narrative}`;
+                timelineBar.appendChild(peak);
+            });
+            eventsContainer.innerHTML = events.slice(0, 25).map(e => `
+                <div class="event-item" data-coins="${e.coins.map(c=>c.id).join(',')}" onclick="highlightNarrativeCoins('${e.coins.map(c=>c.id).join(',')}', this)">
+                    <div class="event-header">
+                        <span class="event-type" style="background:${platformColors[e.platform]}20;color:${platformColors[e.platform]}">${e.platform}</span>
+                        <span class="event-time">${e.date.toLocaleDateString()} ${e.date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>
+                    </div>
+                    <div class="event-coin">
+                        ${e.coins.map(c => `<div class="event-coin-icon"><img src="${c.image}" alt="${c.symbol}" title="${c.symbol}"></div>`).join('')}
+                        <span class="event-coin-symbol">${e.coins.map(c=>c.symbol).join(', ')}</span>
+                    </div>
+                    <div class="event-details">
+                        <div class="event-detail"><span class="event-label">Type:</span><span class="event-value">${e.influencerType}</span></div>
+                        <div class="event-detail"><span class="event-label">Narrative:</span><span class="event-value">${e.narrative}</span></div>
+                        <div class="event-detail"><span class="event-label">Mentions:</span><span class="event-value">${e.mentions}</span></div>
+                        <div class="event-detail"><span class="event-label">Velocity:</span><span class="event-value">${e.velocity}</span></div>
+                        <div class="event-detail" style="grid-column:span 2"><span class="event-label">Resonance:</span><span class="event-value ${e.resonance.toLowerCase()}">${e.resonance}</span></div>
+                    </div>
+                    <div style="font-size:0.5rem;color:#64748b;margin-top:6px;font-style:italic;">${e.description}</div>
+                </div>
+            `).join('');
+        }
+
+        function highlightNarrativeCoins(coinIds, eventEl) {
+            document.querySelectorAll('.event-item').forEach(el => el.classList.remove('highlighted'));
+            eventEl.classList.add('highlighted');
+            const ids = coinIds.split(',');
+            ids.forEach(coinId => {
+                const bubble = bubbles.find(b => b.coin.id === coinId);
+                if (bubble) {
+                    bubble.element.style.boxShadow = '0 0 40px rgba(139, 92, 246, 0.8)';
+                    bubble.element.classList.add('resonating');
+                    setTimeout(() => { bubble.element.style.boxShadow = ''; bubble.element.classList.remove('resonating'); }, 1500);
+                }
+            });
+            resetAutoHide();
+        }
+
+        function replayNarrativeEvents() {
+            const items = document.querySelectorAll('.event-item');
+            let i = 0;
+            function playNext() { if (i >= Math.min(items.length, 8)) return; items[i].click(); i++; setTimeout(playNext, 900); }
+            playNext();
+        }
+
+        // Init
+        fetchCoins();
+    </script>
+    <script src="membership-gating.js"></script>
+</body>
+</html>

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome 2026 | CRYPTOSPACES</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --space-black: #000510;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --text-light: #f1f5f9;
+            /* Original Vars */
+            --primary: #3b82f6;
+            --accent: #06b6d4;
+            --gold: #fbbf24;
+            --purple: #a855f7;
+            --bg-dark: #0a0f1e;
+            --bg-darker: #030712;
+            --text: #f8fafc;
+            --text-muted: rgba(248,250,252,0.7);
+        }
+        /* Unified Header Styles */
+        .unified-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0, 5, 16, 0.95) 0%, rgba(0, 5, 16, 0) 100%);
+            padding: 15px 30px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+        }
+        .unified-left { display: flex; align-items: center; gap: 20px; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+        .unified-nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .unified-nav-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            padding: 7px 12px;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: rgba(14, 165, 233, 0.05);
+            text-transform: uppercase;
+        }
+        .unified-nav-link:hover {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+        }
+        .unified-utils {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .unified-btn {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(34, 211, 238, 0.1));
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            color: var(--text-light);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .unified-btn:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(34, 211, 238, 0.2));
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+        .unified-btn.active {
+            background: rgba(14, 165, 233, 0.3);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+        @media (max-width: 900px) {
+            .unified-nav { display: none; }
+            .unified-header { padding: 10px 15px; }
+        }
+        
+        #visionCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -2;
+            background: #000000;
+        }
+        .vision-vignette {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            color: var(--text);
+            line-height: 1.8;
+            padding-top: 80px;
+        }
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(59,130,246,0.3);
+        }
+        .title { font-size: 1.2rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px; }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .lang-switch {
+            display: flex;
+            background: rgba(59,130,246,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(59,130,246,0.3);
+        }
+        .lang-btn {
+            padding: 6px 12px;
+            font-family: inherit;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .lang-btn.active { background: rgba(59,130,246,0.3); color: var(--text); }
+        .lang-btn:hover { color: var(--text); }
+        .btn-back {
+            background: rgba(59,130,246,0.15);
+            border: 1px solid rgba(59,130,246,0.4);
+            color: #3b82f6;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-back:hover { background: rgba(59,130,246,0.25); }
+
+        .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 120px 20px 60px;
+        }
+
+        [data-lang-de], [data-lang-en] { display: none; }
+        body.lang-de [data-lang-de] { display: block; }
+        body.lang-en [data-lang-en] { display: block; }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 30px;
+            background: linear-gradient(135deg, rgba(168,85,247,0.1) 0%, rgba(59,130,246,0.1) 100%);
+            border: 1px solid rgba(168,85,247,0.3);
+            border-radius: 20px;
+        }
+        .hero h1 {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #fbbf24, #a855f7, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+        }
+        .hero-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .content-card {
+            padding: 40px;
+            background: rgba(10,15,30,0.6);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+        .content-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 20px;
+            line-height: 1.9;
+        }
+        .content-card p:last-child { margin-bottom: 0; }
+        .content-card strong { color: var(--text); }
+
+        .signature-section {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(251,191,36,0.1) 0%, rgba(168,85,247,0.1) 100%);
+            border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+        .signature-name {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--gold);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        .signature-role {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .signature-thanks {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: 20px;
+        }
+        .signature-thanks strong { color: var(--purple); }
+
+        .closing-message {
+            text-align: center;
+            padding: 30px;
+            background: rgba(10,15,30,0.6);
+            border: 1px solid rgba(168,85,247,0.3);
+            border-radius: 20px;
+        }
+        .closing-message p {
+            font-size: 1rem;
+            color: var(--text);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .closing-message .highlight {
+            background: linear-gradient(90deg, var(--gold), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* CryptoSpaces Dropdown */
+        .cryptospaces-dropdown {
+            position: relative;
+        }
+        .cryptospaces-toggle {
+            background: rgba(251,191,36,0.15);
+            border: 1px solid rgba(251,191,36,0.4);
+            color: #fbbf24;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .cryptospaces-toggle:hover {
+            background: rgba(251,191,36,0.25);
+        }
+        .cryptospaces-toggle .chevron {
+            font-size: 0.5rem;
+            transition: transform 0.2s;
+        }
+        .cryptospaces-dropdown.open .chevron {
+            transform: rotate(180deg);
+        }
+        .cryptospaces-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 10px;
+            min-width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-5px);
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+        .cryptospaces-dropdown.open .cryptospaces-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .cryptospaces-menu a {
+            display: block;
+            padding: 12px 16px;
+            color: rgba(248,250,252,0.8);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(251,191,36,0.1);
+            transition: all 0.15s;
+        }
+        .cryptospaces-menu a:last-child {
+            border-bottom: none;
+        }
+        .cryptospaces-menu a:hover {
+            background: rgba(251,191,36,0.1);
+            color: #fbbf24;
+            padding-left: 20px;
+        }
+        .cryptospaces-menu a.active {
+            color: #fbbf24;
+            background: rgba(251,191,36,0.08);
+        }
+        .cryptospaces-menu a.lifetime {
+            color: #10b981;
+        }
+        .cryptospaces-menu a.lifetime:hover {
+            background: rgba(16,185,129,0.1);
+            color: #10b981;
+        }
+        .cryptospaces-menu a.welcome-2026 {
+            color: #a855f7;
+        }
+        .cryptospaces-menu a.welcome-2026:hover {
+            background: rgba(168,85,247,0.1);
+            color: #a855f7;
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 10px 15px; }
+            .title { font-size: 1rem; }
+            .main-container { padding: 110px 15px 40px; }
+            .hero { padding: 30px 20px; }
+            .hero h1 { font-size: 1.5rem; }
+            .content-card { padding: 25px; }
+            .content-card p { font-size: 0.85rem; }
+            .signature-section { padding: 30px 20px; }
+            .signature-name { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body class="lang-de">
+<canvas id="visionCanvas"></canvas>
+<div class="vision-vignette"></div>
+<header class="unified-header">
+        <div class="unified-left">
+            <a href="index.html" class="unified-logo">CRYPTOSPACES</a>
+            <span class="page-title" style="margin-left:20px; font-family:'Orbitron'; font-weight:700; color:var(--accent-cyan);">WELCOME 2026</span>
+        </div>
+        <nav class="unified-nav">
+            <a href="top100.html" class="unified-nav-link">Top 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">Whales</a>
+            <a href="lifetime.html" class="unified-nav-link">Lifetime</a>
+        </nav>
+        <div class="unified-utils">
+            <div class="cryptospaces-dropdown" id="cryptospacesDropdown">
+                <button class="unified-btn" id="cryptospacesToggle">
+                    <span>Menu</span>
+                    <span class="chevron">▼</span>
+                </button>
+                <div class="cryptospaces-menu" style="background: rgba(0,5,16,0.95); border-color: var(--accent-blue);">
+                    <a href="magic-coins-today.html" style="color: #a855f7;">✨ Magic Coins</a>
+                    <a href="welcome-2026.html" class="welcome-2026 active">★ Welcome 2026</a>
+                    <a href="our-vision.html">Our Vision</a>
+                    <a href="impressum.html">Impressum</a>
+                    <a href="datenschutz.html">Datenschutz</a>
+                    <a href="preise.html">Preise</a>
+                    <a href="api-privacy-addendum.html">API Privacy Addendum</a>
+                    <a href="lifetime.html" class="lifetime">★ LIFETIME ACCESS</a>
+                </div>
+            </div>
+            <button class="unified-btn active" id="btnDE" onclick="setLang('de')">DE</button>
+            <button class="unified-btn" id="btnEN" onclick="setLang('en')">EN</button>
+            <a href="index.html" class="unified-btn">← Back</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- GERMAN VERSION -->
+        <div data-lang-de>
+            <section class="hero">
+                <h1>WILLKOMMEN 2026</h1>
+                <p class="hero-subtitle">Our Vision 2026 – Cryptospaces</p>
+            </section>
+
+            <div class="content-card">
+                <p>Hallo Crypto-Fans aus aller Welt,</p>
+                
+                <p>wir stehen am Anfang eines neuen Jahres. 2026. Ein Reset für alle. Gleiche Chancen. Gleicher Start. Gleicher Horizont.</p>
+                
+                <p>Noch nie war es so realistisch, das eigene Glück aktiv herauszufordern. Unsere klare Devise lautet: Arbeit. Fleiß. Konzentration. Fokus auf ein Projekt. In Kombination mit KI kannst du heute in drei Monaten mehr erreichen als früher in drei Jahren.</p>
+                
+                <p>Ich spreche aus Erfahrung. Dank konsequenter Weiterbildung, dem Erlernen präziser KI-Prompts und nicht zuletzt durch moderne No-Code-KI-Plattformen habe ich mir in den letzten Jahren eine neue Unabhängigkeit aufgebaut. Nach über 30 Jahren Lernen, Denken, Scheitern und Weitermachen kann ich heute meine Projekt-Visionen endlich in die Realität bringen.</p>
+                
+                <p>Das fühlt sich an wie ein goldenes Zeitalter für kreative Köpfe. Ich habe hunderte Projekte umgesetzt – aber noch nie hat sich Arbeit so kraftvoll, so schnell und so erfüllend angefühlt wie jetzt mit KI.</p>
+                
+                <p>Cryptospaces ist aus genau diesem Geist entstanden. Nicht als Spielerei. Sondern als Werkzeug. Als Raum für Klarheit. Für Fokus. Für echte Chancen.</p>
+                
+                <p><strong>Mein persönlicher Dank gilt unserem KI-Entwickler Sajjad Hussain, ohne dessen Präzision und Ausdauer vieles davon nicht möglich wäre.</strong></p>
+                
+                <p>Mein Rat an dich ist einfach – und kompromisslos: Verfolge deine Ziele konsequent. Sei dankbar für das, was du hast. Gib niemals auf. Glaube an deine Vision – auch dann, wenn sonst niemand daran glaubt.</p>
+                
+                <p>Ich verfolge meine Ziele seit 1990. Ohne Unterbrechung. Ohne Ausreden. Und genau deshalb weiß ich: Durchhalten schlägt Talent. Fokus schlägt Lärm.</p>
+                
+                <p>Du darfst dich 2026 auf weitere Mega-Projekte aus unserem Team freuen. Wir werden Grenzen verschieben. Wir werden Systeme neu denken. Wir werden zeigen, was möglich ist, wenn Mensch und KI gemeinsam arbeiten.</p>
+            </div>
+
+            <div class="signature-section">
+                <div class="signature-name">Orhan Ayhan</div>
+                <div class="signature-role">Founder & Visionär</div>
+                <div class="signature-thanks">Technische Realisierung mit Unterstützung von <strong>Sajjad Hussain</strong> – KI-Entwickler</div>
+            </div>
+
+            <div class="closing-message">
+                <p>Ich wünsche euch allen ein gesundes, mutiges und erfolgreiches neues Jahr 2026.</p>
+                <p style="margin-top: 15px;">Lasst uns mit KI das Unerreichbare erreichbar machen.<br>Und das Unmögliche möglich.</p>
+                <p style="margin-top: 20px;" class="highlight">Willkommen in Cryptospaces.</p>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 10px;">Der Raum für Fokus, Vision – und echte Chancen.</p>
+            </div>
+        </div>
+
+        <!-- ENGLISH VERSION -->
+        <div data-lang-en>
+            <section class="hero">
+                <h1>WELCOME 2026</h1>
+                <p class="hero-subtitle">Our Vision 2026 – Cryptospaces</p>
+            </section>
+
+            <div class="content-card">
+                <p>Hello crypto fans from all over the world,</p>
+                
+                <p>we're standing at the beginning of a new year. 2026. A reset for everyone. Equal chances. Same starting line. Same horizon.</p>
+                
+                <p>It has never been more realistic to challenge your own destiny—actively. Our principle is clear: work, discipline, concentration, and focus on one project. With AI, you can now achieve more in three months than you used to achieve in three years.</p>
+                
+                <p>I'm saying this from experience. Through constant learning, mastering precise AI prompts, and using modern AI no-code platforms, I've become more independent over the last years. After more than 30 years of learning, building, failing, and pushing forward, I can finally turn my visions into reality.</p>
+                
+                <p>This era feels like a golden age for creative minds. I've built hundreds of projects—yet nothing has been as powerful, fast, and motivating as building with AI today.</p>
+                
+                <p>Cryptospaces was born from that spirit. Not as entertainment. But as a tool. A space for clarity. For focus. For real opportunity.</p>
+                
+                <p><strong>My personal thanks go to our AI developer Sajjad Hussain—his precision and endurance made a lot of this possible.</strong></p>
+                
+                <p>My advice to you is simple—and uncompromising: Pursue your goals relentlessly. Be grateful for what you have. Never quit. Believe in your vision—even when nobody else does.</p>
+                
+                <p>I've pursued my goals since 1990. No pauses. No excuses. That's why I know this truth: consistency beats talent. Focus beats noise.</p>
+                
+                <p>In 2026, you can expect more mega projects from our team. We will push boundaries. We will rethink systems. We will prove what becomes possible when humans and AI work together.</p>
+            </div>
+
+            <div class="signature-section">
+                <div class="signature-name">Orhan Ayhan</div>
+                <div class="signature-role">Founder & Visionary</div>
+                <div class="signature-thanks">Technical realization with support from <strong>Sajjad Hussain</strong> – AI Developer</div>
+            </div>
+
+            <div class="closing-message">
+                <p>I wish all of you a healthy, bold, and successful 2026.</p>
+                <p style="margin-top: 15px;">Let's use AI to reach what once felt unreachable.<br>Let's make the impossible possible.</p>
+                <p style="margin-top: 20px;" class="highlight">Welcome to Cryptospaces.</p>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 10px;">The space for focus, vision—and real chances.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = localStorage.getItem('welcome2026Lang') || 'de';
+        
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('welcome2026Lang', lang);
+            document.body.className = 'lang-' + lang;
+            document.getElementById('btnDE').classList.toggle('active', lang === 'de');
+            document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+        }
+        
+        setLang(currentLang);
+
+        // CryptoSpaces Dropdown
+        const cryptospacesDropdown = document.getElementById('cryptospacesDropdown');
+        const cryptospacesToggle = document.getElementById('cryptospacesToggle');
+        cryptospacesToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cryptospacesDropdown.classList.toggle('open');
+        });
+        document.addEventListener('click', (e) => {
+            if (!cryptospacesDropdown.contains(e.target)) {
+                cryptospacesDropdown.classList.remove('open');
+            }
+        });
+    </script>
+<!-- CINEMATIC VISION BACKGROUND -->
+<script>
+(function() {
+    const canvas = document.getElementById('visionCanvas');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    const STAR_COUNT = 80;
+    
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    
+    function createStars() {
+        stars = [];
+        for (let i = 0; i < STAR_COUNT; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 1.5 + 0.5,
+                speed: Math.random() * 0.3 + 0.1,
+                opacity: Math.random() * 0.5 + 0.3,
+                pulse: Math.random() * Math.PI * 2
+            });
+        }
+    }
+    
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        stars.forEach(star => {
+            star.y += star.speed;
+            star.pulse += 0.02;
+            
+            if (star.y > canvas.height) {
+                star.y = 0;
+                star.x = Math.random() * canvas.width;
+            }
+            
+            const flickerOpacity = star.opacity + Math.sin(star.pulse) * 0.2;
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(14, 165, 233, ${flickerOpacity})`;
+            ctx.fill();
+        });
+        
+        requestAnimationFrame(draw);
+    }
+    
+    window.addEventListener('resize', () => { resize(); createStars(); });
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) requestAnimationFrame(draw);
+    });
+    
+    resize();
+    createStars();
+    draw();
+})();
+</script>
+</body>
+</html>

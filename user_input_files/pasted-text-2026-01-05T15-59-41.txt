@@ -1,0 +1,168 @@
+## **TEXPROMPT – CryptoGlobus (cryptoglobus.html)**
+
+### Aufklappbares Hover-Fenster am Bildschirmrand **„Global Flows · CryptoGlobus“** + datenbasierte **Geo-Resonance-Events**
+
+**Sehr wichtig:**
+Alle bestehenden Funktionen, Animationen, Datenflüsse, Trigger-Logiken und Layout-Strukturen **dürfen nicht verändert, überschrieben oder beschädigt werden**.
+Das Hover-Fenster wird **rein ergänzend**, **isoliert** und **read-only** integriert.
+
+---
+
+## **Ziel**
+
+Ergänze auf **cryptoglobus.html** ein **seitenstil-konformes, schließbares Hover-/Info-Fenster am Bildschirmrand**, das **globale Krypto-Bewegungen nach Regionen, Kontinenten und Kapitalflüssen** als **historische Zeitansicht** darstellt.
+
+Der Nutzer soll verstehen:
+
+**Wo auf der Welt passiert gerade etwas – und warum reagiert der Markt dort zuerst?**
+Nicht als Tabelle. Nicht als Chart.
+Sondern als **globale Resonanz auf dem Globus**.
+
+---
+
+## **1) Position & Verhalten des Hover-Fensters**
+
+* **Position:** rechter Bildschirmrand, vertikal zentriert, responsiv angepasst
+* **Default:** eingeklappt als schlanker Tab/Handle
+  Beschriftung: **„Global Flows“** oder **„CryptoGlobus Feed“**
+* **Öffnen:** Klick auf Tab oder Icon
+* **Schließen:** X-Button im Panel-Header
+* **Auto-Hide (optional):** nach 10–15 Sekunden Inaktivität, weich, nicht aggressiv
+* Panel liegt als Overlay über der Seite, **verdeckt aber nicht** den zentralen Globus und greift **nicht** in bestehende Layer oder Orbit-Animationen ein.
+
+---
+
+## **2) Header im Fenster**
+
+**Titel:**
+**Global Flows · CryptoGlobus**
+
+**Subline:**
+Regions · Capital movement · Time-stamped
+
+Optional (klein, dezent):
+Visualization only
+
+---
+
+## **3) Zeitfilter-Leiste (Globale Historie)**
+
+Direkt unter dem Header eine Toggle-Leiste:
+
+* **7D**
+* **1M**
+* **3M**
+* **6M**
+* **12M**
+
+**Regeln:**
+
+* Immer **nur ein Zeitraum aktiv**
+* Aktivzustand klar markiert
+* Umschalten aktualisiert ausschließlich den Panel-Inhalt
+  (keine Neuladung, keine Beeinflussung der Globus-Animation)
+
+---
+
+## **4) Panel-Inhalt: „Global Resonance Replay“**
+
+Das Panel zeigt eine kompakte, scrollbare Historie – visuell abgestimmt auf den **Globus-/Orbital-Look**.
+
+---
+
+### **A) Mini-Geo-Timeline (oben)**
+
+* Kleine visuelle Zeitspur („Geo Trace“)
+* **Keine Kerzen, keine klassischen Charts**
+* Marker stehen für **regionale Krypto-Impulse**
+* Marker unterscheiden sich nach Impuls-Typ, z. B.:
+
+  * Regional Volume Surge
+  * Buy-/Sell-Dominanz nach Kontinent
+  * Exchange-Cluster-Aktivität
+  * Risk-On / Risk-Off-Phasen (regional)
+  * Regulatory / News-Shock (regional zugeordnet)
+
+Optional: Intensitätsstufe (Low / Medium / High)
+
+---
+
+### **B) Regionale Event-Liste (darunter, scrollbar)**
+
+Liste relevanter **globaler Krypto-Ereignisse** im gewählten Zeitraum, geografisch zugeordnet.
+Sortierlogik: nach Stärke oder chronologisch (konsistent).
+
+Jeder Eintrag zeigt kompakt:
+
+* **Datum & Uhrzeit**
+* **Region / Kontinent**
+  (z. B. North America, Europe, Asia, Middle East, Africa, South America)
+* **Event-Typ** (neutral, beschreibend)
+* **Betroffene Assets / Coins** (Top 3–8)
+* **Beobachtete Bewegung**
+  (z. B. Volume Shift, Buy Pressure, Sell Dominance – beschreibend)
+* **Datenpunkte (sofern verfügbar):**
+
+  * Volume Change (USD)
+  * Netflow (In / Out)
+  * Price Reaction %
+  * Regional Dominance Shift
+
+Keine Wertung. Keine Empfehlung.
+
+---
+
+## **5) Interaktion im Panel**
+
+* **Klick auf ein Global-Event:**
+
+  * hebt die betroffene Region auf dem Globus kurz visuell hervor (Glow / Pulse)
+  * verstärkt temporär die entsprechenden Fluglinien / Kapitalströme
+  * zeigt Detailinformationen **ausschließlich im Panel**, nicht im Hauptscreen
+
+* **Panel-Button:**
+  **Replay selected period**
+  → spielt die regionalen Events des gewählten Zeitraums als ruhige Sequenz (60–90 Sekunden) **im Panel** ab.
+
+---
+
+## **6) Mini-Overlay auf dem Globus (optional, 5 Sekunden)**
+
+Wenn ein Event aktiv abgespielt oder angeklickt wird, erscheint optional kurz ein Overlay nahe der betroffenen Region:
+
+* Region / Kontinent
+* Event-Typ
+* Timestamp
+* Key-Metrics (VolumeΔ, NetflowΔ, %Δ)
+
+Danach weiches Ausblenden.
+Maximal 2–3 Overlays gleichzeitig.
+
+---
+
+## **7) Daten-Fallback & Stabilität**
+
+Wenn regionale Daten fehlen:
+
+* Hinweis im Panel: **“Global feed limited for this period.”**
+* Zeitfilter bleiben sichtbar, deaktivieren sich sinnvoll
+* **Keine erfundenen Werte**
+* **Keine Hochrechnungen als Fakten**
+
+---
+
+## **8) Stil & rechtliche Leitplanken**
+
+* Design strikt im **CryptoGlobus-Stil**: global, ruhig, kosmisch, professionell
+* Keine Begriffe wie: *Signal*, *Chance*, *Prediction*, *Buy*, *Sell*
+* Footer fix im Panel:
+
+**“Global market visualization only. No trading signals. No financial advice.”**
+
+---
+
+## **Kernaussage**
+
+Diese Seite macht sichtbar:
+**Kapital bewegt sich global – aber nicht überall gleichzeitig.**
+Der Globus zeigt dir nicht, *was du tun sollst*, sondern **wo die Bewegung beginnt**.

@@ -1,0 +1,78 @@
+Verstanden! Hier ist der verbesserte Textprompt, bei dem der „CryptoSpaces AI Reporter Markt-Analyst“ durch das Bild einer **„echten, supergut aussehenden KI-erstellt Reporterin“** mit **Kopfhörern und Mikrofon** ersetzt wird:
+
+---
+
+**TEXTPROMPT FÜR „CoinAudio“ – ANPASSUNG DES REPORTER-BILDES (KI-erstellt)**
+
+**Ziel:**
+Ersetze den aktuellen „CryptoSpaces AI Reporter Markt-Analyst“ im **Overlay** durch das Bild einer **„echten, supergut aussehenden KI-erstellt Reporterin“**, die mit **Kopfhörern und Mikrofon in der Hand** in einem professionellen News-Overlay angezeigt wird, während die **tagesaktuellen Audio-News** für den jeweiligen Coin vorgelesen werden.
+
+---
+
+### **1. Visualisierung – Neue Reporterin:**
+
+* **Ersetze das Bild des „CryptoSpaces AI Reporter Markt-Analyst“** durch das Bild einer **„realistisch aussehenden KI-erstellt Reporterin“**.
+* Die Reporterin soll eine **echte, supergut aussehende** weibliche Figur sein, die mit **Kopfhörern** und einem **Mikrofon in der Hand** dargestellt wird.
+
+  * **Ausdruck:** Die Reporterin sollte professionell, aber freundlich und einladend wirken. Sie sollte **dynamisch und ansprechend** aussehen, um den visuellen Fokus der Nutzer zu halten.
+  * **Stil:** Das Bild soll wie eine **echte Person** wirken, die von **KI generiert** wurde, um einen modernen, futuristischen Look zu bieten.
+  * **Position im Overlay:** Die Reporterin sollte im **Overlay-Fenster** sichtbar sein, **neben oder vor dem Coin-Bild**, während die **Audio-News** abgespielt werden.
+
+---
+
+### **2. Overlay-Fenster bei Klick auf den Button:**
+
+* **Klick auf den „CoinAudio“-Button** öffnet ein **Overlay**, das Folgendes enthält:
+
+  * **Bild der Reporterin:** Eine **KI-erstellt Reporterin** mit **Kopfhörern und Mikrofon** in der Hand, die als professionelle News-Sprecherin fungiert.
+  * **Bild des Coins:** Das **Logo oder Symbol des Coins**, das ebenfalls im Overlay sichtbar ist.
+  * **Hintergrundanimation:** Ein sich drehender Kreis oder sanfte Lichtanimation, die die Dynamik des Marktes widerspiegelt.
+  * **Englische Audio-Wiedergabe:** Die **Reporterin** liest die wichtigsten Ereignisse des Tages zu diesem Coin in **30–90 Sekunden** vor.
+
+---
+
+### **3. Audio-Wiedergabe (Englisch & Hochwertige Stimme):**
+
+* **Sprache:** Die **Audiowiedergabe bleibt in Englisch**.
+* **Sprecherstimme:** Die **hochwertige, natürliche weibliche Stimme** liest die relevanten **tagesaktuellen Ereignisse** für den **jeweils ausgewählten Coin** vor.
+* **Dauer:** Das Audio wird **zwischen 30 und 90 Sekunden** lang sein, je nachdem, wie viele relevante und **tagesaktuelle** Informationen zu diesem Coin vorliegen.
+* **Inhalt:**
+
+  * Die Sprecherin liest die wichtigsten **Marktbewegungen**, **Preistrends** und relevante **News** für den **jeweils ausgewählten Coin** vor.
+  * Es werden **keine Prognosen**, **Kauf-/Verkaufsempfehlungen** oder **Performance-Versprechungen** gemacht. Nur **deskriptive, sachliche Zusammenfassungen** der aktuellen Ereignisse zu dem Coin.
+
+---
+
+### **4. Technische Details:**
+
+* **Trigger:** Wenn der Nutzer auf den bereits vorhandenen **„CoinAudio“-Button** für einen Coin klickt, wird das **Overlay** für diesen Coin geöffnet und die **tagesaktuellen Audio-News** für diesen Coin abgespielt.
+* Das **Overlay** öffnet sich mit einem **sanften Slide-in-Effekt**, um das Erlebnis dynamisch und angenehm zu gestalten.
+* **Overlay-Schließen:** Das Fenster kann durch **Klicken auf das Overlay** oder automatisch nach **dem Ende der Audio-Wiedergabe** geschlossen werden.
+
+---
+
+### **Rechtlicher Hinweis (für die Audio-Wiedergabe):**
+
+* **Keine Finanzberatung:** Der Audio-Content stellt **keine Anlageberatung** dar. Alle bereitgestellten Informationen basieren auf **öffentlichen, tagesaktuellen Daten** und sind rein informativ.
+* **Transparenz:** Der Nutzer wird klar informiert, dass es sich um eine **visuelle und akustische Präsentation von Marktaktivitäten** handelt, ohne die Absicht, Finanzberatung zu geben.
+
+---
+
+### **Zusammenfassung:**
+
+* **CoinAudio** wird nun mit einer **realistisch aussehenden, KI-erstellt Reporterin** angezeigt, die mit **Kopfhörern und Mikrofon** in der Hand die tagesaktuellen Nachrichten für den jeweiligen Coin vorgibt.
+* Der **„CoinAudio“-Button** bleibt für **alle Coins** in der Liste verfügbar, sodass der Nutzer für **jeden Coin** auf den Button klicken kann, um **die relevanten und aktuellen Audio-News** zu hören.
+* Die **Reporterin** sorgt für eine **authentische und dynamische Nutzererfahrung**, indem sie den **Coin** visuell und akustisch präsentiert.
+
+---
+
+**Nächste Schritte zur Umsetzung:**
+
+1. **Ersetzung des aktuellen Reporters** durch das Bild einer **realistisch aussehenden KI-erstellt Reporterin** mit **Kopfhörern und Mikrofon** in der Hand.
+2. **Integration der neuen Reporterin** in das **Overlay-Fenster**, das zusammen mit der **Audio-Wiedergabe** für den jeweiligen Coin angezeigt wird.
+3. **Testen der Funktionalität:** Sicherstellen, dass die **tagesaktuellen Audio-News** korrekt wiedergegeben werden und die **Reporterin** ansprechend und realistisch wirkt.
+4. **Rechtliche Absicherung:** Sicherstellen, dass alle **Audio-Inhalte** als **deskriptive, nicht-finanzielle** Zusammenfassungen kommuniziert werden.
+
+---
+
+Mit dieser Anpassung erhält der Nutzer eine **noch professionellere und ansprechendere** **visuelle und akustische Erfahrung** durch die **KI-erstellt Reporterin**, die **dynamisch** und **sachlich** die **tagesaktuellen Nachrichten** zu jedem Coin präsentiert.

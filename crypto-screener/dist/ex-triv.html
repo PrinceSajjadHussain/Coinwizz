@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EX-TRIV - Exchange & Trading Infrastructure Visualization</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Unified Header Styles */
+        :root {
+            --header-height: 80px;
+            --toolbar-height: 55px;
+            --total-header-height: 135px;
+             --primary: #06b6d4;
+        }
+        .unified-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: rgba(10, 15, 30, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(6, 182, 212, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .unified-left { display: flex; align-items: center; gap: 1rem; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+        }
+        .unified-nav {
+            display: flex;
+            gap: 2rem;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .unified-nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+        .unified-nav-link:hover, .unified-nav-link.active {
+            color: #fff;
+            background: rgba(6, 182, 212, 0.15);
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+        }
+        .unified-utils { display: flex; align-items: center; gap: 1rem; }
+        
+        /* Sub-Toolbar für Controls */
+        .sub-toolbar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            height: var(--toolbar-height);
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(6,182,212,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            z-index: 99;
+            padding: 0 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Adjust body and fixed elements */
+        body { padding-top: var(--total-header-height) !important; }
+        .canvas-container { top: var(--total-header-height) !important; bottom: 50px; }
+        .legend, .state-panel, .tooltip { top: 150px !important; }
+
+        /* Preserve Original Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #06b6d4;
+            --secondary: #3b82f6;
+            --accent: #8b5cf6;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0a0f1e;
+            --bg-darker: #030712;
+            --text: #f8fafc;
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--text);
+        }
+        
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.4s ease-out;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-title { font-size: 1.8rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 4px; margin-bottom: 8px; }
+        .loading-sub { font-size: 0.75rem; color: rgba(248,250,252,0.6); margin-bottom: 25px; }
+        .progress-container { width: 280px; height: 6px; background: rgba(6,182,212,0.15); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 3px; transition: width 0.1s linear; }
+        .progress-percent { margin-top: 10px; font-size: 0.7rem; color: var(--primary); }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(6,182,212,0.2);
+        }
+        .title { font-size: 1.3rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px; }
+        .title-sub { font-size: 0.55rem; color: rgba(248,250,252,0.5); letter-spacing: 1px; margin-top: 2px; }
+        .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn {
+            background: rgba(6,182,212,0.15);
+            border: 1px solid rgba(6,182,212,0.4);
+            color: var(--primary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:hover { 
+            background: rgba(6,182,212,0.3); 
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(6,182,212,0.3);
+        }
+        .btn.active { background: rgba(6,182,212,0.4); border-color: var(--primary); }
+        .btn-back { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.4); color: var(--secondary); }
+        .btn-back:hover { background: rgba(59,130,246,0.3); box-shadow: 0 4px 15px rgba(59,130,246,0.3); }
+        .btn-time { background: rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.4); color: var(--accent); }
+        .btn-time.active { background: rgba(139,92,246,0.4); }
+        
+        /* Einheitliche Banner/Page Link Buttons - Alle im gleichen Design */
+        .page-links {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .page-link {
+            background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(59,130,246,0.15));
+            border: 1px solid rgba(6,182,212,0.5);
+            color: var(--primary);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-link::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(6,182,212,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        .page-link:hover::before {
+            left: 100%;
+        }
+        .page-link:hover {
+            background: linear-gradient(135deg, rgba(6,182,212,0.4), rgba(59,130,246,0.3));
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6,182,212,0.35);
+        }
+        .page-link .icon {
+            font-size: 0.9rem;
+        }
+
+        /* Canvas */
+        .canvas-container {
+            position: fixed;
+            top: 60px; left: 0; right: 0; bottom: 50px;
+        }
+        #mainCanvas { width: 100%; height: 100%; }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            padding: 10px 20px;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.6rem;
+            color: rgba(248,250,252,0.5);
+            border-top: 1px solid rgba(6,182,212,0.2);
+        }
+        .stats { display: flex; gap: 20px; }
+        .stat-val { color: var(--primary); font-weight: 600; }
+        .disclaimer { color: var(--warning); font-style: italic; }
+
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: rgba(10,15,30,0.95);
+            border: 1px solid rgba(6,182,212,0.5);
+            border-radius: 12px;
+            padding: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            z-index: 200;
+            min-width: 180px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .tooltip.visible { opacity: 1; }
+        .tooltip-name { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+        .tooltip-row { display: flex; justify-content: space-between; font-size: 0.7rem; margin: 4px 0; }
+        .tooltip-label { color: rgba(248,250,252,0.6); }
+        .tooltip-value { font-family: 'JetBrains Mono', monospace; }
+        .tooltip-value.high { color: var(--success); }
+        .tooltip-value.medium { color: var(--warning); }
+        .tooltip-value.low { color: var(--danger); }
+        .tooltip-status { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(6,182,212,0.2); font-size: 0.65rem; }
+        .status-indicator { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* Legend */
+        .legend {
+            position: fixed;
+            left: 20px;
+            top: 80px;
+            background: rgba(10,15,30,0.85);
+            border: 1px solid rgba(6,182,212,0.2);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.6rem;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+        }
+        .legend-title { color: var(--primary); font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin: 6px 0; color: rgba(248,250,252,0.7); }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .legend-line { width: 20px; height: 3px; border-radius: 2px; }
+
+        /* State Panel */
+        .state-panel {
+            position: fixed;
+            right: 20px;
+            top: 80px;
+            background: rgba(10,15,30,0.85);
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.6rem;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+            min-width: 150px;
+        }
+        .state-title { color: var(--accent); font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; }
+        .state-item { display: flex; align-items: center; gap: 8px; margin: 6px 0; padding: 6px 8px; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+        .state-item:hover { background: rgba(139,92,246,0.15); }
+        .state-item.active { background: rgba(139,92,246,0.25); }
+        .state-icon { font-size: 0.9rem; }
+        .state-label { color: rgba(248,250,252,0.8); }
+    </style>
+</head>
+<body>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-title">EX-TRIV</div>
+        <div class="loading-sub">Exchange & Trading Infrastructure Visualization</div>
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+<!-- Unified Header -->
+    <header class="unified-header">
+        <div class="unified-left">
+            <div class="unified-logo">CRYPTOSPACES</div>
+        </div>
+        <nav class="unified-nav">
+            <a href="top100.html" class="unified-nav-link">TOP 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">WHALES</a>
+            <a href="our-vision.html" class="unified-nav-link">VISION</a>
+        </nav>
+        <div class="unified-utils">
+             <!-- Specific utils can go here if needed, but we use toolbar for main controls -->
+        </div>
+    </header>
+
+    <!-- Sub-Toolbar for Page Controls -->
+    <div class="sub-toolbar">
+         <div style="margin-right: 20px;">
+            <div class="title" style="font-size: 1rem;">EX-TRIV</div>
+        </div>
+        <div class="controls">
+            <button class="btn btn-time active" data-time="realtime">Real-time</button>
+            <button class="btn btn-time" data-time="24h">24h</button>
+            <button class="btn btn-time" data-time="7d">7d</button>
+            <span style="color: rgba(255,255,255,0.2); margin: 0 5px;">|</span>
+            <button class="btn active" id="toggleSpot">Spot</button>
+            <button class="btn active" id="togglePerps">Perpetuals</button>
+            <button class="btn active" id="toggleRouting">Routing</button>
+            <a href="index.html" class="btn btn-back">Home</a>
+             <div class="page-links">
+                <a href="rr.html" class="page-link"><span class="icon">🔗</span>RR</a>
+                <a href="lyps.html" class="page-link"><span class="icon">🔥</span>LYPS</a>
+                <a href="cscs.html" class="page-link"><span class="icon">💧</span>CSCS</a>
+                <a href="nft-digital.html" class="page-link"><span class="icon">🎨</span>NFT</a>
+                <a href="game-vev.html" class="page-link"><span class="icon">🎮</span>GAME</a>
+                <a href="misvav.html" class="page-link"><span class="icon">⛏️</span>MIS</a>
+                <a href="sacorcs.html" class="page-link"><span class="icon">🛡️</span>SAC</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-title">EXCHANGE HUBS</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--primary);"></div> High Liquidity</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--warning);"></div> Medium Liquidity</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--danger);"></div> Low Liquidity</div>
+        <div style="margin: 10px 0; border-top: 1px solid rgba(6,182,212,0.2);"></div>
+        <div class="legend-title">FLOW TYPES</div>
+        <div class="legend-item"><div class="legend-line" style="background: linear-gradient(90deg, var(--primary), var(--secondary));"></div> Spot Flow</div>
+        <div class="legend-item"><div class="legend-line" style="background: linear-gradient(90deg, var(--accent), #c026d3);"></div> Perp Flow</div>
+        <div class="legend-item"><div class="legend-line" style="background: linear-gradient(90deg, var(--warning), var(--danger));"></div> Derivatives</div>
+    </div>
+
+    <div class="state-panel">
+        <div class="state-title">SYSTEM STATE</div>
+        <div class="state-item active" data-state="high"><span class="state-icon">*</span><span class="state-label">High Liquidity</span></div>
+        <div class="state-item" data-state="fragmented"><span class="state-icon">:</span><span class="state-label">Fragmented</span></div>
+        <div class="state-item" data-state="drain"><span class="state-icon">v</span><span class="state-label">Liquidity Drain</span></div>
+        <div class="state-item" data-state="overheated"><span class="state-icon">~</span><span class="state-label">Overheated</span></div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-name" id="ttName">Binance</div>
+        <div class="tooltip-row"><span class="tooltip-label">Liquidity Depth</span><span class="tooltip-value high" id="ttDepth">$2.4B</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">24h Volume</span><span class="tooltip-value" id="ttVolume">$18.2B</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">Active Pairs</span><span class="tooltip-value" id="ttPairs">1,248</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">Flow Direction</span><span class="tooltip-value" id="ttFlow">Inbound</span></div>
+        <div class="tooltip-status"><span class="status-indicator" id="ttIndicator" style="background: var(--success);"></span><span id="ttStatus">Healthy Liquidity</span></div>
+    </div>
+
+    <div class="footer">
+        <div class="stats">
+            <span>Exchanges: <span class="stat-val" id="statExchanges">12</span></span>
+            <span>Total Liquidity: <span class="stat-val" id="statLiquidity">$42.8B</span></span>
+            <span>Active Routes: <span class="stat-val" id="statRoutes">156</span></span>
+            <span>State: <span class="stat-val" id="statState">High Liquidity</span></span>
+        </div>
+        <div class="disclaimer">Simulierte Daten - Keine Anlageberatung</div>
+    </div>
+
+    <script>
+    // ==================== CONFIGURATION ====================
+    const EXCHANGES = [
+        { name: 'Binance', baseSize: 90, liquidity: 2400, volume: 18200, pairs: 1248 },
+        { name: 'Coinbase', baseSize: 70, liquidity: 1800, volume: 8500, pairs: 524 },
+        { name: 'OKX', baseSize: 65, liquidity: 1200, volume: 7200, pairs: 892 },
+        { name: 'Bybit', baseSize: 60, liquidity: 980, volume: 6100, pairs: 756 },
+        { name: 'Kraken', baseSize: 55, liquidity: 720, volume: 3200, pairs: 412 },
+        { name: 'Bitfinex', baseSize: 50, liquidity: 580, volume: 2100, pairs: 328 },
+        { name: 'KuCoin', baseSize: 50, liquidity: 540, volume: 2800, pairs: 1124 },
+        { name: 'Gate.io', baseSize: 45, liquidity: 420, volume: 1900, pairs: 2156 },
+        { name: 'Huobi', baseSize: 45, liquidity: 380, volume: 1600, pairs: 612 },
+        { name: 'MEXC', baseSize: 40, liquidity: 280, volume: 1200, pairs: 1856 },
+        { name: 'Bitstamp', baseSize: 35, liquidity: 220, volume: 680, pairs: 156 },
+        { name: 'Gemini', baseSize: 35, liquidity: 180, volume: 520, pairs: 124 }
+    ];
+
+    const LAYER_COLORS = {
+        spot: { start: '#06b6d4', end: '#3b82f6' },
+        perp: { start: '#8b5cf6', end: '#c026d3' },
+        deriv: { start: '#f59e0b', end: '#ef4444' }
+    };
+
+    const STATE_CONFIGS = {
+        high: { glowIntensity: 1.0, flowSpeed: 1.0, poolDensity: 1.0, routeChaos: 0.1 },
+        fragmented: { glowIntensity: 0.5, flowSpeed: 0.6, poolDensity: 0.4, routeChaos: 0.3 },
+        drain: { glowIntensity: 0.3, flowSpeed: 1.5, poolDensity: 0.6, routeChaos: 0.2, drainMode: true },
+        overheated: { glowIntensity: 1.2, flowSpeed: 2.0, poolDensity: 0.8, routeChaos: 0.8 }
+    };
+
+    // ==================== STATE ====================
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+    
+    let width, height, centerX, centerY;
+    let hubs = [];
+    let flows = [];
+    let pools = [];
+    let animId = null;
+    let hoveredHub = null;
+    let currentState = 'high';
+    let showSpot = true, showPerps = true, showRouting = true;
+    let timeRange = 'realtime';
+    let time = 0;
+
+    // ==================== INITIALIZATION ====================
+    function resize() {
+        width = canvas.width = canvas.parentElement.clientWidth;
+        height = canvas.height = canvas.parentElement.clientHeight;
+        centerX = width / 2;
+        centerY = height / 2;
+        initHubs();
+        initFlows();
+        initPools();
+    }
+
+    function initHubs() {
+        hubs = [];
+        const angleStep = (Math.PI * 2) / EXCHANGES.length;
+        const baseRadius = Math.min(width, height) * 0.32;
+        
+        EXCHANGES.forEach((ex, i) => {
+            const angle = angleStep * i - Math.PI / 2;
+            const radiusVariance = 0.85 + Math.random() * 0.3;
+            const r = baseRadius * radiusVariance;
+            
+            hubs.push({
+                ...ex,
+                x: centerX + Math.cos(angle) * r,
+                y: centerY + Math.sin(angle) * r,
+                angle,
+                orbitRadius: r,
+                rotation: Math.random() * Math.PI * 2,
+                rotationSpeed: 0.005 + (ex.volume / 20000) * 0.01,
+                size: ex.baseSize * (0.8 + Math.random() * 0.4),
+                pulsePhase: Math.random() * Math.PI * 2,
+                activity: 0.5 + Math.random() * 0.5
+            });
+        });
+    }
+
+    function initFlows() {
+        flows = [];
+        const stateConfig = STATE_CONFIGS[currentState];
+        
+        hubs.forEach((hub, i) => {
+            // Create flows to 2-4 random other hubs
+            const numFlows = 2 + Math.floor(Math.random() * 3);
+            for (let f = 0; f < numFlows; f++) {
+                let targetIdx = (i + 1 + Math.floor(Math.random() * (hubs.length - 2))) % hubs.length;
+                const target = hubs[targetIdx];
+                
+                const layerType = Math.random() < 0.5 ? 'spot' : (Math.random() < 0.7 ? 'perp' : 'deriv');
+                const intensity = 0.3 + Math.random() * 0.7;
+                
+                flows.push({
+                    from: hub,
+                    to: target,
+                    layer: layerType,
+                    intensity,
+                    progress: Math.random(),
+                    speed: (0.002 + Math.random() * 0.003) * stateConfig.flowSpeed,
+                    particles: [],
+                    width: 1 + intensity * 3
+                });
+                
+                // Initialize particles for this flow
+                const numParticles = 3 + Math.floor(Math.random() * 5);
+                for (let p = 0; p < numParticles; p++) {
+                    flows[flows.length - 1].particles.push({
+                        t: Math.random(),
+                        speed: 0.003 + Math.random() * 0.004
+                    });
+                }
+            }
+        });
+    }
+
+    function initPools() {
+        pools = [];
+        const stateConfig = STATE_CONFIGS[currentState];
+        
+        hubs.forEach(hub => {
+            const poolCount = Math.floor(3 + Math.random() * 4 * stateConfig.poolDensity);
+            for (let i = 0; i < poolCount; i++) {
+                const angle = (Math.PI * 2 / poolCount) * i + Math.random() * 0.5;
+                const dist = hub.size * (0.8 + Math.random() * 0.6);
+                pools.push({
+                    hub,
+                    angle,
+                    dist,
+                    size: 8 + Math.random() * 15,
+                    density: 0.3 + Math.random() * 0.7 * stateConfig.poolDensity,
+                    pulsePhase: Math.random() * Math.PI * 2
+                });
+            }
+        });
+    }
+
+    // ==================== UPDATE ====================
+    function update() {
+        time += 0.016;
+        const stateConfig = STATE_CONFIGS[currentState];
+        
+        // Update hub rotations and positions
+        hubs.forEach(hub => {
+            hub.rotation += hub.rotationSpeed * stateConfig.flowSpeed;
+            hub.pulsePhase += 0.03;
+            
+            // Slight orbital movement
+            const wobble = Math.sin(time * 0.5 + hub.angle) * 5;
+            hub.x = centerX + Math.cos(hub.angle) * (hub.orbitRadius + wobble);
+            hub.y = centerY + Math.sin(hub.angle) * (hub.orbitRadius + wobble);
+            
+            // Update activity based on state
+            if (stateConfig.drainMode) {
+                hub.activity = Math.max(0.1, hub.activity - 0.001);
+            } else {
+                hub.activity = 0.5 + Math.sin(time + hub.pulsePhase) * 0.3;
+            }
+        });
+        
+        // Update flows
+        flows.forEach(flow => {
+            flow.particles.forEach(p => {
+                p.t += p.speed * stateConfig.flowSpeed;
+                if (p.t > 1) p.t = 0;
+            });
+            
+            // Add chaos to flow paths in overheated state
+            if (stateConfig.routeChaos > 0.5) {
+                flow.chaosOffset = Math.sin(time * 3 + flow.intensity * 10) * 20 * stateConfig.routeChaos;
+            } else {
+                flow.chaosOffset = 0;
+            }
+        });
+        
+        // Update pools
+        pools.forEach(pool => {
+            pool.pulsePhase += 0.02;
+        });
+    }
+
+    // ==================== DRAWING ====================
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+        const stateConfig = STATE_CONFIGS[currentState];
+        
+        // Background gradient
+        const bgGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(width, height) * 0.7);
+        bgGrad.addColorStop(0, 'rgba(6,182,212,0.03)');
+        bgGrad.addColorStop(0.5, 'rgba(139,92,246,0.02)');
+        bgGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, width, height);
+        
+        // Draw liquidity layers (stacked rings)
+        drawLiquidityLayers();
+        
+        // Draw flows/routes
+        if (showRouting) {
+            drawFlows();
+        }
+        
+        // Draw liquidity pools
+        drawPools();
+        
+        // Draw exchange hubs
+        drawHubs();
+        
+        // Draw center aggregator
+        drawCenterAggregator();
+    }
+
+    function drawLiquidityLayers() {
+        const layers = [
+            { radius: Math.min(width, height) * 0.15, color: 'rgba(6,182,212,0.08)', label: 'Spot' },
+            { radius: Math.min(width, height) * 0.25, color: 'rgba(139,92,246,0.06)', label: 'Perpetuals' },
+            { radius: Math.min(width, height) * 0.35, color: 'rgba(245,158,11,0.04)', label: 'Derivatives' }
+        ];
+        
+        layers.forEach((layer, i) => {
+            if ((i === 0 && !showSpot) || (i === 1 && !showPerps)) return;
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, layer.radius, 0, Math.PI * 2);
+            ctx.fillStyle = layer.color;
+            ctx.fill();
+            
+            ctx.strokeStyle = layer.color.replace('0.0', '0.2');
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        });
+    }
+
+    function drawFlows() {
+        const stateConfig = STATE_CONFIGS[currentState];
+        
+        flows.forEach(flow => {
+            if ((flow.layer === 'spot' && !showSpot) || (flow.layer === 'perp' && !showPerps)) return;
+            
+            const colors = LAYER_COLORS[flow.layer];
+            const from = flow.from;
+            const to = flow.to;
+            
+            // Calculate control point for curve
+            const midX = (from.x + to.x) / 2;
+            const midY = (from.y + to.y) / 2;
+            const perpX = -(to.y - from.y) * 0.3 + (flow.chaosOffset || 0);
+            const perpY = (to.x - from.x) * 0.3;
+            const ctrlX = midX + perpX;
+            const ctrlY = midY + perpY;
+            
+            // Draw flow path
+            ctx.beginPath();
+            ctx.moveTo(from.x, from.y);
+            ctx.quadraticCurveTo(ctrlX, ctrlY, to.x, to.y);
+            
+            const grad = ctx.createLinearGradient(from.x, from.y, to.x, to.y);
+            grad.addColorStop(0, colors.start + '40');
+            grad.addColorStop(1, colors.end + '40');
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = flow.width * stateConfig.glowIntensity;
+            ctx.stroke();
+            
+            // Draw particles along path
+            flow.particles.forEach(p => {
+                const t = p.t;
+                const x = (1-t)*(1-t)*from.x + 2*(1-t)*t*ctrlX + t*t*to.x;
+                const y = (1-t)*(1-t)*from.y + 2*(1-t)*t*ctrlY + t*t*to.y;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 2 + flow.intensity * 2, 0, Math.PI * 2);
+                ctx.fillStyle = colors.start;
+                ctx.fill();
+                
+                // Particle glow
+                const pGlow = ctx.createRadialGradient(x, y, 0, x, y, 8);
+                pGlow.addColorStop(0, colors.start + '60');
+                pGlow.addColorStop(1, 'transparent');
+                ctx.fillStyle = pGlow;
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        });
+    }
+
+    function drawPools() {
+        const stateConfig = STATE_CONFIGS[currentState];
+        
+        pools.forEach(pool => {
+            const x = pool.hub.x + Math.cos(pool.angle + pool.hub.rotation * 0.3) * pool.dist;
+            const y = pool.hub.y + Math.sin(pool.angle + pool.hub.rotation * 0.3) * pool.dist;
+            const pulse = 1 + Math.sin(pool.pulsePhase) * 0.15;
+            const size = pool.size * pulse * stateConfig.poolDensity;
+            
+            // Pool gradient
+            const poolGrad = ctx.createRadialGradient(x, y, 0, x, y, size);
+            const alpha = Math.floor(pool.density * 60 * stateConfig.glowIntensity);
+            poolGrad.addColorStop(0, `rgba(6,182,212,${alpha/255})`);
+            poolGrad.addColorStop(0.5, `rgba(59,130,246,${alpha/2/255})`);
+            poolGrad.addColorStop(1, 'transparent');
+            
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fillStyle = poolGrad;
+            ctx.fill();
+        });
+    }
+
+    function drawHubs() {
+        const stateConfig = STATE_CONFIGS[currentState];
+        
+        hubs.forEach(hub => {
+            const isHovered = hoveredHub === hub;
+            const pulse = 1 + Math.sin(hub.pulsePhase) * 0.05;
+            const size = hub.size * pulse * (isHovered ? 1.15 : 1);
+            
+            // Outer glow based on volume
+            const glowSize = size * (1.5 + hub.activity * 0.5) * stateConfig.glowIntensity;
+            const glowGrad = ctx.createRadialGradient(hub.x, hub.y, size * 0.5, hub.x, hub.y, glowSize);
+            
+            // Color based on liquidity
+            let color;
+            if (hub.liquidity > 1000) color = '#06b6d4';
+            else if (hub.liquidity > 400) color = '#f59e0b';
+            else color = '#ef4444';
+            
+            glowGrad.addColorStop(0, color + '50');
+            glowGrad.addColorStop(0.5, color + '20');
+            glowGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = glowGrad;
+            ctx.beginPath();
+            ctx.arc(hub.x, hub.y, glowSize, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Hub body with rotation indicator
+            ctx.save();
+            ctx.translate(hub.x, hub.y);
+            ctx.rotate(hub.rotation);
+            
+            // Main circle
+            const bodyGrad = ctx.createRadialGradient(-size * 0.2, -size * 0.2, 0, 0, 0, size);
+            bodyGrad.addColorStop(0, color);
+            bodyGrad.addColorStop(0.7, color + 'aa');
+            bodyGrad.addColorStop(1, '#0a0f1e');
+            ctx.fillStyle = bodyGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Rotation ring
+            ctx.strokeStyle = color + '60';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, 0, size + 5, 0, Math.PI * 1.5);
+            ctx.stroke();
+            
+            // Activity indicator dots
+            for (let i = 0; i < 6; i++) {
+                const dotAngle = (Math.PI * 2 / 6) * i;
+                const dotDist = size + 5;
+                const dotX = Math.cos(dotAngle) * dotDist;
+                const dotY = Math.sin(dotAngle) * dotDist;
+                ctx.beginPath();
+                ctx.arc(dotX, dotY, 2, 0, Math.PI * 2);
+                ctx.fillStyle = i < Math.floor(hub.activity * 6) ? color : color + '30';
+                ctx.fill();
+            }
+            
+            ctx.restore();
+            
+            // Hub label
+            ctx.font = `bold ${Math.max(9, size * 0.22)}px 'Orbitron', sans-serif`;
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(hub.name, hub.x, hub.y);
+            
+            // Liquidity value below
+            ctx.font = `${Math.max(7, size * 0.15)}px 'JetBrains Mono', monospace`;
+            ctx.fillStyle = 'rgba(248,250,252,0.6)';
+            ctx.fillText(`$${(hub.liquidity / 1000).toFixed(1)}B`, hub.x, hub.y + size * 0.35);
+            
+            // Hover ring
+            if (isHovered) {
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(hub.x, hub.y, size + 10, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        });
+    }
+
+    function drawCenterAggregator() {
+        const stateConfig = STATE_CONFIGS[currentState];
+        const pulse = 1 + Math.sin(time * 2) * 0.1;
+        const size = 40 * pulse;
+        
+        // Center glow
+        const centerGlow = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, size * 2);
+        centerGlow.addColorStop(0, `rgba(139,92,246,${0.4 * stateConfig.glowIntensity})`);
+        centerGlow.addColorStop(0.5, `rgba(6,182,212,${0.2 * stateConfig.glowIntensity})`);
+        centerGlow.addColorStop(1, 'transparent');
+        ctx.fillStyle = centerGlow;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, size * 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Center hub
+        const coreGrad = ctx.createRadialGradient(centerX - 10, centerY - 10, 0, centerX, centerY, size);
+        coreGrad.addColorStop(0, '#8b5cf6');
+        coreGrad.addColorStop(1, '#1e1b4b');
+        ctx.fillStyle = coreGrad;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Rotating ring
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(time * 0.5);
+        ctx.strokeStyle = 'rgba(139,92,246,0.5)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, size + 8, 0, Math.PI * 1.2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, size + 8, Math.PI, Math.PI * 2.2);
+        ctx.stroke();
+        ctx.restore();
+        
+        // Label
+        ctx.font = "bold 10px 'Orbitron', sans-serif";
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('AGG', centerX, centerY);
+    }
+
+    // ==================== INTERACTION ====================
+    function findHub(mx, my) {
+        const rect = canvas.getBoundingClientRect();
+        const x = mx - rect.left, y = my - rect.top;
+        for (let hub of hubs) {
+            if (Math.hypot(x - hub.x, y - hub.y) <= hub.size * 1.2) return hub;
+        }
+        return null;
+    }
+
+    function showTooltip(hub, x, y) {
+        document.getElementById('ttName').textContent = hub.name;
+        
+        const depth = document.getElementById('ttDepth');
+        depth.textContent = `$${(hub.liquidity / 1000).toFixed(1)}B`;
+        depth.className = 'tooltip-value ' + (hub.liquidity > 1000 ? 'high' : hub.liquidity > 400 ? 'medium' : 'low');
+        
+        document.getElementById('ttVolume').textContent = `$${(hub.volume / 1000).toFixed(1)}B`;
+        document.getElementById('ttPairs').textContent = hub.pairs.toLocaleString();
+        
+        const flowDir = hub.activity > 0.6 ? 'Inbound' : hub.activity < 0.4 ? 'Outbound' : 'Balanced';
+        document.getElementById('ttFlow').textContent = flowDir;
+        
+        const indicator = document.getElementById('ttIndicator');
+        const status = document.getElementById('ttStatus');
+        if (hub.liquidity > 1000) {
+            indicator.style.background = 'var(--success)';
+            status.textContent = 'Healthy Liquidity';
+        } else if (hub.liquidity > 400) {
+            indicator.style.background = 'var(--warning)';
+            status.textContent = 'Moderate Liquidity';
+        } else {
+            indicator.style.background = 'var(--danger)';
+            status.textContent = 'Low Liquidity';
+        }
+        
+        tooltip.style.left = (x + 15) + 'px';
+        tooltip.style.top = (y + 15) + 'px';
+        tooltip.classList.add('visible');
+    }
+
+    canvas.addEventListener('mousemove', e => {
+        const hub = findHub(e.clientX, e.clientY);
+        hoveredHub = hub;
+        canvas.style.cursor = hub ? 'pointer' : 'default';
+        if (hub) {
+            showTooltip(hub, e.clientX, e.clientY);
+        } else {
+            tooltip.classList.remove('visible');
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        hoveredHub = null;
+        tooltip.classList.remove('visible');
+    });
+
+    // ==================== CONTROLS ====================
+    document.querySelectorAll('.btn-time').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.btn-time').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            timeRange = this.dataset.time;
+            // Simulate different data for time ranges
+            initHubs();
+            initFlows();
+            initPools();
+        });
+    });
+
+    document.getElementById('toggleSpot').addEventListener('click', function() {
+        showSpot = !showSpot;
+        this.classList.toggle('active', showSpot);
+    });
+
+    document.getElementById('togglePerps').addEventListener('click', function() {
+        showPerps = !showPerps;
+        this.classList.toggle('active', showPerps);
+    });
+
+    document.getElementById('toggleRouting').addEventListener('click', function() {
+        showRouting = !showRouting;
+        this.classList.toggle('active', showRouting);
+    });
+
+    document.querySelectorAll('.state-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.state-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            currentState = this.dataset.state;
+            document.getElementById('statState').textContent = this.querySelector('.state-label').textContent;
+            initFlows();
+            initPools();
+        });
+    });
+
+    // ==================== ANIMATION LOOP ====================
+    function animate() {
+        update();
+        draw();
+        animId = requestAnimationFrame(animate);
+    }
+
+    // ==================== INIT ====================
+    const overlay = document.getElementById('loadingOverlay');
+    const progressBar = document.getElementById('progressBar');
+    const progressPercent = document.getElementById('progressPercent');
+    
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 8 + Math.random() * 12;
+            if (progress > 90) progress = 90;
+            progressBar.style.width = progress + '%';
+            progressPercent.textContent = Math.round(progress) + '%';
+        }
+    }, 60);
+    
+    window.addEventListener('resize', resize);
+    resize();
+    
+    // Update stats
+    document.getElementById('statExchanges').textContent = EXCHANGES.length;
+    const totalLiq = EXCHANGES.reduce((sum, ex) => sum + ex.liquidity, 0);
+    document.getElementById('statLiquidity').textContent = `$${(totalLiq / 1000).toFixed(1)}B`;
+    document.getElementById('statRoutes').textContent = Math.floor(EXCHANGES.length * 2.5);
+    
+    setTimeout(() => {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressPercent.textContent = '100%';
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            animate();
+        }, 200);
+    }, 400);
+
+    // Visibility handling
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cancelAnimationFrame(animId);
+        } else {
+            animate();
+        }
+    });
+    </script>
+</body>
+</html>

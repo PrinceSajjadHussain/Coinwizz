@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIFETIME ACCESS | CRYPTOSPACES</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --space-black: #000510;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --text-light: #f1f5f9;
+            /* Original Vars */
+            --primary: #3b82f6;
+            --accent: #06b6d4;
+            --gold: #fbbf24;
+            --green: #10b981;
+            --bg-dark: #0a0f1e;
+            --bg-darker: #030712;
+            --text: #f8fafc;
+            --text-muted: rgba(248,250,252,0.6);
+        }
+        /* Unified Header Styles */
+        .unified-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0, 5, 16, 0.95) 0%, rgba(0, 5, 16, 0) 100%);
+            padding: 15px 30px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+        }
+        .unified-left { display: flex; align-items: center; gap: 20px; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+        .unified-nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .unified-nav-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            padding: 7px 12px;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: rgba(14, 165, 233, 0.05);
+            text-transform: uppercase;
+        }
+        .unified-nav-link:hover {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+        }
+        .unified-utils {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .unified-btn {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(34, 211, 238, 0.1));
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            color: var(--text-light);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .unified-btn:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(34, 211, 238, 0.2));
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+        .unified-btn.active {
+            background: rgba(14, 165, 233, 0.3);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+        @media (max-width: 900px) {
+            .unified-nav { display: none; }
+            .unified-header { padding: 10px 15px; }
+        }
+        
+        #visionCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -2;
+            background: #000000;
+        }
+        .vision-vignette {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            color: var(--text);
+            line-height: 1.8;
+            padding-top: 80px;
+        }
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(251,191,36,0.3);
+        }
+        .title { 
+            font-size: 1.2rem; 
+            font-weight: 900; 
+            background: linear-gradient(90deg, var(--gold), #f59e0b); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            letter-spacing: 3px; 
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .lang-switch {
+            display: flex;
+            background: rgba(251,191,36,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(251,191,36,0.3);
+        }
+        .lang-btn {
+            padding: 6px 12px;
+            font-family: inherit;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .lang-btn.active { background: rgba(251,191,36,0.3); color: var(--text); }
+        .lang-btn:hover { color: var(--text); }
+        .btn-back {
+            background: rgba(251,191,36,0.15);
+            border: 1px solid rgba(251,191,36,0.4);
+            color: #fbbf24;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-back:hover { background: rgba(251,191,36,0.25); }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 100px 20px 60px;
+        }
+
+        [data-lang-de], [data-lang-en] { display: none; }
+        body.lang-de [data-lang-de] { display: block; }
+        body.lang-en [data-lang-en] { display: block; }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 50px 30px;
+            background: linear-gradient(135deg, rgba(251,191,36,0.15) 0%, rgba(245,158,11,0.1) 100%);
+            border: 1px solid rgba(251,191,36,0.4);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '★';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            color: var(--gold);
+            opacity: 0.5;
+        }
+        .hero h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--gold), #f59e0b, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+        .hero-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            max-width: 600px;
+            margin: 0 auto 25px;
+        }
+        .hero-subtitle strong { color: var(--gold); }
+        .hero-price {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--green);
+            margin-bottom: 10px;
+        }
+        .hero-price span {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+        .hero-cta {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, var(--gold), #f59e0b);
+            color: #1a1a2e;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(251,191,36,0.4);
+        }
+        .hero-cta:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(251,191,36,0.6);
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(10,15,30,0.6);
+            border: 1px solid rgba(251,191,36,0.2);
+            border-radius: 15px;
+        }
+        .section h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section h2::before {
+            content: '✓';
+            color: var(--green);
+        }
+        .section p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .section p:last-child { margin-bottom: 0; }
+        .section strong { color: var(--text); }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+        .feature-card {
+            background: rgba(251,191,36,0.05);
+            border: 1px solid rgba(251,191,36,0.2);
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(251,191,36,0.4);
+            box-shadow: 0 10px 30px rgba(251,191,36,0.1);
+        }
+        .feature-card h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feature-card p {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .feature-icon {
+            font-size: 1.2rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+        }
+        .comparison-table th {
+            background: rgba(59,130,246,0.1);
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .comparison-table td {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .comparison-table tr:hover td {
+            background: rgba(251,191,36,0.05);
+        }
+        .check { color: var(--green); }
+        .cross { color: var(--danger-red); }
+        .highlight-row {
+            background: rgba(251,191,36,0.1) !important;
+        }
+        .highlight-row td {
+            color: var(--gold) !important;
+            font-weight: 600;
+        }
+
+        .guarantee-box {
+            background: linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(59,130,246,0.1) 100%);
+            border: 1px solid rgba(16,185,129,0.3);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .guarantee-box h2 {
+            color: var(--green);
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        .guarantee-box p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .guarantee-box strong { color: var(--text); }
+
+        .footer-cta {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(251,191,36,0.15) 0%, rgba(245,158,11,0.1) 100%);
+            border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 20px;
+        }
+        .footer-cta p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .footer-cta p:last-child { margin-bottom: 0; }
+        .footer-cta strong {
+            color: var(--gold);
+            font-size: 1.1rem;
+        }
+        .price-note {
+            font-size: 0.65rem !important;
+            color: rgba(248,250,252,0.4) !important;
+            margin-top: 10px;
+        }
+
+        .offer-details {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(251, 191, 36, 0.15);
+            border-radius: 10px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+        .offer-date {
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        .offer-limit {
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+        .offer-end {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .offer-notice {
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .microcopy span {
+            font-size: 0.6rem;
+            color: rgba(248,250,252,0.5);
+        }
+        .microcopy span::before {
+            content: '✓ ';
+            color: var(--green);
+        }
+    </style>
+</head>
+<body class="lang-de">
+<canvas id="visionCanvas"></canvas>
+<div class="vision-vignette"></div>
+<header class="unified-header">
+        <div class="unified-left">
+            <a href="index.html" class="unified-logo">CRYPTOSPACES</a>
+            <span class="page-title" style="margin-left:20px; font-family:'Orbitron'; font-weight:700; color:var(--accent-cyan);">★ LIFETIME ACCESS</span>
+        </div>
+        <nav class="unified-nav">
+            <a href="top100.html" class="unified-nav-link">Top 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">Whales</a>
+            <a href="our-vision.html" class="unified-nav-link">Vision</a>
+        </nav>
+        <div class="unified-utils">
+            <button class="unified-btn active" id="btnDE" onclick="setLang('de')">DE</button>
+            <button class="unified-btn" id="btnEN" onclick="setLang('en')">EN</button>
+            <a href="index.html" class="unified-btn">← Back</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- GERMAN VERSION -->
+        <div data-lang-de>
+            <section class="hero">
+                <h1>FOUNDERS LIFETIME ACCESS</h1>
+                <p class="hero-subtitle">
+                    Werden Sie Teil unserer <strong>Founders Community</strong>.<br>
+                    Einmal zahlen. Für immer profitieren.
+                </p>
+                <div class="hero-price">
+                    €999 <span>/ einmalig</span>
+                </div>
+                <a href="#" class="hero-cta">JETZT ACCESS SICHERN – NUR 111 PLÄTZE!</a>
+                <div class="offer-details">
+                    <p class="offer-date">★ Start: 11.01.2026 ★</p>
+                    <p class="offer-limit">Begrenzt auf 111 Zugänge</p>
+                    <p class="offer-end">Endet am 11.04.2026 oder wenn alle Plätze vergeben sind</p>
+                </div>
+                <div class="microcopy">
+                    <span>Keine monatlichen Gebühren</span>
+                    <span>Alle zukünftigen Updates inklusive</span>
+                    <span>30 Tage Geld-zurück-Garantie</span>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>★ Limitiertes Founders-Angebot ★</h2>
+                <p>Dieses exklusive Founders-Angebot ist <strong>streng limitiert</strong>:</p>
+                <p><strong>• Startdatum:</strong> 11. Januar 2026</p>
+                <p><strong>• Verfügbare Plätze:</strong> Nur 111 Zugänge</p>
+                <p><strong>• Angebotsende:</strong> 11. April 2026 oder sobald alle Plätze vergeben sind – je nachdem, was früher eintritt</p>
+                <p>Nach Ablauf des Angebots wird der Lifetime Access nicht mehr zu diesem Preis verfügbar sein. Handeln Sie jetzt, um Teil unserer exklusiven Founders Community zu werden.</p>
+            </section>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3><span class="feature-icon">∞</span> Unbegrenzter Zugang</h3>
+                    <p>Nutzen Sie alle Visual Views und Analyse-Funktionen ohne jemals wieder zahlen zu müssen.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span class="feature-icon">🚀</span> Alle zukünftigen Updates</h3>
+                    <p>Neue Views, Funktionen und Visualisierungen sind für Sie kostenlos enthalten.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span class="feature-icon">👑</span> Founders Badge</h3>
+                    <p>Exklusives Profil-Badge das Sie als Founding Member unserer Community auszeichnet.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span class="feature-icon">💬</span> Priority Support</h3>
+                    <p>Früher Zugang zu neuen Features und direkter Kontakt zu unserem Entwicklungsteam.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span class="feature-icon">🔒</span> Founders Only Areas</h3>
+                    <p>Zugang zu exklusiven Bereichen mit Deep-Dive Analysen und speziellen Insights.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span class="feature-icon">📊</span> Erweiterte API</h3>
+                    <p>Höhere Rate Limits und erweiterte Daten-APIs für fortgeschrittene Nutzung.</p>
+                </div>
+            </div>
+
+            <section class="section">
+                <h2>Vergleich: Monatlich vs. Lifetime</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Leistung</th>
+                            <th>Monatliches Abo</th>
+                            <th>Founders Lifetime</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Zugang zu allen Visual Views</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>Real-time Daten</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td>Monatliche Kosten</td>
+                            <td>€49/Monat</td>
+                            <td><strong>Einmalig €999</strong></td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td>Nach 12 Monaten gespart</td>
+                            <td>—</td>
+                            <td><strong>Bis zu €411</strong></td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td>Nach 24 Monaten gespart</td>
+                            <td>—</td>
+                            <td><strong>Bis zu €1.177</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Zukünftige Updates</td>
+                            <td><span class="cross">✗</span> evtl. Aufpreis</td>
+                            <td><span class="check">✓ Kostenlos</span></td>
+                        </tr>
+                        <tr>
+                            <td>Founders Badge</td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>Priority Support</td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <div class="guarantee-box">
+                <h2>Unsere 30-Tage-Garantie</h2>
+                <p>Nicht überzeugt? <strong>Kein Problem.</strong></p>
+                <p>Wir bieten eine <strong>30-tägige Geld-zurück-Garantie</strong>. Wenn Sie innerhalb der ersten 30 Tage nicht vollständig zufrieden sind, erstatten wir Ihnen den vollen Betrag – ohne Fragen.</p>
+            </div>
+
+            <section class="footer-cta">
+                <p>Bereit, Teil unserer Founders Community zu werden?</p>
+                <a href="#" class="hero-cta">JETZT LIFETIME ACCESS KAUFEN</a>
+                <p class="offer-notice">★ Nur noch 111 Plätze verfügbar ★</p>
+                <p class="price-note">Irrtümer und Änderungen vorbehalten. Alle Preise inkl. gesetzl. MwSt.</p>
+            </section>
+        </div>
+
+        <!-- ENGLISH VERSION -->
+        <div data-lang-en>
+            <section class="hero">
+                <h1>FOUNDERS LIFETIME ACCESS</h1>
+                <p class="hero-subtitle">
+                    Become part of our <strong>Founders Community</strong>.<br>
+                    Pay once. Profit forever.
+                </p>
+                <div class="hero-price">
+                    $999 <span>/ one-time</span>
+                </div>
+                <a href="#" class="hero-cta">SECURE YOUR ACCESS NOW – ONLY 111 SPOTS!</a>
+                <div class="offer-details">
+                    <p class="offer-date">★ Start: January 11, 2026 ★</p>
+                    <p class="offer-limit">Limited to 111 access spots</p>
+                    <p class="offer-end">Ends April 11, 2026 or when all spots are filled</p>
+                </div>
+                <div class="microcopy">
+                    <span>No monthly fees</span>
+                    <span>All future updates included</span>
+                    <span>30-day money-back guarantee</span>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>★ Limited Founders Offer ★</h2>
+                <p>This exclusive Founders offer is <strong>strictly limited</strong>:</p>
+                <p><strong>• Start date:</strong> January 11, 2026</p>
+                <p><strong>• Available spots:</strong> Only 111 access slots</p>
+                <p><strong>• Offer ends:</strong> April 11, 2026 or when all spots are filled – whichever comes first</p>
+                <p>After the offer expires, Lifetime Access will no longer be available at this price. Act now to become part of our exclusive Founders Community.</p>
+            </section>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3><span class="feature-icon">∞</span> Unlimited Access</h3>
+                    <p>Use all Visual Views and analysis features without ever paying again.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span class="feature-icon">🚀</span> All Future Updates</h3>
+                    <p>New views, features, and visualizations are included for free.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span class="feature-icon">👑</span> Founders Badge</h3>
+                    <p>Exclusive profile badge that identifies you as a Founding Member of our community.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span class="feature-icon">💬</span> Priority Support</h3>
+                    <p>Early access to new features and direct contact with our development team.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span class="feature-icon">🔒</span> Founders Only Areas</h3>
+                    <p>Access to exclusive areas with deep-dive analyses and special insights.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span class="feature-icon">📊</span> Extended API</h3>
+                    <p>Higher rate limits and extended data APIs for advanced usage.</p>
+                </div>
+            </div>
+
+            <section class="section">
+                <h2>Comparison: Monthly vs. Lifetime</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Monthly Sub</th>
+                            <th>Founders Lifetime</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Access to all Visual Views</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>Real-time data</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td>Monthly cost</td>
+                            <td>$49/month</td>
+                            <td><strong>One-time $999</strong></td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td>Savings after 12 months</td>
+                            <td>—</td>
+                            <td><strong>Up to $411</strong></td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td>Savings after 24 months</td>
+                            <td>—</td>
+                            <td><strong>Up to $1,177</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Future updates</td>
+                            <td><span class="cross">✗</span> possible surcharge</td>
+                            <td><span class="check">✓ Free</span></td>
+                        </tr>
+                        <tr>
+                            <td>Founders Badge</td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>Priority Support</td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <div class="guarantee-box">
+                <h2>Our 30-Day Guarantee</h2>
+                <p>Not convinced? <strong>No problem.</strong></p>
+                <p>We offer a <strong>30-day money-back guarantee</strong>. If you're not completely satisfied within the first 30 days, we'll refund your full payment – no questions asked.</p>
+            </div>
+
+            <section class="footer-cta">
+                <p>Ready to become part of our Founders Community?</p>
+                <a href="#" class="hero-cta">BUY LIFETIME ACCESS NOW</a>
+                <p class="offer-notice">★ Only 111 spots remaining ★</p>
+                <p class="price-note">Errors and changes reserved. All prices include applicable taxes.</p>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = localStorage.getItem('lifetimeLang') || 'en';
+        
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lifetimeLang', lang);
+            document.body.className = 'lang-' + lang;
+            document.getElementById('btnDE').classList.toggle('active', lang === 'de');
+            document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+        }
+        
+        setLang(currentLang);
+    </script>
+
+    <!-- CINEMATIC VISION BACKGROUND -->
+    <script>
+    (function() {
+        const canvas = document.getElementById('visionCanvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        const STAR_COUNT = 80;
+        
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        function createStars() {
+            stars = [];
+            for (let i = 0; i < STAR_COUNT; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 1.2 + 0.3,
+                    speed: Math.random() * 0.03 + 0.01,
+                    alpha: Math.random() * 0.4 + 0.2,
+                    pulse: Math.random() * Math.PI * 2,
+                    pulseSpeed: Math.random() * 0.003 + 0.001
+                });
+            }
+        }
+        
+        function draw() {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            stars.forEach(star => {
+                star.x -= star.speed;
+                star.pulse += star.pulseSpeed;
+                
+                if (star.x < -5) {
+                    star.x = canvas.width + 5;
+                    star.y = Math.random() * canvas.height;
+                }
+                
+                const flicker = star.alpha + Math.sin(star.pulse) * 0.15;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(180, 200, 230, ${flicker})`;
+                ctx.fill();
+            });
+            
+            requestAnimationFrame(draw);
+        }
+        
+        window.addEventListener('resize', () => { resize(); createStars(); });
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) requestAnimationFrame(draw);
+        });
+        
+        resize();
+        createStars();
+        draw();
+    })();
+    </script>
+</body>
+</html>

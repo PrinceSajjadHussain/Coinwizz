@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RELETAV - Regulation, Legal & Tax View | Friction & Readiness System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --space-black: #000510;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --text-light: #f1f5f9;
+            /* Original Vars */
+            --primary: #6b7280;
+            --secondary: #4b5563;
+            --accent: #9ca3af;
+            --friction: #ef4444;
+            --readiness: #22c55e;
+            --uncertainty: #f59e0b;
+            --corridor: #3b82f6;
+            --bg-dark: #0a0f1e;
+            --bg-darker: #030712;
+            --text: #f8fafc;
+        }
+        /* Unified Header Styles */
+        .unified-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0, 5, 16, 0.95) 0%, rgba(0, 5, 16, 0) 100%);
+            padding: 15px 30px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+        }
+        .unified-left { display: flex; align-items: center; gap: 20px; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+        .unified-nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .unified-nav-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            padding: 7px 12px;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: rgba(14, 165, 233, 0.05);
+            text-transform: uppercase;
+        }
+        .unified-nav-link:hover {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+        }
+        .unified-utils {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .unified-btn {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(34, 211, 238, 0.1));
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            color: var(--text-light);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .unified-btn:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(34, 211, 238, 0.2));
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+        @media (max-width: 900px) {
+            .unified-nav { display: none; }
+            .unified-header { padding: 10px 15px; }
+        }
+
+        /* Toolbar Adaptation */
+        .app-toolbar {
+            position: fixed;
+            top: 80px; left: 0; right: 0;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 90;
+            border-bottom: 1px solid rgba(107,114,128,0.3);
+            height: 60px;
+        }
+        .canvas-container { position: fixed; top: 140px !important; left: 0; right: 0; bottom: 50px; }
+        .info-panel, .legend-panel { top: 155px !important; }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--text);
+            padding-top: 80px;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.4s ease-out;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-title { font-size: 2rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--friction)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 5px; margin-bottom: 8px; }
+        .loading-sub { font-size: 0.65rem; color: rgba(248,250,252,0.6); margin-bottom: 25px; letter-spacing: 2px; text-align: center; }
+        .progress-container { width: 280px; height: 6px; background: rgba(107,114,128,0.15); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--friction)); border-radius: 3px; transition: width 0.1s linear; }
+        .progress-percent { margin-top: 10px; font-size: 0.7rem; color: var(--primary); }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(107,114,128,0.3);
+        }
+        .title-wrap {}
+        .title { font-size: 1.4rem; font-weight: 900; background: linear-gradient(90deg, var(--accent), var(--friction)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 4px; }
+        .title-sub { font-size: 0.5rem; color: rgba(248,250,252,0.5); letter-spacing: 1px; margin-top: 2px; }
+        .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn {
+            background: rgba(107,114,128,0.15);
+            border: 1px solid rgba(107,114,128,0.4);
+            color: var(--accent);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: rgba(107,114,128,0.25); border-color: var(--accent); }
+        .btn.active { background: rgba(107,114,128,0.4); border-color: var(--accent); }
+        .btn-nav { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.4); color: #3b82f6; text-decoration: none; }
+        .btn-nav:hover { background: rgba(59,130,246,0.25); }
+        .divider { color: rgba(255,255,255,0.15); margin: 0 5px; }
+
+        /* Canvas */
+        .canvas-container { position: fixed; top: 60px; left: 0; right: 0; bottom: 50px; }
+        #mainCanvas { width: 100%; height: 100%; }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            padding: 10px 20px;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.6rem;
+            color: rgba(248,250,252,0.5);
+            border-top: 1px solid rgba(107,114,128,0.3);
+        }
+        .stats { display: flex; gap: 20px; }
+        .stat-val { color: var(--accent); font-weight: 600; }
+        .stat-val.friction { color: var(--friction); }
+        .stat-val.readiness { color: var(--readiness); }
+        .stat-val.uncertainty { color: var(--uncertainty); }
+        .disclaimer { color: var(--uncertainty); font-style: italic; }
+
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: rgba(10,15,30,0.95);
+            border: 1px solid rgba(107,114,128,0.5);
+            border-radius: 12px;
+            padding: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            z-index: 200;
+            min-width: 260px;
+            max-width: 320px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .tooltip.visible { opacity: 1; }
+        .tooltip-name { font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+        .tooltip-desc { font-size: 0.6rem; color: rgba(248,250,252,0.6); margin-bottom: 10px; line-height: 1.5; }
+        .tooltip-section { margin: 8px 0; padding-top: 8px; border-top: 1px solid rgba(107,114,128,0.2); }
+        .tooltip-section-title { font-size: 0.55rem; color: rgba(248,250,252,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tooltip-row { display: flex; justify-content: space-between; font-size: 0.65rem; margin: 4px 0; }
+        .tooltip-label { color: rgba(248,250,252,0.6); }
+        .tooltip-value { font-family: 'JetBrains Mono', monospace; }
+        .tooltip-meter { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+        .tooltip-meter-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+        /* Info Panel */
+        .info-panel {
+            position: fixed;
+            left: 15px;
+            top: 75px;
+            width: 220px;
+            background: rgba(10,15,30,0.9);
+            border: 1px solid rgba(107,114,128,0.3);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.6rem;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+            max-height: calc(100vh - 150px);
+            overflow-y: auto;
+        }
+        .info-panel::-webkit-scrollbar { width: 4px; }
+        .info-panel::-webkit-scrollbar-track { background: transparent; }
+        .info-panel::-webkit-scrollbar-thumb { background: rgba(107,114,128,0.3); border-radius: 2px; }
+        .info-title { color: var(--accent); font-weight: 700; margin-bottom: 10px; letter-spacing: 1px; font-size: 0.7rem; border-bottom: 1px solid rgba(107,114,128,0.2); padding-bottom: 8px; }
+        .info-concept { margin-bottom: 12px; }
+        .info-concept-title { color: var(--friction); font-size: 0.65rem; font-weight: 600; margin-bottom: 4px; }
+        .info-concept-text { color: rgba(248,250,252,0.7); font-size: 0.55rem; line-height: 1.5; }
+        .info-divider { height: 1px; background: rgba(107,114,128,0.15); margin: 12px 0; }
+        .info-quote { font-style: italic; color: rgba(248,250,252,0.5); font-size: 0.55rem; line-height: 1.4; padding: 8px; background: rgba(107,114,128,0.1); border-radius: 6px; border-left: 2px solid var(--friction); }
+
+        /* Legend */
+        .legend-panel {
+            position: fixed;
+            right: 15px;
+            top: 75px;
+            background: rgba(10,15,30,0.9);
+            border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.55rem;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+            width: 180px;
+        }
+        .legend-title { color: var(--friction); font-weight: 700; margin-bottom: 10px; letter-spacing: 1px; font-size: 0.65rem; }
+        .legend-item { display: flex; align-items: center; gap: 10px; margin: 8px 0; color: rgba(248,250,252,0.8); }
+        .legend-bar { width: 30px; height: 10px; border-radius: 3px; }
+        .legend-label { font-size: 0.55rem; }
+        .legend-divider { height: 1px; background: rgba(239,68,68,0.2); margin: 10px 0; }
+        .legend-signal { margin-top: 10px; }
+        .legend-signal-title { color: var(--readiness); font-size: 0.6rem; font-weight: 600; margin-bottom: 6px; }
+        .legend-signal-item { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 0.5rem; color: rgba(248,250,252,0.6); }
+    </style>
+
+    /* Unified Navigation Banner Style */
+    <style>
+        .page-link {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 5px;
+            text-decoration: none;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid rgba(100, 255, 255, 0.3);
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.15));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 0 5px rgba(100, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-link:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(8, 145, 178, 0.3));
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(100, 255, 255, 0.4);
+            border-color: rgba(100, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+<header class="unified-header">
+        <div class="unified-left">
+            <a href="index.html" class="unified-logo">CRYPTOSPACES</a>
+            <span class="page-title" style="margin-left:20px; font-family:'Orbitron'; font-weight:700; color:var(--accent-cyan);">RELETAV</span>
+        </div>
+        <nav class="unified-nav">
+            <a href="top100.html" class="unified-nav-link">Top 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">Whales</a>
+            <a href="our-vision.html" class="unified-nav-link">Vision</a>
+        </nav>
+        <div class="unified-utils">
+            <a href="index.html" class="unified-btn">← Back</a>
+        </div>
+    </header>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-title">RELETAV</div>
+        <div class="loading-sub">Regulation, Legal & Tax View<br>Friction & Readiness System</div>
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+    <div class="app-toolbar">
+        <div class="controls">
+            <button class="btn active" id="toggleFriction">⚡ Friction</button>
+            <button class="btn active" id="toggleCorridors">🛤️ Corridors</button>
+            <button class="btn active" id="toggleJurisdictions">🗺️ Jurisdictions</button>
+            <span class="divider">|</span>
+            <button class="btn" id="togglePressure">Pressure</button>
+            <button class="btn active" id="toggleFlow">Capital Flow</button>
+            <span class="divider">|</span>
+            <a href="lyps.html" class="page-link">🔥 LYPS</a>
+            <a href="iddrviis.html" class="page-link">🔑 IDDRVIIS</a>
+            <a href="sacorcs.html" class="page-link">🛡️ SAC</a>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <div class="info-title">PURPOSE OF THIS VIEW</div>
+        <div class="info-concept">
+            <div class="info-concept-title">Core Concept</div>
+            <div class="info-concept-text">Markets don't collapse from regulation.<br>They collapse from ignoring it.<br><br>Regulation is not an event.<br>It is a persistent force shaping adoption curves.</div>
+        </div>
+        <div class="info-divider"></div>
+        <div class="info-concept">
+            <div class="info-concept-title">Visual Metaphor</div>
+            <div class="info-concept-text">Constraint fields where rules form boundaries, jurisdictions create overlapping fields, pressure represents adaptation cost, and clarity opens movement corridors.</div>
+        </div>
+        <div class="info-divider"></div>
+        <div class="info-quote">"Regulation is gravity. Ignore it—and fall. Understand it—and orbit."</div>
+        <div class="info-divider"></div>
+        <div class="info-concept">
+            <div class="info-concept-title">What This Explains</div>
+            <div class="info-concept-text">• Why capital waits<br>• Why institutions hesitate<br>• Where compliance = advantage<br>• How readiness precedes growth</div>
+        </div>
+    </div>
+
+    <div class="legend-panel">
+        <div class="legend-title">FRICTION ZONES</div>
+        <div class="legend-item"><div class="legend-bar" style="background: linear-gradient(90deg, #ef4444, #dc2626);"></div><span class="legend-label">High Friction</span></div>
+        <div class="legend-item"><div class="legend-bar" style="background: linear-gradient(90deg, #f59e0b, #d97706);"></div><span class="legend-label">Uncertainty</span></div>
+        <div class="legend-item"><div class="legend-bar" style="background: linear-gradient(90deg, #6b7280, #4b5563);"></div><span class="legend-label">Moderate</span></div>
+        <div class="legend-item"><div class="legend-bar" style="background: linear-gradient(90deg, #22c55e, #16a34a);"></div><span class="legend-label">Clear Corridor</span></div>
+        <div class="legend-divider"></div>
+        <div class="legend-signal">
+            <div class="legend-signal-title">KEY SIGNALS</div>
+            <div class="legend-signal-item"><span style="color: var(--friction);">⬛</span> High friction → Slowed adoption</div>
+            <div class="legend-signal-item"><span style="color: var(--uncertainty);">⚠</span> Overlap → Uncertainty drag</div>
+            <div class="legend-signal-item"><span style="color: var(--readiness);">✓</span> Adaptive → Institutional inflow</div>
+            <div class="legend-signal-item"><span style="color: var(--corridor);">→</span> Corridor → Scalable compliance</div>
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-name" id="ttName">Jurisdiction</div>
+        <div class="tooltip-desc" id="ttDesc">Regulatory framework zone</div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Status</div>
+            <div class="tooltip-row"><span class="tooltip-label">Friction Level</span><span class="tooltip-value" id="ttFriction">Moderate</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Readiness</span><span class="tooltip-value" id="ttReadiness">Developing</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Capital Flow</span><span class="tooltip-value" id="ttFlow">Restricted</span></div>
+        </div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Adaptation Index</div>
+            <div class="tooltip-meter"><div class="tooltip-meter-fill" id="ttMeter" style="width: 45%; background: linear-gradient(90deg, var(--friction), var(--readiness));"></div></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="stats">
+            <span>Friction Zones: <span class="stat-val friction" id="statFriction">6</span></span>
+            <span>Clear Corridors: <span class="stat-val readiness" id="statCorridors">4</span></span>
+            <span>Uncertainty Areas: <span class="stat-val uncertainty" id="statUncertainty">8</span></span>
+            <span>Jurisdictions: <span class="stat-val" id="statJurisdictions">12</span></span>
+        </div>
+        <div class="disclaimer">This is not legal advice. It is structural awareness.</div>
+    </div>
+
+    <script>
+    // ==================== JURISDICTIONS CONFIG ====================
+    const JURISDICTIONS = [
+        { id: 'us', name: 'United States', desc: 'SEC, CFTC, FinCEN regulatory framework', x: 0.2, y: 0.35, size: 90, friction: 0.75, readiness: 0.6, type: 'major' },
+        { id: 'eu', name: 'European Union', desc: 'MiCA regulatory framework', x: 0.5, y: 0.3, size: 85, friction: 0.5, readiness: 0.8, type: 'major' },
+        { id: 'uk', name: 'United Kingdom', desc: 'FCA regulatory sandbox', x: 0.42, y: 0.25, size: 55, friction: 0.45, readiness: 0.75, type: 'developed' },
+        { id: 'sg', name: 'Singapore', desc: 'MAS progressive framework', x: 0.75, y: 0.45, size: 60, friction: 0.3, readiness: 0.9, type: 'corridor' },
+        { id: 'ch', name: 'Switzerland', desc: 'FINMA crypto valley approach', x: 0.48, y: 0.35, size: 50, friction: 0.25, readiness: 0.95, type: 'corridor' },
+        { id: 'ae', name: 'UAE/Dubai', desc: 'VARA regulatory hub', x: 0.6, y: 0.5, size: 55, friction: 0.35, readiness: 0.85, type: 'corridor' },
+        { id: 'jp', name: 'Japan', desc: 'FSA licensed exchanges', x: 0.85, y: 0.35, size: 65, friction: 0.55, readiness: 0.7, type: 'developed' },
+        { id: 'cn', name: 'China', desc: 'Restricted market, CBDC focus', x: 0.8, y: 0.5, size: 80, friction: 0.95, readiness: 0.2, type: 'restricted' },
+        { id: 'hk', name: 'Hong Kong', desc: 'SFC new licensing regime', x: 0.82, y: 0.45, size: 45, friction: 0.4, readiness: 0.7, type: 'developing' },
+        { id: 'au', name: 'Australia', desc: 'ASIC evolving framework', x: 0.88, y: 0.7, size: 55, friction: 0.5, readiness: 0.65, type: 'developed' },
+        { id: 'br', name: 'Brazil', desc: 'CVM regulatory development', x: 0.28, y: 0.65, size: 50, friction: 0.6, readiness: 0.5, type: 'developing' },
+        { id: 'offshore', name: 'Offshore Zones', desc: 'Cayman, BVI, etc.', x: 0.35, y: 0.55, size: 45, friction: 0.15, readiness: 0.4, type: 'offshore' }
+    ];
+
+    const CORRIDORS = [
+        { from: 'ch', to: 'sg', strength: 0.9, type: 'clear' },
+        { from: 'sg', to: 'ae', strength: 0.85, type: 'clear' },
+        { from: 'ch', to: 'uk', strength: 0.7, type: 'developing' },
+        { from: 'eu', to: 'ch', strength: 0.8, type: 'clear' },
+        { from: 'uk', to: 'ae', strength: 0.6, type: 'developing' },
+        { from: 'sg', to: 'hk', strength: 0.65, type: 'developing' },
+        { from: 'us', to: 'eu', strength: 0.4, type: 'restricted' },
+        { from: 'jp', to: 'sg', strength: 0.55, type: 'developing' }
+    ];
+
+    // ==================== STATE ====================
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+
+    let width, height, centerX, centerY;
+    let jurisdictions = [];
+    let corridors = [];
+    let pressureWaves = [];
+    let capitalParticles = [];
+    let animId = null;
+    let hoveredZone = null;
+    let time = 0;
+    let showFriction = true, showCorridors = true, showJurisdictions = true;
+    let showPressure = false, showFlow = true;
+
+    // ==================== COLORS ====================
+    const COLORS = {
+        friction: '#ef4444',
+        readiness: '#22c55e',
+        uncertainty: '#f59e0b',
+        corridor: '#3b82f6',
+        restricted: '#991b1b',
+        major: '#6b7280',
+        developed: '#8b5cf6',
+        developing: '#f59e0b',
+        offshore: '#06b6d4'
+    };
+
+    // ==================== INITIALIZATION ====================
+    function resize() {
+        width = canvas.width = canvas.parentElement.clientWidth;
+        height = canvas.height = canvas.parentElement.clientHeight;
+        centerX = width / 2;
+        centerY = height / 2;
+        initSystem();
+    }
+
+    function initSystem() {
+        jurisdictions = JURISDICTIONS.map(cfg => ({
+            ...cfg,
+            absX: cfg.x * width,
+            absY: cfg.y * height,
+            absSize: cfg.size * (Math.min(width, height) / 900),
+            pulsePhase: Math.random() * Math.PI * 2,
+            pressureRings: []
+        }));
+
+        corridors = CORRIDORS.map(c => {
+            const from = jurisdictions.find(j => j.id === c.from);
+            const to = jurisdictions.find(j => j.id === c.to);
+            return { ...c, from, to, particles: [], flowPhase: Math.random() * Math.PI * 2 };
+        });
+
+        initPressureWaves();
+        initCapitalParticles();
+        updateStats();
+    }
+
+    function initPressureWaves() {
+        pressureWaves = [];
+        jurisdictions.filter(j => j.friction > 0.6).forEach(j => {
+            for (let i = 0; i < 3; i++) {
+                pressureWaves.push({
+                    jurisdiction: j,
+                    radius: Math.random() * j.absSize,
+                    maxRadius: j.absSize * 2,
+                    alpha: 0.3 + Math.random() * 0.3,
+                    speed: 0.5 + j.friction * 0.5
+                });
+            }
+        });
+    }
+
+    function initCapitalParticles() {
+        capitalParticles = [];
+        corridors.forEach(corridor => {
+            if (!corridor.from || !corridor.to) return;
+            const numParticles = Math.floor(corridor.strength * 8) + 3;
+            for (let i = 0; i < numParticles; i++) {
+                corridor.particles.push({
+                    t: Math.random(),
+                    speed: 0.002 + corridor.strength * 0.003,
+                    size: 2 + Math.random() * 3
+                });
+            }
+        });
+    }
+
+    function updateStats() {
+        const highFriction = jurisdictions.filter(j => j.friction > 0.6).length;
+        const clearCorridors = corridors.filter(c => c.type === 'clear').length;
+        const uncertaintyAreas = jurisdictions.filter(j => j.friction > 0.4 && j.friction <= 0.6).length + corridors.filter(c => c.type === 'developing').length;
+
+        document.getElementById('statFriction').textContent = highFriction;
+        document.getElementById('statCorridors').textContent = clearCorridors;
+        document.getElementById('statUncertainty').textContent = uncertaintyAreas;
+        document.getElementById('statJurisdictions').textContent = jurisdictions.length;
+    }
+
+    // ==================== UPDATE ====================
+    function update() {
+        time += 0.016;
+
+        jurisdictions.forEach(j => {
+            j.pulsePhase += 0.015 + j.friction * 0.01;
+        });
+
+        // Update pressure waves
+        pressureWaves.forEach(wave => {
+            wave.radius += wave.speed;
+            wave.alpha *= 0.995;
+            if (wave.radius > wave.maxRadius || wave.alpha < 0.05) {
+                wave.radius = 0;
+                wave.alpha = 0.3 + Math.random() * 0.3;
+            }
+        });
+
+        // Update capital particles
+        corridors.forEach(corridor => {
+            if (!corridor.from || !corridor.to) return;
+            corridor.particles.forEach(p => {
+                p.t += p.speed;
+                if (p.t > 1) p.t = 0;
+            });
+        });
+    }
+
+    // ==================== DRAWING ====================
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        drawBackgroundGrid();
+
+        if (showPressure) {
+            drawPressureField();
+        }
+
+        if (showJurisdictions) {
+            drawJurisdictionOverlaps();
+        }
+
+        if (showCorridors) {
+            drawCorridors();
+        }
+
+        if (showFriction) {
+            drawFrictionZones();
+        }
+
+        drawJurisdictions();
+
+        if (showFlow) {
+            drawCapitalFlow();
+        }
+
+        drawGravityCenter();
+    }
+
+    function drawBackgroundGrid() {
+        ctx.strokeStyle = 'rgba(107, 114, 128, 0.05)';
+        ctx.lineWidth = 1;
+
+        // Horizontal constraint lines
+        for (let y = 0; y < height; y += 60) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+            ctx.stroke();
+        }
+
+        // Vertical constraint lines
+        for (let x = 0; x < width; x += 60) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, height);
+            ctx.stroke();
+        }
+    }
+
+    function drawPressureField() {
+        pressureWaves.forEach(wave => {
+            const j = wave.jurisdiction;
+            ctx.beginPath();
+            ctx.arc(j.absX, j.absY, wave.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(239, 68, 68, ${wave.alpha * 0.5})`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        });
+    }
+
+    function drawJurisdictionOverlaps() {
+        // Draw overlapping regulatory fields
+        jurisdictions.forEach(j => {
+            const overlapRadius = j.absSize * 1.8;
+            const grad = ctx.createRadialGradient(j.absX, j.absY, j.absSize * 0.5, j.absX, j.absY, overlapRadius);
+
+            const baseColor = j.type === 'restricted' ? '153, 27, 27' :
+                             j.type === 'corridor' ? '34, 197, 94' :
+                             j.type === 'offshore' ? '6, 182, 212' :
+                             '107, 114, 128';
+
+            grad.addColorStop(0, `rgba(${baseColor}, 0.15)`);
+            grad.addColorStop(0.6, `rgba(${baseColor}, 0.05)`);
+            grad.addColorStop(1, 'transparent');
+
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(j.absX, j.absY, overlapRadius, 0, Math.PI * 2);
+            ctx.fill();
+        });
+    }
+
+    function drawCorridors() {
+        corridors.forEach(corridor => {
+            if (!corridor.from || !corridor.to) return;
+
+            const from = corridor.from;
+            const to = corridor.to;
+
+            // Corridor line
+            const corridorColor = corridor.type === 'clear' ? COLORS.readiness :
+                                 corridor.type === 'restricted' ? COLORS.friction :
+                                 COLORS.uncertainty;
+
+            ctx.beginPath();
+            ctx.moveTo(from.absX, from.absY);
+
+            // Curved path
+            const midX = (from.absX + to.absX) / 2;
+            const midY = (from.absY + to.absY) / 2;
+            const perpX = -(to.absY - from.absY) * 0.15;
+            const perpY = (to.absX - from.absX) * 0.15;
+
+            ctx.quadraticCurveTo(midX + perpX, midY + perpY, to.absX, to.absY);
+
+            ctx.strokeStyle = corridorColor + '50';
+            ctx.lineWidth = 2 + corridor.strength * 4;
+            ctx.setLineDash(corridor.type === 'clear' ? [] : [8, 4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Arrow indicator
+            const angle = Math.atan2(to.absY - from.absY, to.absX - from.absX);
+            const arrowX = to.absX - Math.cos(angle) * (to.absSize + 15);
+            const arrowY = to.absY - Math.sin(angle) * (to.absSize + 15);
+
+            ctx.save();
+            ctx.translate(arrowX, arrowY);
+            ctx.rotate(angle);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-8, -4);
+            ctx.lineTo(-8, 4);
+            ctx.closePath();
+            ctx.fillStyle = corridorColor + '80';
+            ctx.fill();
+            ctx.restore();
+        });
+    }
+
+    function drawFrictionZones() {
+        jurisdictions.filter(j => j.friction > 0.5).forEach(j => {
+            const frictionRadius = j.absSize * (1 + j.friction * 0.5);
+
+            // Friction heat map
+            const grad = ctx.createRadialGradient(j.absX, j.absY, j.absSize * 0.3, j.absX, j.absY, frictionRadius);
+            const intensity = j.friction;
+
+            grad.addColorStop(0, `rgba(239, 68, 68, ${intensity * 0.3})`);
+            grad.addColorStop(0.5, `rgba(239, 68, 68, ${intensity * 0.15})`);
+            grad.addColorStop(1, 'transparent');
+
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(j.absX, j.absY, frictionRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Friction indicator bars
+            if (j.friction > 0.7) {
+                const barCount = Math.floor(j.friction * 5);
+                for (let i = 0; i < barCount; i++) {
+                    const angle = (i / barCount) * Math.PI * 2 + time * 0.5;
+                    const x1 = j.absX + Math.cos(angle) * (j.absSize + 5);
+                    const y1 = j.absY + Math.sin(angle) * (j.absSize + 5);
+                    const x2 = j.absX + Math.cos(angle) * (j.absSize + 15);
+                    const y2 = j.absY + Math.sin(angle) * (j.absSize + 15);
+
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.strokeStyle = `rgba(239, 68, 68, ${0.5 + Math.sin(time * 3 + i) * 0.3})`;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            }
+        });
+    }
+
+    function drawJurisdictions() {
+        jurisdictions.forEach(j => {
+            const pulse = 1 + Math.sin(j.pulsePhase) * 0.05;
+            const size = j.absSize * pulse;
+
+            // Jurisdiction color based on type
+            const color = COLORS[j.type] || COLORS.major;
+
+            // Glow
+            const glowGrad = ctx.createRadialGradient(j.absX, j.absY, size * 0.3, j.absX, j.absY, size * 1.5);
+            glowGrad.addColorStop(0, color + '40');
+            glowGrad.addColorStop(0.6, color + '15');
+            glowGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = glowGrad;
+            ctx.beginPath();
+            ctx.arc(j.absX, j.absY, size * 1.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Body
+            const bodyGrad = ctx.createRadialGradient(j.absX - size * 0.2, j.absY - size * 0.2, 0, j.absX, j.absY, size);
+            bodyGrad.addColorStop(0, color);
+            bodyGrad.addColorStop(0.5, color + 'cc');
+            bodyGrad.addColorStop(1, '#0a0f1e');
+            ctx.fillStyle = bodyGrad;
+            ctx.beginPath();
+            ctx.arc(j.absX, j.absY, size, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Readiness ring
+            const readinessColor = j.readiness > 0.7 ? COLORS.readiness :
+                                  j.readiness > 0.4 ? COLORS.uncertainty :
+                                  COLORS.friction;
+            ctx.strokeStyle = readinessColor + '80';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(j.absX, j.absY, size + 5, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * j.readiness);
+            ctx.stroke();
+
+            // Labels
+            ctx.font = "bold 9px 'Orbitron', sans-serif";
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(j.name, j.absX, j.absY - 3);
+
+            ctx.font = "7px 'JetBrains Mono', monospace";
+            ctx.fillStyle = 'rgba(248,250,252,0.5)';
+            ctx.fillText(j.type.toUpperCase(), j.absX, j.absY + 10);
+
+            // Hover effect
+            if (hoveredZone === j) {
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(j.absX, j.absY, size + 12, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        });
+    }
+
+    function drawCapitalFlow() {
+        corridors.forEach(corridor => {
+            if (!corridor.from || !corridor.to) return;
+
+            const from = corridor.from;
+            const to = corridor.to;
+            const midX = (from.absX + to.absX) / 2;
+            const midY = (from.absY + to.absY) / 2;
+            const perpX = -(to.absY - from.absY) * 0.15;
+            const perpY = (to.absX - from.absX) * 0.15;
+
+            const flowColor = corridor.type === 'clear' ? COLORS.readiness :
+                             corridor.type === 'restricted' ? COLORS.friction :
+                             COLORS.uncertainty;
+
+            corridor.particles.forEach(p => {
+                const t = p.t;
+                // Quadratic bezier position
+                const x = (1-t)*(1-t)*from.absX + 2*(1-t)*t*(midX + perpX) + t*t*to.absX;
+                const y = (1-t)*(1-t)*from.absY + 2*(1-t)*t*(midY + perpY) + t*t*to.absY;
+
+                ctx.beginPath();
+                ctx.arc(x, y, p.size, 0, Math.PI * 2);
+
+                const particleGrad = ctx.createRadialGradient(x, y, 0, x, y, p.size * 2);
+                particleGrad.addColorStop(0, flowColor);
+                particleGrad.addColorStop(1, 'transparent');
+                ctx.fillStyle = particleGrad;
+                ctx.fill();
+            });
+        });
+    }
+
+    function drawGravityCenter() {
+        // Central "gravity" representation of regulatory pressure
+        const gravityX = centerX;
+        const gravityY = centerY + height * 0.15;
+        const gravitySize = 40;
+        const pulse = 1 + Math.sin(time * 1.5) * 0.1;
+
+        // Gravity well effect
+        const wellGrad = ctx.createRadialGradient(gravityX, gravityY, 0, gravityX, gravityY, gravitySize * 3 * pulse);
+        wellGrad.addColorStop(0, 'rgba(107, 114, 128, 0.3)');
+        wellGrad.addColorStop(0.4, 'rgba(107, 114, 128, 0.1)');
+        wellGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = wellGrad;
+        ctx.beginPath();
+        ctx.arc(gravityX, gravityY, gravitySize * 3 * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Core
+        const coreGrad = ctx.createRadialGradient(gravityX - 10, gravityY - 10, 0, gravityX, gravityY, gravitySize);
+        coreGrad.addColorStop(0, '#9ca3af');
+        coreGrad.addColorStop(0.6, '#4b5563');
+        coreGrad.addColorStop(1, '#0a0f1e');
+        ctx.fillStyle = coreGrad;
+        ctx.beginPath();
+        ctx.arc(gravityX, gravityY, gravitySize * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rotating orbit lines
+        ctx.save();
+        ctx.translate(gravityX, gravityY);
+        for (let i = 0; i < 3; i++) {
+            ctx.rotate(time * 0.3 + i * Math.PI / 3);
+            ctx.strokeStyle = 'rgba(156, 163, 175, 0.4)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, gravitySize + 15 + i * 10, (gravitySize + 15 + i * 10) * 0.4, 0, 0, Math.PI * 0.7);
+            ctx.stroke();
+        }
+        ctx.restore();
+
+        // Label
+        ctx.font = "bold 10px 'Orbitron', sans-serif";
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.fillText('GRAVITY', gravityX, gravityY - 3);
+        ctx.font = "7px 'Orbitron', sans-serif";
+        ctx.fillStyle = 'rgba(248,250,252,0.5)';
+        ctx.fillText('REGULATION', gravityX, gravityY + 10);
+    }
+
+    // ==================== INTERACTION ====================
+    function findZone(mx, my) {
+        const rect = canvas.getBoundingClientRect();
+        const x = mx - rect.left, y = my - rect.top;
+
+        for (let j of jurisdictions) {
+            if (Math.hypot(x - j.absX, y - j.absY) <= j.absSize * 1.2) return j;
+        }
+        return null;
+    }
+
+    function showTooltipFor(zone, x, y) {
+        document.getElementById('ttName').textContent = zone.name;
+        document.getElementById('ttDesc').textContent = zone.desc;
+
+        const frictionLevel = zone.friction > 0.7 ? 'High' : zone.friction > 0.4 ? 'Moderate' : 'Low';
+        document.getElementById('ttFriction').textContent = frictionLevel;
+        document.getElementById('ttFriction').style.color = zone.friction > 0.7 ? COLORS.friction : zone.friction > 0.4 ? COLORS.uncertainty : COLORS.readiness;
+
+        const readinessLevel = zone.readiness > 0.7 ? 'Ready' : zone.readiness > 0.4 ? 'Developing' : 'Limited';
+        document.getElementById('ttReadiness').textContent = readinessLevel;
+        document.getElementById('ttReadiness').style.color = zone.readiness > 0.7 ? COLORS.readiness : zone.readiness > 0.4 ? COLORS.uncertainty : COLORS.friction;
+
+        const flowLevel = zone.type === 'corridor' ? 'Open' : zone.type === 'restricted' ? 'Blocked' : 'Regulated';
+        document.getElementById('ttFlow').textContent = flowLevel;
+        document.getElementById('ttFlow').style.color = COLORS.corridor;
+
+        const adaptationIndex = Math.round((zone.readiness * 0.6 + (1 - zone.friction) * 0.4) * 100);
+        document.getElementById('ttMeter').style.width = adaptationIndex + '%';
+        document.getElementById('ttMeter').style.background = `linear-gradient(90deg, ${COLORS.friction}, ${COLORS.readiness})`;
+
+        tooltip.style.left = (x + 15) + 'px';
+        tooltip.style.top = (y + 15) + 'px';
+        tooltip.classList.add('visible');
+    }
+
+    canvas.addEventListener('mousemove', e => {
+        const zone = findZone(e.clientX, e.clientY);
+        hoveredZone = zone;
+        canvas.style.cursor = zone ? 'pointer' : 'default';
+        if (zone) {
+            showTooltipFor(zone, e.clientX, e.clientY);
+        } else {
+            tooltip.classList.remove('visible');
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        hoveredZone = null;
+        tooltip.classList.remove('visible');
+    });
+
+    // ==================== CONTROLS ====================
+    document.getElementById('toggleFriction').addEventListener('click', function() {
+        showFriction = !showFriction;
+        this.classList.toggle('active', showFriction);
+    });
+
+    document.getElementById('toggleCorridors').addEventListener('click', function() {
+        showCorridors = !showCorridors;
+        this.classList.toggle('active', showCorridors);
+    });
+
+    document.getElementById('toggleJurisdictions').addEventListener('click', function() {
+        showJurisdictions = !showJurisdictions;
+        this.classList.toggle('active', showJurisdictions);
+    });
+
+    document.getElementById('togglePressure').addEventListener('click', function() {
+        showPressure = !showPressure;
+        this.classList.toggle('active', showPressure);
+    });
+
+    document.getElementById('toggleFlow').addEventListener('click', function() {
+        showFlow = !showFlow;
+        this.classList.toggle('active', showFlow);
+    });
+
+    // ==================== ANIMATION ====================
+    function animate() {
+        update();
+        draw();
+        animId = requestAnimationFrame(animate);
+    }
+
+    // ==================== INIT ====================
+    const overlay = document.getElementById('loadingOverlay');
+    const progressBar = document.getElementById('progressBar');
+    const progressPercent = document.getElementById('progressPercent');
+
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 8 + Math.random() * 12;
+            if (progress > 90) progress = 90;
+            progressBar.style.width = progress + '%';
+            progressPercent.textContent = Math.round(progress) + '%';
+        }
+    }, 60);
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    setTimeout(() => {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressPercent.textContent = '100%';
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            animate();
+        }, 200);
+    }, 400);
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cancelAnimationFrame(animId);
+        } else {
+            animate();
+        }
+    });
+    </script>
+</body>
+</html>

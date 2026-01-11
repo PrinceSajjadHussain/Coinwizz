@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erklärende KI-Visualisierung | CryptoSpaces</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --space-black: #000510;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-green: #22c55e;
+            --accent-gold: #fbbf24;
+            --text-light: #f1f5f9;
+            --gradient-ai: linear-gradient(135deg, #8b5cf6, #ec4899, #0ea5e9);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--space-black);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Language Toggle */
+        [data-lang-de], [data-lang-en] { display: none; }
+        body.lang-de [data-lang-de] { display: inline; }
+        body.lang-en [data-lang-en] { display: inline; }
+        body.lang-de [data-lang-de-block] { display: block; }
+        body.lang-en [data-lang-en-block] { display: block; }
+        [data-lang-de-block], [data-lang-en-block] { display: none; }
+
+        .lang-switch {
+            display: flex;
+            gap: 5px;
+            background: rgba(15,23,42,0.8);
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid rgba(139,92,246,0.3);
+        }
+        .lang-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            background: transparent;
+            color: rgba(241,245,249,0.5);
+        }
+        .lang-btn.active {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            color: white;
+            box-shadow: 0 0 10px rgba(139,92,246,0.4);
+        }
+        .lang-btn:hover:not(.active) {
+            color: var(--text-light);
+            background: rgba(139,92,246,0.2);
+        }
+
+        /* Animated Background */
+        .ai-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .ai-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(139,92,246,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(236,72,153,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(14,165,233,0.08) 0%, transparent 60%);
+            animation: aiPulse 5s ease-in-out infinite alternate;
+        }
+        @keyframes aiPulse {
+            0% { opacity: 0.6; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.02); }
+        }
+
+        /* Neural Network Animation */
+        .neural-net {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .neuron {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-purple);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(139,92,246,0.5);
+            animation: neuronPulse 2s ease-in-out infinite;
+        }
+        @keyframes neuronPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.5); opacity: 1; }
+        }
+
+        /* Header */
+        header {
+            position: relative;
+            z-index: 100;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,5,16,0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(139,92,246,0.2);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .logo-icon { font-size: 1.8rem; }
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .back-btn {
+            padding: 8px 16px;
+            background: rgba(139,92,246,0.1);
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 8px;
+            color: var(--accent-purple);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            background: rgba(139,92,246,0.2);
+            box-shadow: 0 0 15px rgba(139,92,246,0.3);
+        }
+
+        /* Main Content */
+        main {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .hero-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: aiFloat 3s ease-in-out infinite;
+        }
+        @keyframes aiFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: var(--gradient-ai);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: rgba(241,245,249,0.8);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* AI Demo Section */
+        .ai-demo {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+        .ai-demo::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent, rgba(139,92,246,0.05), transparent);
+            animation: shimmerAI 3s ease-in-out infinite;
+        }
+        @keyframes shimmerAI {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .ai-chat {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .ai-message {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .ai-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-ai);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .ai-bubble {
+            background: rgba(139,92,246,0.1);
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 15px;
+            padding: 15px 20px;
+            flex: 1;
+        }
+        .ai-bubble.typing::after {
+            content: '...';
+            animation: typing 1s infinite;
+        }
+        @keyframes typing {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        .ai-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--accent-purple);
+            margin-bottom: 8px;
+        }
+        .ai-text {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+        .highlight-reason {
+            background: rgba(236,72,153,0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-pink);
+        }
+
+        /* Interactive Chart */
+        .chart-section {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(14,165,233,0.3);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 30px 0;
+        }
+        .chart-line {
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            right: 0;
+            height: 200px;
+        }
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+        .chart-path {
+            fill: none;
+            stroke: url(#chartGradient);
+            stroke-width: 3;
+            stroke-linecap: round;
+        }
+        .chart-point {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .chart-point:hover {
+            r: 12;
+            filter: drop-shadow(0 0 10px rgba(139,92,246,0.8));
+        }
+        .chart-tooltip {
+            position: absolute;
+            background: rgba(15,23,42,0.95);
+            border: 1px solid rgba(139,92,246,0.5);
+            border-radius: 12px;
+            padding: 15px;
+            min-width: 250px;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .chart-tooltip.active {
+            display: block;
+            animation: tooltipFade 0.3s ease-out;
+        }
+        @keyframes tooltipFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Feature Cards */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+        .feature-card {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(139,92,246,0.2);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-ai);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(139,92,246,0.4);
+            box-shadow: 0 10px 40px rgba(139,92,246,0.15);
+        }
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        .feature-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--accent-purple);
+        }
+        .feature-card p {
+            color: rgba(241,245,249,0.75);
+            line-height: 1.6;
+        }
+
+        /* Info Section */
+        .info-section {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(139,92,246,0.2);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+        .info-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--accent-purple);
+        }
+        .info-section p {
+            color: rgba(241,245,249,0.8);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        .highlight {
+            color: var(--accent-pink);
+            font-weight: 600;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(236,72,153,0.1));
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 20px;
+            margin-bottom: 50px;
+        }
+        .cta-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        .cta-section p {
+            color: rgba(241,245,249,0.8);
+            margin-bottom: 25px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .cta-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: var(--gradient-ai);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(139,92,246,0.4);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0,5,16,0.95);
+            border-top: 1px solid rgba(139,92,246,0.2);
+            padding: 30px;
+            text-align: center;
+        }
+        .disclaimer {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(139,92,246,0.05);
+            border: 1px solid rgba(139,92,246,0.2);
+            border-radius: 12px;
+        }
+        .disclaimer-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--accent-purple);
+            margin-bottom: 10px;
+        }
+        .disclaimer p {
+            font-size: 0.85rem;
+            color: rgba(241,245,249,0.6);
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            header { flex-direction: column; gap: 15px; }
+        }
+    </style>
+</head>
+<body class="lang-de">
+
+<div class="ai-bg">
+    <div class="neural-net" id="neuralNet"></div>
+</div>
+
+<header>
+    <a href="index.html" class="logo">
+        <span class="logo-icon">🚀</span>
+        <span class="logo-text">CryptoSpaces</span>
+    </a>
+    <div class="header-right">
+        <div class="lang-switch">
+            <button class="lang-btn active" onclick="setLang('de')">DE</button>
+            <button class="lang-btn" onclick="setLang('en')">EN</button>
+        </div>
+        <a href="index.html" class="back-btn">
+            <span data-lang-de>← Zurück</span>
+            <span data-lang-en>← Back</span>
+        </a>
+    </div>
+</header>
+
+<main>
+    <section class="hero">
+        <div class="hero-icon">🤖</div>
+        <h1>
+            <span data-lang-de>Erklärende KI-Visualisierung</span>
+            <span data-lang-en>Explaining AI Visualization</span>
+        </h1>
+        <p class="hero-subtitle">
+            <span data-lang-de>Verstehe, warum sich der Markt bewegt, mit einer KI, die dir alles erklärt.</span>
+            <span data-lang-en>Understand why the market moves, with AI that explains everything to you.</span>
+        </p>
+    </section>
+
+    <!-- AI Demo -->
+    <section class="ai-demo">
+        <h2 style="font-family: 'Orbitron', sans-serif; text-align: center; margin-bottom: 30px; color: var(--accent-purple);">
+            <span data-lang-de>🧠 KI-Marktanalyse Live</span>
+            <span data-lang-en>🧠 AI Market Analysis Live</span>
+        </h2>
+        <div class="ai-chat">
+            <div class="ai-message">
+                <div class="ai-avatar">🤖</div>
+                <div class="ai-bubble">
+                    <div class="ai-label">CryptoSpaces AI</div>
+                    <div class="ai-text">
+                        <span data-lang-de>
+                            <strong>Bitcoin +5.2%</strong> in den letzten 24h. 
+                            <span class="highlight-reason">Grund: Institutionelle Käufe</span> durch ETF-Zuflüsse von $890M. 
+                            Zusätzlich verstärkt durch <span class="highlight-reason">FOMO-Welle</span> in sozialen Medien nach Durchbruch der $100k-Marke.
+                        </span>
+                        <span data-lang-en>
+                            <strong>Bitcoin +5.2%</strong> in the last 24h. 
+                            <span class="highlight-reason">Reason: Institutional buying</span> through ETF inflows of $890M. 
+                            Additionally amplified by <span class="highlight-reason">FOMO wave</span> on social media after breaking the $100k mark.
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="ai-message" style="animation-delay: 0.3s;">
+                <div class="ai-avatar">🤖</div>
+                <div class="ai-bubble">
+                    <div class="ai-label">CryptoSpaces AI</div>
+                    <div class="ai-text">
+                        <span data-lang-de>
+                            <strong>Ethereum -2.1%</strong> trotz positivem BTC. 
+                            <span class="highlight-reason">Ursache: Gewinnmitnahmen</span> nach 30-Tage-Rally. 
+                            <span class="highlight-reason">On-Chain-Daten</span> zeigen erhöhte Wallet-Bewegungen zu Börsen.
+                        </span>
+                        <span data-lang-en>
+                            <strong>Ethereum -2.1%</strong> despite positive BTC. 
+                            <span class="highlight-reason">Cause: Profit-taking</span> after 30-day rally. 
+                            <span class="highlight-reason">On-chain data</span> shows increased wallet movements to exchanges.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Chart -->
+    <section class="chart-section">
+        <h2 style="font-family: 'Orbitron', sans-serif; text-align: center; margin-bottom: 20px; color: var(--accent-cyan);">
+            <span data-lang-de>📊 Interaktive Marktdiagramme</span>
+            <span data-lang-en>📊 Interactive Market Charts</span>
+        </h2>
+        <p style="text-align: center; color: rgba(241,245,249,0.7); margin-bottom: 20px;">
+            <span data-lang-de>Klicke auf die Punkte für KI-Erklärungen</span>
+            <span data-lang-en>Click on points for AI explanations</span>
+        </p>
+        <div class="chart-container">
+            <svg class="chart-svg" viewBox="0 0 800 200">
+                <defs>
+                    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#8b5cf6"/>
+                        <stop offset="50%" style="stop-color:#ec4899"/>
+                        <stop offset="100%" style="stop-color:#0ea5e9"/>
+                    </linearGradient>
+                </defs>
+                <path class="chart-path" d="M 50,150 Q 150,100 200,120 T 350,80 T 500,60 T 650,100 T 750,40"/>
+                <circle class="chart-point" cx="200" cy="120" r="8" fill="#8b5cf6" onclick="showExplanation(1, this)"/>
+                <circle class="chart-point" cx="350" cy="80" r="8" fill="#ec4899" onclick="showExplanation(2, this)"/>
+                <circle class="chart-point" cx="500" cy="60" r="8" fill="#0ea5e9" onclick="showExplanation(3, this)"/>
+                <circle class="chart-point" cx="650" cy="100" r="8" fill="#22c55e" onclick="showExplanation(4, this)"/>
+            </svg>
+            <div class="chart-tooltip" id="chartTooltip"></div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🧠</div>
+            <h3>
+                <span data-lang-de>KI-gesteuerte Markt-Erklärungen</span>
+                <span data-lang-en>AI-Powered Market Explanations</span>
+            </h3>
+            <p>
+                <span data-lang-de>Jede Marktbewegung wird von der KI auseinandergenommen und erklärt. Verstehe die Hintergründe jeder Preisänderung.</span>
+                <span data-lang-en>Every market movement is broken down and explained by AI. Understand the background of every price change.</span>
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>
+                <span data-lang-de>Echtzeit-Erklärungen</span>
+                <span data-lang-en>Real-Time Explanations</span>
+            </h3>
+            <p>
+                <span data-lang-de>Sofortige Erklärungen bei plötzlichen Marktentwicklungen – sei es FOMO, Regulierungsänderungen oder sozialer Einfluss.</span>
+                <span data-lang-en>Instant explanations for sudden market developments – whether FOMO, regulatory changes, or social influence.</span>
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔗</div>
+            <h3>
+                <span data-lang-de>Ursache und Wirkung</span>
+                <span data-lang-en>Cause and Effect</span>
+            </h3>
+            <p>
+                <span data-lang-de>Sieh, wie Nachrichten, soziale Medien und Marktfaktoren den Preis beeinflussen und zusammenhängen.</span>
+                <span data-lang-en>See how news, social media, and market factors affect and correlate with price.</span>
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📈</div>
+            <h3>
+                <span data-lang-de>Interaktive Charts</span>
+                <span data-lang-en>Interactive Charts</span>
+            </h3>
+            <p>
+                <span data-lang-de>Klicke auf Punkte im Chart und erhalte detaillierte KI-Analysen zu jeder Bewegung.</span>
+                <span data-lang-en>Click on points in the chart and get detailed AI analysis for every movement.</span>
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">💭</div>
+            <h3>
+                <span data-lang-de>Marktpsychologie verstehen</span>
+                <span data-lang-en>Understand Market Psychology</span>
+            </h3>
+            <p>
+                <span data-lang-de>Die KI erklärt, wie Emotionen wie Euphorie, Angst oder Gier den Markt beeinflussen.</span>
+                <span data-lang-en>AI explains how emotions like euphoria, fear, or greed influence the market.</span>
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔮</div>
+            <h3>
+                <span data-lang-de>KI-gestützte Prognosen</span>
+                <span data-lang-en>AI-Powered Predictions</span>
+            </h3>
+            <p>
+                <span data-lang-de>Analysiere zukünftige Marktbewegungen basierend auf historischen Daten und aktuellen Trends.</span>
+                <span data-lang-en>Analyze future market movements based on historical data and current trends.</span>
+            </p>
+        </div>
+    </section>
+
+    <!-- Info Section -->
+    <section class="info-section">
+        <h2>
+            <span data-lang-de>🎯 Warum KI-Visualisierung?</span>
+            <span data-lang-en>🎯 Why AI Visualization?</span>
+        </h2>
+        <p data-lang-de-block>
+            Der Kryptomarkt kann <span class="highlight">unübersichtlich</span> und schwer zu entschlüsseln sein, selbst für erfahrene Händler. Die Erklärende KI-Visualisierung bringt <span class="highlight">Klarheit</span> und hilft dir, die Komplexität des Marktes zu verstehen. Sie macht den Markt nicht nur sichtbar, sondern <span class="highlight">verständlich</span>, indem sie die Ursachen und Zusammenhänge hinter den Bewegungen aufzeigt.
+        </p>
+        <p data-lang-en-block>
+            The crypto market can be <span class="highlight">overwhelming</span> and difficult to decipher, even for experienced traders. Explaining AI Visualization brings <span class="highlight">clarity</span> and helps you understand the complexity of the market. It makes the market not only visible but <span class="highlight">understandable</span> by showing the causes and correlations behind movements.
+        </p>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <h2>
+            <span data-lang-de>🚀 Bereit für KI-gestützte Marktanalyse?</span>
+            <span data-lang-en>🚀 Ready for AI-Powered Market Analysis?</span>
+        </h2>
+        <p>
+            <span data-lang-de>Teste die Erklärende KI-Visualisierung und entdecke, wie die KI dir hilft, den Markt besser zu verstehen!</span>
+            <span data-lang-en>Test Explaining AI Visualization and discover how AI helps you understand the market better!</span>
+        </p>
+        <a href="ai-explanation-demo.html" class="cta-btn">
+            <span data-lang-de>Jetzt starten →</span>
+            <span data-lang-en>Get Started →</span>
+        </a>
+    </section>
+</main>
+
+<footer>
+    <div class="disclaimer">
+        <div class="disclaimer-title">
+            <span data-lang-de>⚠️ Hinweis</span>
+            <span data-lang-en>⚠️ Disclaimer</span>
+        </div>
+        <p>
+            <span data-lang-de>Die Erklärende KI-Visualisierung liefert keine finanzielle Beratung oder Handelsratschläge, sondern stellt Markterklärungen und analytische Einblicke zur Verfügung. Alle dargestellten Informationen dienen der Marktanalyse.</span>
+            <span data-lang-en>Explaining AI Visualization does not provide financial advice or trading recommendations, but offers market explanations and analytical insights. All displayed information is for market analysis purposes.</span>
+        </p>
+    </div>
+</footer>
+
+<script>
+    // Language Switching
+    function setLang(lang) {
+        document.body.classList.remove('lang-de', 'lang-en');
+        document.body.classList.add('lang-' + lang);
+        document.querySelectorAll('.lang-btn').forEach(function(btn) { btn.classList.remove('active'); });
+        event.target.classList.add('active');
+        localStorage.setItem('cryptospaces-lang', lang);
+    }
+
+    // Load saved language
+    var savedLang = localStorage.getItem('cryptospaces-lang');
+    if (savedLang) {
+        document.body.classList.remove('lang-de', 'lang-en');
+        document.body.classList.add('lang-' + savedLang);
+        document.querySelectorAll('.lang-btn').forEach(function(btn) {
+            btn.classList.toggle('active', btn.textContent === savedLang.toUpperCase());
+        });
+    }
+
+    // Neural Network Animation
+    function createNeuralNet() {
+        var container = document.getElementById('neuralNet');
+        for (var i = 0; i < 20; i++) {
+            var neuron = document.createElement('div');
+            neuron.className = 'neuron';
+            neuron.style.left = Math.random() * 100 + '%';
+            neuron.style.top = Math.random() * 100 + '%';
+            neuron.style.animationDelay = Math.random() * 2 + 's';
+            container.appendChild(neuron);
+        }
+    }
+    createNeuralNet();
+
+    // Chart Explanations
+    var explanations = {
+        1: {
+            de: '<strong>📈 Ausbruch +8%</strong><br><br><span style="color:#ec4899;">Ursache:</span> ETF-Genehmigung angekündigt. Institutionelle Investoren strömen in den Markt.',
+            en: '<strong>📈 Breakout +8%</strong><br><br><span style="color:#ec4899;">Cause:</span> ETF approval announced. Institutional investors flooding the market.'
+        },
+        2: {
+            de: '<strong>📉 Korrektur -5%</strong><br><br><span style="color:#ec4899;">Ursache:</span> Gewinnmitnahmen nach Rally. Whale-Wallets zeigen erhöhte Aktivität.',
+            en: '<strong>📉 Correction -5%</strong><br><br><span style="color:#ec4899;">Cause:</span> Profit-taking after rally. Whale wallets showing increased activity.'
+        },
+        3: {
+            de: '<strong>🚀 Allzeithoch</strong><br><br><span style="color:#ec4899;">Ursache:</span> FOMO-Welle in sozialen Medien. Suchvolumen für Bitcoin +340%.',
+            en: '<strong>🚀 All-Time High</strong><br><br><span style="color:#ec4899;">Cause:</span> FOMO wave on social media. Search volume for Bitcoin +340%.'
+        },
+        4: {
+            de: '<strong>⚡ Konsolidierung</strong><br><br><span style="color:#ec4899;">Ursache:</span> Markt stabilisiert sich. On-Chain-Metriken zeigen Akkumulation.',
+            en: '<strong>⚡ Consolidation</strong><br><br><span style="color:#ec4899;">Cause:</span> Market stabilizing. On-chain metrics show accumulation.'
+        }
+    };
+
+    function showExplanation(id, element) {
+        var tooltip = document.getElementById('chartTooltip');
+        var isDE = document.body.classList.contains('lang-de');
+        var content = isDE ? explanations[id].de : explanations[id].en;
+        
+        var rect = element.getBoundingClientRect();
+        var container = document.querySelector('.chart-container').getBoundingClientRect();
+        
+        tooltip.innerHTML = content;
+        tooltip.style.left = (rect.left - container.left - 100) + 'px';
+        tooltip.style.top = (rect.top - container.top - 120) + 'px';
+        tooltip.classList.add('active');
+        
+        setTimeout(function() {
+            tooltip.classList.remove('active');
+        }, 4000);
+    }
+</script>
+
+</body>
+</html>

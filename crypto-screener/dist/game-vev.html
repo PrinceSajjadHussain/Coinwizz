@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAME-VEV - Gaming, Metaverse & Virtual Economies View</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Unified Header Styles & Variables */
+        :root {
+            --header-height: 80px;
+            --toolbar-height: 55px;
+            --total-header-height: 135px;
+            /* Primary color preserved from original file */
+        }
+        .unified-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: rgba(10, 21, 16, 0.9); /* Dark green tint for Game VEV */
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(34, 197, 94, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .unified-left { display: flex; align-items: center; gap: 1rem; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+        }
+        .unified-nav {
+            display: flex;
+            gap: 2rem;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .unified-nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+        .unified-nav-link:hover, .unified-nav-link.active {
+            color: #fff;
+            background: rgba(34, 197, 94, 0.15);
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+        }
+        .unified-utils { display: flex; align-items: center; gap: 1rem; }
+        
+        /* Sub-Toolbar */
+        .sub-toolbar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            height: var(--toolbar-height);
+            background: rgba(10,21,16,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(34,197,94,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            z-index: 99;
+            padding: 0 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Layout Adjustments */
+        body { padding-top: var(--total-header-height) !important; }
+        .canvas-container { top: var(--total-header-height) !important; bottom: 50px; }
+        
+        /* Keep original styles below */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #22c55e;
+            --secondary: #84cc16;
+            --accent: #a3e635;
+            --success: #22c55e;
+            --warning: #fbbf24;
+            --danger: #ef4444;
+            --orange: #f97316;
+            --bg-dark: #0a1510;
+            --bg-darker: #030a07;
+            --text: #f8fafc;
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--text);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.4s ease-out;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-title { font-size: 2rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 5px; margin-bottom: 8px; }
+        .loading-sub { font-size: 0.65rem; color: rgba(248,250,252,0.6); margin-bottom: 25px; letter-spacing: 2px; }
+        .progress-container { width: 280px; height: 6px; background: rgba(34,197,94,0.15); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 3px; transition: width 0.1s linear; }
+        .progress-percent { margin-top: 10px; font-size: 0.7rem; color: var(--primary); }
+
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,21,16,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(34,197,94,0.2);
+        }
+        .title { font-size: 1.4rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 4px; }
+        .title-sub { font-size: 0.5rem; color: rgba(248,250,252,0.5); letter-spacing: 1px; margin-top: 2px; }
+        .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn {
+            background: rgba(34,197,94,0.15);
+            border: 1px solid rgba(34,197,94,0.4);
+            color: var(--primary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: rgba(34,197,94,0.25); border-color: var(--primary); }
+        .btn.active { background: rgba(34,197,94,0.4); border-color: var(--primary); }
+        .btn-nav { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.4); color: #3b82f6; text-decoration: none; }
+        .btn-nav:hover { background: rgba(59,130,246,0.25); }
+        .btn-time { background: rgba(132,204,22,0.15); border-color: rgba(132,204,22,0.4); color: var(--secondary); }
+        .btn-time.active { background: rgba(132,204,22,0.4); }
+        .divider { color: rgba(255,255,255,0.15); margin: 0 5px; }
+
+        .canvas-container { position: fixed; top: 60px; left: 0; right: 0; bottom: 50px; }
+        #mainCanvas { width: 100%; height: 100%; }
+
+        .footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            padding: 10px 20px;
+            background: rgba(10,21,16,0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.6rem;
+            color: rgba(248,250,252,0.5);
+            border-top: 1px solid rgba(34,197,94,0.2);
+        }
+        .disclaimer { max-width: 70%; }
+        .stats { display: flex; gap: 20px; }
+        .stat-val { color: var(--primary); font-weight: 700; }
+
+        .tooltip {
+            position: fixed;
+            background: rgba(10,21,16,0.95);
+            border: 1px solid rgba(34,197,94,0.5);
+            border-radius: 12px;
+            padding: 14px 18px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 200;
+            backdrop-filter: blur(12px);
+            max-width: 280px;
+            box-shadow: 0 0 30px rgba(34,197,94,0.2);
+        }
+        .tooltip.visible { opacity: 1; }
+        .tooltip-title { font-size: 0.9rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+        .tooltip-row { display: flex; justify-content: space-between; font-size: 0.65rem; margin: 4px 0; }
+        .tooltip-label { color: rgba(248,250,252,0.6); }
+        .tooltip-value { color: var(--text); font-family: 'JetBrains Mono', monospace; }
+        .tooltip-state { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(34,197,94,0.2); font-size: 0.6rem; }
+
+        .legend {
+            position: fixed;
+            bottom: 70px;
+            left: 20px;
+            background: rgba(10,21,16,0.9);
+            border: 1px solid rgba(34,197,94,0.3);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 0.6rem;
+            backdrop-filter: blur(8px);
+        }
+        .legend-title { color: var(--primary); font-weight: 700; margin-bottom: 8px; font-size: 0.65rem; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin: 5px 0; color: rgba(248,250,252,0.7); }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        /* VEV Panel */
+        .vev-tab {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(132,204,22,0.15));
+            border: 1px solid rgba(34,197,94,0.4);
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            padding: 15px 8px;
+            cursor: pointer;
+            z-index: 300;
+            writing-mode: vertical-rl;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            color: var(--primary);
+            letter-spacing: 2px;
+            transition: all 0.3s;
+        }
+        .vev-tab:hover { background: rgba(34,197,94,0.35); }
+        .vev-tab.hidden { display: none; }
+
+        #vevPanel {
+            position: fixed;
+            right: -420px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 400px;
+            max-height: 80vh;
+            background: rgba(10,21,16,0.95);
+            border: 1px solid rgba(34,197,94,0.4);
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            z-index: 350;
+            transition: right 0.4s ease;
+            backdrop-filter: blur(15px);
+            display: flex;
+            flex-direction: column;
+        }
+        #vevPanel.open { right: 0; }
+
+        .vev-header {
+            padding: 18px;
+            border-bottom: 1px solid rgba(34,197,94,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .vev-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .vev-subtitle {
+            font-size: 0.6rem;
+            color: rgba(248,250,252,0.5);
+        }
+        .vev-close {
+            background: none;
+            border: 1px solid rgba(34,197,94,0.3);
+            color: var(--primary);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .vev-close:hover { background: rgba(34,197,94,0.2); }
+
+        .vev-timefilter {
+            display: flex;
+            gap: 6px;
+            padding: 12px 18px;
+            border-bottom: 1px solid rgba(34,197,94,0.15);
+        }
+        .vev-timefilter button {
+            flex: 1;
+            padding: 6px;
+            background: rgba(34,197,94,0.08);
+            border: 1px solid rgba(34,197,94,0.2);
+            border-radius: 4px;
+            color: rgba(248,250,252,0.6);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .vev-timefilter button.active,
+        .vev-timefilter button:hover {
+            background: rgba(34,197,94,0.25);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .vev-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 18px;
+        }
+        .vev-content::-webkit-scrollbar { width: 4px; }
+        .vev-content::-webkit-scrollbar-thumb { background: rgba(34,197,94,0.3); border-radius: 2px; }
+
+        .vev-event {
+            background: rgba(34,197,94,0.06);
+            border: 1px solid rgba(34,197,94,0.15);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .vev-event:hover { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.35); }
+        .vev-event.highlighted { border-color: var(--primary); box-shadow: 0 0 15px rgba(34,197,94,0.3); }
+
+        .vev-event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .vev-event-type {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            color: var(--primary);
+        }
+        .vev-event-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.55rem;
+            color: rgba(248,250,252,0.5);
+        }
+        .vev-event-zone {
+            font-size: 0.65rem;
+            color: rgba(248,250,252,0.7);
+            margin-bottom: 6px;
+        }
+        .vev-event-zone span { color: var(--primary); }
+        .vev-event-metrics {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .vev-metric {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.55rem;
+            color: rgba(248,250,252,0.6);
+        }
+        .vev-metric.positive { color: var(--primary); }
+        .vev-metric.negative { color: var(--danger); }
+        .vev-metric.warning { color: var(--warning); }
+
+        .vev-footer {
+            padding: 12px 18px;
+            border-top: 1px solid rgba(34,197,94,0.15);
+            text-align: center;
+        }
+        .vev-replay-btn {
+            background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(132,204,22,0.15));
+            border: 1px solid rgba(34,197,94,0.4);
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        .vev-replay-btn:hover { background: rgba(34,197,94,0.3); }
+        .vev-disclaimer {
+            font-size: 0.5rem;
+            color: rgba(248,250,252,0.35);
+            margin-top: 10px;
+        }
+    </style>
+
+    /* Unified Navigation Banner Style */
+    <style>
+        .page-link {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 5px;
+            text-decoration: none;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid rgba(100, 255, 255, 0.3);
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.15));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 0 5px rgba(100, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-link:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(8, 145, 178, 0.3));
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(100, 255, 255, 0.4);
+            border-color: rgba(100, 255, 255, 0.5);
+        }
+    </style>
+    <link rel="stylesheet" href="membership-gating.css">
+</head>
+<body>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-title">GAME-VEV</div>
+        <div class="loading-sub">MASS BEHAVIOR SYSTEM INITIALISIERUNG</div>
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+<!-- Unified Header -->
+    <header class="unified-header">
+        <div class="unified-left">
+            <div class="unified-logo">CRYPTOSPACES</div>
+        </div>
+        <nav class="unified-nav">
+            <a href="top100.html" class="unified-nav-link">TOP 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">WHALES</a>
+            <a href="our-vision.html" class="unified-nav-link">VISION</a>
+        </nav>
+        <div class="unified-utils"></div>
+    </header>
+
+    <!-- Sub-Toolbar -->
+    <div class="sub-toolbar">
+         <div style="margin-right: 20px;">
+            <div class="title" style="font-size: 1rem;">GAME-VEV</div>
+        </div>
+        <div class="controls">
+            <button class="btn active" data-state="all">ALLE</button>
+            <button class="btn" data-state="sustainable">SUSTAINABLE</button>
+            <button class="btn" data-state="growth">GROWTH</button>
+            <button class="btn" data-state="inflation">INFLATION</button>
+            <button class="btn" data-state="decline">DECLINE</button>
+            <span class="divider">|</span>
+            <button class="btn btn-time active" data-time="24h">24H</button>
+            <button class="btn btn-time" data-time="7d">7D</button>
+            <button class="btn btn-time" data-time="30d">30D</button>
+            <span class="divider">|</span>
+            <a href="misvav.html" class="page-link">⛏️ MIS</a>
+            <a href="sacorcs.html" class="page-link">🛡️ SAC</a>
+            <a href="index.html" class="page-link">HOME</a>
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-title" id="tooltipTitle">World</div>
+        <div class="tooltip-row"><span class="tooltip-label">Daily Active Users</span><span class="tooltip-value" id="ttDAU">-</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">Token Velocity</span><span class="tooltip-value" id="ttVelocity">-</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">Retention Rate</span><span class="tooltip-value" id="ttRetention">-</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">Avg. Session</span><span class="tooltip-value" id="ttSession">-</span></div>
+        <div class="tooltip-state"><span class="tooltip-label">Economy Status: </span><span id="ttState">-</span></div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-title">ECONOMIC LOOPS</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #22c55e;"></div>Sustainable - Stabil</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #84cc16;"></div>Growth - Expandierend</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #f97316;"></div>Inflation - Ueberhitzt</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #6b7280;"></div>Decline - Kollabierend</div>
+    </div>
+
+    <!-- VEV Tab -->
+    <div class="vev-tab" id="vevTab" onclick="toggleVevPanel()">VEV FEED</div>
+
+    <!-- VEV Panel -->
+    <div id="vevPanel">
+        <div class="vev-header">
+            <div>
+                <div class="vev-title">Game VEV · Live Events & Velocity</div>
+                <div class="vev-subtitle">Velocity · Volatility · Event pulses · Time-stamped</div>
+            </div>
+            <button class="vev-close" onclick="toggleVevPanel()">&times;</button>
+        </div>
+        <div class="vev-timefilter">
+            <button class="active" data-range="7d" onclick="setVevTimeRange('7d', this)">7D</button>
+            <button data-range="1m" onclick="setVevTimeRange('1m', this)">1M</button>
+            <button data-range="3m" onclick="setVevTimeRange('3m', this)">3M</button>
+            <button data-range="6m" onclick="setVevTimeRange('6m', this)">6M</button>
+            <button data-range="12m" onclick="setVevTimeRange('12m', this)">12M</button>
+        </div>
+        <div class="vev-content" id="vevEventList"></div>
+        <div class="vev-footer">
+            <button class="vev-replay-btn" onclick="replayVevEvents()">▶ Replay selected period</button>
+            <div class="vev-disclaimer">Visualization only. No trading signals. No financial advice.</div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="disclaimer">DISCLAIMER: Diese Visualisierung zeigt simulierte Daten zu Gaming-Oekosystemen. Keine Anlageberatung. Alle Angaben ohne Gewaehr.</div>
+        <div class="stats">
+            <span>Worlds: <span class="stat-val" id="statWorlds">0</span></span>
+            <span>Active Players: <span class="stat-val" id="statPlayers">0</span></span>
+            <span>Loop Health: <span class="stat-val" id="statHealth">0%</span></span>
+        </div>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+        let W, H;
+
+        function resize() {
+            const container = canvas.parentElement;
+            W = canvas.width = container.clientWidth;
+            H = canvas.height = container.clientHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const COLORS = {
+            sustainable: '#22c55e',
+            growth: '#84cc16',
+            inflation: '#f97316',
+            decline: '#6b7280'
+        };
+
+        const GAME_WORLDS = [
+            { name: 'Axie Infinity', users: 850000, velocity: 2.4, retention: 68, session: 45, state: 'decline' },
+            { name: 'The Sandbox', users: 420000, velocity: 1.8, retention: 72, session: 38, state: 'growth' },
+            { name: 'Decentraland', users: 310000, velocity: 1.5, retention: 65, session: 32, state: 'sustainable' },
+            { name: 'Illuvium', users: 180000, velocity: 3.2, retention: 78, session: 55, state: 'growth' },
+            { name: 'Gods Unchained', users: 145000, velocity: 2.1, retention: 71, session: 42, state: 'sustainable' },
+            { name: 'Star Atlas', users: 95000, velocity: 2.8, retention: 62, session: 28, state: 'inflation' },
+            { name: 'Splinterlands', users: 280000, velocity: 1.9, retention: 74, session: 35, state: 'sustainable' },
+            { name: 'Alien Worlds', users: 520000, velocity: 3.5, retention: 58, session: 22, state: 'inflation' }
+        ];
+
+        let gameWorlds = [];
+        let particles = [];
+        let loopParticles = [];
+        let currentState = 'all';
+        let currentTime = '24h';
+        let hoveredWorld = null;
+        let time = 0;
+
+        class GameWorld {
+            constructor(data, index, total) {
+                this.name = data.name;
+                this.users = data.users;
+                this.velocity = data.velocity;
+                this.retention = data.retention;
+                this.session = data.session;
+                this.state = data.state;
+                
+                const angle = (index / total) * Math.PI * 2 - Math.PI / 2;
+                const radius = Math.min(W, H) * 0.32;
+                this.x = W / 2 + Math.cos(angle) * radius;
+                this.y = H / 2 + Math.sin(angle) * radius;
+                this.baseRadius = 30 + (data.users / 50000);
+                this.radius = this.baseRadius;
+                this.loopRadius = this.radius + 25 + (data.velocity * 8);
+                this.loopSpeed = this.getLoopSpeed();
+                this.loopAngle = Math.random() * Math.PI * 2;
+                this.color = COLORS[this.state];
+                this.visible = true;
+                this.pulsePhase = Math.random() * Math.PI * 2;
+                this.decayParticles = [];
+            }
+
+            getLoopSpeed() {
+                switch(this.state) {
+                    case 'sustainable': return 0.008;
+                    case 'growth': return 0.015;
+                    case 'inflation': return 0.025;
+                    case 'decline': return 0.003;
+                    default: return 0.01;
+                }
+            }
+
+            update(dt) {
+                this.loopAngle += this.loopSpeed;
+                this.pulsePhase += 0.03;
+                
+                if (this.state === 'inflation') {
+                    this.radius = this.baseRadius + Math.sin(this.pulsePhase * 2) * 5;
+                } else if (this.state === 'decline') {
+                    if (Math.random() < 0.02) {
+                        this.decayParticles.push({
+                            x: this.x + (Math.random() - 0.5) * this.radius * 2,
+                            y: this.y + (Math.random() - 0.5) * this.radius * 2,
+                            vx: (Math.random() - 0.5) * 2,
+                            vy: -Math.random() * 2 - 1,
+                            life: 1,
+                            size: Math.random() * 3 + 1
+                        });
+                    }
+                }
+
+                this.decayParticles = this.decayParticles.filter(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life -= 0.015;
+                    return p.life > 0;
+                });
+            }
+
+            draw() {
+                if (!this.visible) return;
+
+                // Economic Loop
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                const loopSegments = this.state === 'decline' ? 12 : 24;
+                const loopGap = this.state === 'decline' ? 0.15 : 0.02;
+                
+                for (let i = 0; i < loopSegments; i++) {
+                    const startAngle = this.loopAngle + (i / loopSegments) * Math.PI * 2;
+                    const endAngle = startAngle + (Math.PI * 2 / loopSegments) - loopGap;
+                    
+                    let alpha = 0.6;
+                    if (this.state === 'decline') {
+                        alpha = 0.2 + Math.random() * 0.2;
+                    } else if (this.state === 'inflation') {
+                        alpha = 0.5 + Math.sin(this.pulsePhase + i) * 0.3;
+                    }
+
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.loopRadius, startAngle, endAngle);
+                    ctx.strokeStyle = this.color;
+                    ctx.globalAlpha = alpha;
+                    ctx.lineWidth = this.state === 'growth' ? 4 : 3;
+                    ctx.stroke();
+                }
+
+                // Flow indicators on loop
+                const flowCount = this.state === 'decline' ? 2 : (this.state === 'inflation' ? 8 : 4);
+                for (let i = 0; i < flowCount; i++) {
+                    const flowAngle = this.loopAngle * 2 + (i / flowCount) * Math.PI * 2;
+                    const fx = Math.cos(flowAngle) * this.loopRadius;
+                    const fy = Math.sin(flowAngle) * this.loopRadius;
+                    
+                    ctx.beginPath();
+                    ctx.arc(fx, fy, 4, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.globalAlpha = 0.9;
+                    ctx.fill();
+                    
+                    ctx.beginPath();
+                    ctx.arc(fx, fy, 8, 0, Math.PI * 2);
+                    ctx.globalAlpha = 0.3;
+                    ctx.fill();
+                }
+
+                ctx.restore();
+
+                // Zone glow
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 2);
+                gradient.addColorStop(0, this.color + '40');
+                gradient.addColorStop(0.5, this.color + '15');
+                gradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
+                ctx.globalAlpha = 1;
+                ctx.fill();
+
+                // Core zone
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color + '30';
+                ctx.fill();
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Zone label
+                ctx.fillStyle = '#fff';
+                ctx.font = '600 10px Orbitron';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.name, this.x, this.y + this.radius + 18);
+
+                // Decay particles
+                this.decayParticles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.globalAlpha = p.life * 0.5;
+                    ctx.fill();
+                });
+                ctx.globalAlpha = 1;
+            }
+
+            containsPoint(px, py) {
+                const dx = px - this.x;
+                const dy = py - this.y;
+                return Math.sqrt(dx * dx + dy * dy) < this.loopRadius + 10;
+            }
+        }
+
+        class PlayerParticle {
+            constructor(world) {
+                this.world = world;
+                this.angle = Math.random() * Math.PI * 2;
+                this.orbitRadius = world.loopRadius + (Math.random() - 0.5) * 15;
+                this.speed = world.loopSpeed * (0.8 + Math.random() * 0.4);
+                this.size = 1.5 + Math.random() * 1.5;
+                this.direction = Math.random() > 0.3 ? 1 : -1; // earn vs spend
+                if (world.state === 'decline' && Math.random() > 0.6) this.direction = 0; // exit
+                this.life = 1;
+                this.exiting = this.direction === 0;
+                this.exitVx = (Math.random() - 0.5) * 3;
+                this.exitVy = (Math.random() - 0.5) * 3;
+                this.x = 0;
+                this.y = 0;
+            }
+
+            update() {
+                if (this.exiting) {
+                    this.x += this.exitVx;
+                    this.y += this.exitVy;
+                    this.life -= 0.01;
+                } else {
+                    this.angle += this.speed * this.direction;
+                    this.x = this.world.x + Math.cos(this.angle) * this.orbitRadius;
+                    this.y = this.world.y + Math.sin(this.angle) * this.orbitRadius;
+                }
+                return this.life > 0;
+            }
+
+            draw() {
+                if (!this.world.visible) return;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.direction === 1 ? '#22c55e' : (this.direction === -1 ? '#f97316' : '#6b7280');
+                ctx.globalAlpha = this.life * 0.8;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        class AssetParticle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                if (gameWorlds.length < 2) return;
+                const visibleWorlds = gameWorlds.filter(w => w.visible);
+                if (visibleWorlds.length < 2) return;
+                
+                this.fromWorld = visibleWorlds[Math.floor(Math.random() * visibleWorlds.length)];
+                this.toWorld = visibleWorlds[Math.floor(Math.random() * visibleWorlds.length)];
+                if (this.fromWorld === this.toWorld) {
+                    this.toWorld = visibleWorlds[(visibleWorlds.indexOf(this.fromWorld) + 1) % visibleWorlds.length];
+                }
+                
+                this.progress = 0;
+                this.speed = 0.005 + Math.random() * 0.01;
+                this.size = 2 + Math.random() * 2;
+                this.type = Math.random() > 0.5 ? 'token' : 'nft';
+            }
+
+            update() {
+                this.progress += this.speed;
+                if (this.progress >= 1) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                if (!this.fromWorld || !this.toWorld || !this.fromWorld.visible || !this.toWorld.visible) return;
+                
+                const x = this.fromWorld.x + (this.toWorld.x - this.fromWorld.x) * this.progress;
+                const y = this.fromWorld.y + (this.toWorld.y - this.fromWorld.y) * this.progress;
+                
+                // Trail
+                ctx.beginPath();
+                ctx.moveTo(this.fromWorld.x, this.fromWorld.y);
+                ctx.lineTo(x, y);
+                ctx.strokeStyle = this.type === 'token' ? 'rgba(34,197,94,0.2)' : 'rgba(132,204,22,0.2)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                
+                // Particle
+                ctx.beginPath();
+                if (this.type === 'nft') {
+                    ctx.rect(x - this.size, y - this.size, this.size * 2, this.size * 2);
+                } else {
+                    ctx.arc(x, y, this.size, 0, Math.PI * 2);
+                }
+                ctx.fillStyle = this.type === 'token' ? '#22c55e' : '#84cc16';
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            gameWorlds = GAME_WORLDS.map((data, i) => new GameWorld(data, i, GAME_WORLDS.length));
+            
+            // Create player particles for each world
+            particles = [];
+            gameWorlds.forEach(world => {
+                const count = Math.floor(world.users / 30000);
+                for (let i = 0; i < count; i++) {
+                    particles.push(new PlayerParticle(world));
+                }
+            });
+
+            // Create asset circulation particles
+            loopParticles = [];
+            for (let i = 0; i < 30; i++) {
+                loopParticles.push(new AssetParticle());
+            }
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const visibleWorlds = gameWorlds.filter(w => w.visible);
+            const totalUsers = visibleWorlds.reduce((sum, w) => sum + w.users, 0);
+            const healthyWorlds = visibleWorlds.filter(w => w.state === 'sustainable' || w.state === 'growth').length;
+            const health = visibleWorlds.length > 0 ? Math.round((healthyWorlds / visibleWorlds.length) * 100) : 0;
+
+            document.getElementById('statWorlds').textContent = visibleWorlds.length;
+            document.getElementById('statPlayers').textContent = (totalUsers / 1000000).toFixed(2) + 'M';
+            document.getElementById('statHealth').textContent = health + '%';
+        }
+
+        function filterByState(state) {
+            currentState = state;
+            gameWorlds.forEach(world => {
+                world.visible = state === 'all' || world.state === state;
+            });
+            updateStats();
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(3,10,7,0.15)';
+            ctx.fillRect(0, 0, W, H);
+
+            time++;
+
+            // Draw center hub
+            const centerGradient = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, 80);
+            centerGradient.addColorStop(0, 'rgba(34,197,94,0.2)');
+            centerGradient.addColorStop(1, 'transparent');
+            ctx.fillStyle = centerGradient;
+            ctx.beginPath();
+            ctx.arc(W/2, H/2, 80, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(W/2, H/2, 30, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(34,197,94,0.4)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.font = '700 8px Orbitron';
+            ctx.fillStyle = '#22c55e';
+            ctx.textAlign = 'center';
+            ctx.fillText('METAVERSE', W/2, H/2 + 3);
+
+            // Asset circulation
+            loopParticles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            // Game worlds
+            gameWorlds.forEach(world => {
+                world.update(1);
+                world.draw();
+            });
+
+            // Player particles
+            particles = particles.filter(p => {
+                const alive = p.update();
+                p.draw();
+                return alive;
+            });
+
+            // Replenish particles
+            gameWorlds.forEach(world => {
+                if (!world.visible) return;
+                const targetCount = Math.floor(world.users / 30000);
+                const currentCount = particles.filter(p => p.world === world && !p.exiting).length;
+                if (currentCount < targetCount && Math.random() < 0.1) {
+                    particles.push(new PlayerParticle(world));
+                }
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // Event handlers
+        document.querySelectorAll('.btn[data-state]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.btn[data-state]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                filterByState(btn.dataset.state);
+            });
+        });
+
+        document.querySelectorAll('.btn-time').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.btn-time').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTime = btn.dataset.time;
+            });
+        });
+
+        const tooltip = document.getElementById('tooltip');
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+            hoveredWorld = gameWorlds.find(w => w.visible && w.containsPoint(x, y));
+
+            if (hoveredWorld) {
+                tooltip.classList.add('visible');
+                tooltip.style.left = (e.clientX + 15) + 'px';
+                tooltip.style.top = (e.clientY + 15) + 'px';
+                document.getElementById('tooltipTitle').textContent = hoveredWorld.name;
+                document.getElementById('ttDAU').textContent = hoveredWorld.users.toLocaleString();
+                document.getElementById('ttVelocity').textContent = hoveredWorld.velocity.toFixed(1) + 'x';
+                document.getElementById('ttRetention').textContent = hoveredWorld.retention + '%';
+                document.getElementById('ttSession').textContent = hoveredWorld.session + ' min';
+                const stateEl = document.getElementById('ttState');
+                stateEl.textContent = hoveredWorld.state.toUpperCase();
+                stateEl.style.color = hoveredWorld.color;
+            } else {
+                tooltip.classList.remove('visible');
+            }
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            tooltip.classList.remove('visible');
+            hoveredWorld = null;
+        });
+
+        // ==================== VEV PANEL ====================
+        let vevEvents = [];
+        let currentVevRange = '7d';
+
+        function toggleVevPanel() {
+            const panel = document.getElementById('vevPanel');
+            const tab = document.getElementById('vevTab');
+            panel.classList.toggle('open');
+            tab.classList.toggle('hidden');
+            if (panel.classList.contains('open') && vevEvents.length === 0) {
+                vevEvents = generateVevEvents(50);
+                renderVevHistory();
+            }
+        }
+
+        function generateVevEvents(num) {
+            const eventTypes = ['Velocity Spike', 'Volatility Shock', 'Momentum Shift', 'Liquidity Pulse', 'Calm Phase', 'Compression'];
+            const zones = GAME_WORLDS.map(w => w.name);
+            const states = ['Calm', 'Active', 'Storm'];
+            const events = [];
+            const now = Date.now();
+            for (let i = 0; i < num; i++) {
+                const daysAgo = Math.floor(Math.random() * 365);
+                events.push({
+                    id: i,
+                    type: eventTypes[Math.floor(Math.random() * eventTypes.length)],
+                    zone: zones[Math.floor(Math.random() * zones.length)],
+                    timestamp: new Date(now - daysAgo * 86400000),
+                    velocityDelta: (Math.random() - 0.5) * 3,
+                    volatilityDelta: (Math.random() - 0.5) * 40,
+                    strength: Math.floor(Math.random() * 100),
+                    sessionState: states[Math.floor(Math.random() * states.length)]
+                });
+            }
+            return events.sort((a, b) => b.timestamp - a.timestamp);
+        }
+
+        function setVevTimeRange(range, btn) {
+            currentVevRange = range;
+            document.querySelectorAll('.vev-timefilter button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderVevHistory();
+        }
+
+        function renderVevHistory() {
+            const container = document.getElementById('vevEventList');
+            const rangeDays = { '7d': 7, '1m': 30, '3m': 90, '6m': 180, '12m': 365 }[currentVevRange];
+            const cutoff = Date.now() - rangeDays * 86400000;
+            const filtered = vevEvents.filter(e => e.timestamp.getTime() > cutoff);
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:rgba(248,250,252,0.4);padding:30px;">VEV feed limited for this period.</div>';
+                return;
+            }
+            container.innerHTML = filtered.map((e, i) => `
+                <div class="vev-event" onclick="highlightVevEvent(${e.id})">
+                    <div class="vev-event-header">
+                        <span class="vev-event-type">${e.type}</span>
+                        <span class="vev-event-time">${e.timestamp.toLocaleDateString()} ${e.timestamp.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>
+                    </div>
+                    <div class="vev-event-zone">Zone: <span>${e.zone}</span></div>
+                    <div class="vev-event-metrics">
+                        <span class="vev-metric ${e.velocityDelta >= 0 ? 'positive' : 'negative'}">VelΔ: ${e.velocityDelta >= 0 ? '+' : ''}${e.velocityDelta.toFixed(2)}x</span>
+                        <span class="vev-metric ${e.volatilityDelta >= 0 ? 'warning' : 'positive'}">VolΔ: ${e.volatilityDelta >= 0 ? '+' : ''}${e.volatilityDelta.toFixed(0)}%</span>
+                        <span class="vev-metric">Str: ${e.strength}</span>
+                        <span class="vev-metric">${e.sessionState}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function highlightVevEvent(eventId) {
+            const event = vevEvents.find(e => e.id === eventId);
+            if (!event) return;
+            document.querySelectorAll('.vev-event').forEach(el => el.classList.remove('highlighted'));
+            document.querySelector(`.vev-event[onclick="highlightVevEvent(${eventId})"]`)?.classList.add('highlighted');
+            // Highlight zone
+            const world = gameWorlds.find(w => w.name === event.zone);
+            if (world) {
+                const origRadius = world.radius;
+                world.radius = world.baseRadius * 1.5;
+                setTimeout(() => { world.radius = origRadius; }, 2000);
+            }
+        }
+
+        function replayVevEvents() {
+            const rangeDays = { '7d': 7, '1m': 30, '3m': 90, '6m': 180, '12m': 365 }[currentVevRange];
+            const cutoff = Date.now() - rangeDays * 86400000;
+            const filtered = vevEvents.filter(e => e.timestamp.getTime() > cutoff).slice(0, 10);
+            filtered.forEach((e, i) => setTimeout(() => highlightVevEvent(e.id), i * 1500));
+        }
+
+        // Loading
+        let progress = 0;
+        const loadingInterval = setInterval(() => {
+            progress += Math.random() * 15 + 5;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(loadingInterval);
+                setTimeout(() => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    init();
+                    animate();
+                }, 300);
+            }
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressPercent').textContent = Math.floor(progress) + '%';
+        }, 100);
+    </script>
+    <script src="membership-gating.js"></script>
+</body>
+</html>

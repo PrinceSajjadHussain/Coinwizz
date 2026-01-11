@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Privacy Addendum | CRYPTOSPACES</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #3b82f6;
+            --accent: #06b6d4;
+            --gold: #fbbf24;
+            --bg-dark: #0a0f1e;
+            --bg-darker: #030712;
+            --text: #f8fafc;
+            --text-muted: rgba(248,250,252,0.6);
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            line-height: 1.8;
+        }
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(59,130,246,0.3);
+        }
+        .title { font-size: 1.2rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px; }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .lang-switch {
+            display: flex;
+            background: rgba(59,130,246,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(59,130,246,0.3);
+        }
+        .lang-btn {
+            padding: 6px 12px;
+            font-family: inherit;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .lang-btn.active { background: rgba(59,130,246,0.3); color: var(--text); }
+        .lang-btn:hover { color: var(--text); }
+        .btn-back {
+            background: rgba(59,130,246,0.15);
+            border: 1px solid rgba(59,130,246,0.4);
+            color: #3b82f6;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-back:hover { background: rgba(59,130,246,0.25); }
+
+        .main-container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 100px 20px 60px;
+        }
+
+        [data-lang-de], [data-lang-en] { display: none; }
+        body.lang-de [data-lang-de] { display: block; }
+        body.lang-en [data-lang-en] { display: block; }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 50px 30px;
+            background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(6,182,212,0.05) 100%);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 20px;
+        }
+        .hero h1 {
+            font-size: 1.4rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+        .hero-intro {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .hero-intro strong { color: var(--text); }
+
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: rgba(10,15,30,0.6);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 15px;
+        }
+        .section h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+        .section h3 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-top: 25px;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+        .section h3:first-child { margin-top: 0; }
+        .section p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .section p:last-child { margin-bottom: 0; }
+        .section strong { color: var(--text); }
+        .section ul {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        .section ul li {
+            margin-bottom: 8px;
+        }
+        .section ul li strong { color: var(--text); }
+
+        .info-card {
+            background: rgba(59,130,246,0.05);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 12px;
+            padding: 25px;
+        }
+        .info-card h3 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-top: 0;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        .info-card p {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 8px;
+        }
+        .info-card p:last-child { margin-bottom: 0; }
+        .info-card strong { color: var(--text); }
+
+        .footer-note {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(6,182,212,0.1) 100%);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 20px;
+        }
+        .footer-note p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .footer-note p:last-child {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            margin-bottom: 0;
+        }
+
+        /* CryptoSpaces Dropdown */
+        .cryptospaces-dropdown {
+            position: relative;
+        }
+        .cryptospaces-toggle {
+            background: rgba(251,191,36,0.15);
+            border: 1px solid rgba(251,191,36,0.4);
+            color: #fbbf24;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .cryptospaces-toggle:hover {
+            background: rgba(251,191,36,0.25);
+        }
+        .cryptospaces-toggle .chevron {
+            font-size: 0.5rem;
+            transition: transform 0.2s;
+        }
+        .cryptospaces-dropdown.open .chevron {
+            transform: rotate(180deg);
+        }
+        .cryptospaces-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 10px;
+            min-width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-5px);
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+        .cryptospaces-dropdown.open .cryptospaces-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .cryptospaces-menu a {
+            display: block;
+            padding: 12px 16px;
+            color: rgba(248,250,252,0.8);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(251,191,36,0.1);
+            transition: all 0.15s;
+        }
+        .cryptospaces-menu a:last-child {
+            border-bottom: none;
+        }
+        .cryptospaces-menu a:hover {
+            background: rgba(251,191,36,0.1);
+            color: #fbbf24;
+            padding-left: 20px;
+        }
+        .cryptospaces-menu a.active {
+            color: #fbbf24;
+            background: rgba(251,191,36,0.08);
+        }
+        .cryptospaces-menu a.lifetime {
+            color: #10b981;
+        }
+        .cryptospaces-menu a.lifetime:hover {
+            background: rgba(16,185,129,0.1);
+            color: #10b981;
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 10px 15px; }
+            .title { font-size: 1rem; }
+            .main-container { padding: 90px 15px 40px; }
+            .hero { padding: 30px 20px; }
+            .hero h1 { font-size: 1.1rem; }
+            .section { padding: 20px; }
+        }
+    </style>
+</head>
+<body class="lang-en">
+<div style="position:fixed;top:10px;right:10px;z-index:9999;display:flex;gap:8px;">
+<a href="index.html" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);color:#3b82f6;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Home</a>
+<a href="financial-galaxy.html" style="background:rgba(34,211,238,0.2);border:1px solid rgba(34,211,238,0.4);color:#22d3ee;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Financial Galaxy</a>
+</div>
+    <header class="header">
+        <div class="title">API PRIVACY ADDENDUM</div>
+        <div class="header-right">
+            <div class="cryptospaces-dropdown" id="cryptospacesDropdown">
+                <button class="cryptospaces-toggle" id="cryptospacesToggle">
+                    <span>CryptoSpaces</span>
+                    <span class="chevron">▼</span>
+                </button>
+                <div class="cryptospaces-menu">
+        <a href="magic-coins-today.html" style="color: #a855f7;">✨ Magic Coins</a>
+                    <a href="our-vision.html">Our Vision</a>
+                    <a href="impressum.html">Impressum</a>
+                    <a href="datenschutz.html">Datenschutz</a>
+                    <a href="preise.html">Preise</a>
+                    <a href="api-privacy-addendum.html" class="active">API Privacy Addendum</a>
+                    <a href="lifetime.html" class="lifetime">★ LIFETIME ACCESS</a>
+                </div>
+            </div>
+            <div class="lang-switch">
+                <button class="lang-btn" id="btnDE" onclick="setLang('de')">DE</button>
+                <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+            </div>
+            <a href="index.html" class="btn-back">← CRYPTOSPACES</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- GERMAN VERSION -->
+        <div data-lang-de>
+            <section class="hero">
+                <h1>API Privacy Addendum</h1>
+                <p class="hero-intro">
+                    Datenschutz-Zusatz für die Nutzung der Cryptospaces API.<br>
+                    <strong>Ergänzend zur allgemeinen Datenschutzerklärung.</strong>
+                </p>
+            </section>
+
+            <section class="section">
+                <h2>1. Zweck dieses API Privacy Addendums</h2>
+                <p>Dieses API Privacy Addendum ergänzt die allgemeine Datenschutzerklärung von Cryptospaces und gilt zusätzlich für Nutzer der Cryptospaces API.</p>
+                <p>Es regelt die datenschutzrechtlichen Aspekte der automatisierten, maschinellen Nutzung der API.</p>
+            </section>
+
+            <section class="section">
+                <h2>2. Art der verarbeiteten Daten</h2>
+                <p>Im Rahmen der API-Nutzung können folgende Daten verarbeitet werden:</p>
+                <ul>
+                    <li><strong>Technische Zugriffsdaten</strong> (IP-Adresse, Zeitstempel)</li>
+                    <li><strong>API-Key und zugehöriger Account</strong></li>
+                    <li><strong>Request-Metadaten</strong> (Endpunkte, Abrufmengen, Statuscodes)</li>
+                    <li><strong>Nutzungs- und Missbrauchsindikatoren</strong></li>
+                </ul>
+                <p>Die API stellt keine personenbezogenen Marktdaten über Dritte bereit.</p>
+            </section>
+
+            <section class="section">
+                <h2>3. Zweck der Datenverarbeitung</h2>
+                <p>Die Verarbeitung erfolgt ausschließlich zu folgenden Zwecken:</p>
+                <ul>
+                    <li>Authentifizierung und Autorisierung von API-Zugriffen</li>
+                    <li>Gewährleistung von Sicherheit und Stabilität</li>
+                    <li>Durchsetzung von Rate-Limits und Fair-Use-Regeln</li>
+                    <li>Missbrauchs- und Betrugserkennung</li>
+                    <li>Abrechnung API-bezogener Leistungen</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>4. Rechtsgrundlagen</h2>
+                <p>Die Verarbeitung erfolgt auf Grundlage von:</p>
+                <ul>
+                    <li><strong>Art. 6 Abs. 1 lit. b DSGVO</strong> (Vertragserfüllung)</li>
+                    <li><strong>Art. 6 Abs. 1 lit. f DSGVO</strong> (berechtigtes Interesse an Sicherheit und Stabilität)</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>5. Speicherung & Löschung</h2>
+                <p>API-bezogene Protokolldaten werden:</p>
+                <ul>
+                    <li>nur so lange gespeichert, wie dies für die genannten Zwecke erforderlich ist,</li>
+                    <li>anschließend gelöscht oder anonymisiert,</li>
+                    <li>spätestens nach Ablauf gesetzlicher Aufbewahrungsfristen entfernt.</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>6. Weitergabe an Dritte</h2>
+                <p>Eine Weitergabe von API-bezogenen personenbezogenen Daten erfolgt nicht, außer:</p>
+                <ul>
+                    <li>an technische Dienstleister im Rahmen von Auftragsverarbeitung (Art. 28 DSGVO),</li>
+                    <li>bei gesetzlicher Verpflichtung.</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>7. Sicherheit</h2>
+                <p>Cryptospaces setzt angemessene technische und organisatorische Maßnahmen ein, u. a.:</p>
+                <ul>
+                    <li>API-Key-Authentifizierung</li>
+                    <li>Zugriffsbeschränkungen</li>
+                    <li>Protokollierung sicherheitsrelevanter Ereignisse</li>
+                    <li>Schutz vor unbefugtem Zugriff</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>8. Verantwortlichkeit bei Weiterverarbeitung</h2>
+                <p>Nutzer der API sind selbst verantwortlich für:</p>
+                <ul>
+                    <li>die datenschutzkonforme Nutzung der API-Daten,</li>
+                    <li>die Einhaltung gesetzlicher Pflichten in ihren eigenen Systemen,</li>
+                    <li>die Information ihrer Endnutzer, sofern personenbezogene Daten verarbeitet werden.</li>
+                </ul>
+                <p>Cryptospaces übernimmt keine Verantwortung für die Datenverarbeitung in externen Systemen.</p>
+            </section>
+
+            <section class="section">
+                <h2>9. Anbieter & Kontakt</h2>
+                <div class="info-card">
+                    <h3>Cryptospaces</h3>
+                    <p>betrieben durch:</p>
+                    <p><strong>Orhan Ayhan</strong></p>
+                    <p>CEO – Royalisimo / Formio24</p>
+                    <p>Munsterdamm 13</p>
+                    <p>12169 Berlin</p>
+                    <p>Germany</p>
+                    <p>📧 OrhanAyhan@Royalisimo.com</p>
+                    <p>📞 +49 157 35164992</p>
+                </div>
+            </section>
+
+            <section class="footer-note">
+                <p>Dieses API Privacy Addendum ist Teil der Cryptospaces Nutzungsbedingungen.</p>
+                <p>Fragen zur API-Nutzung? Kontaktieren Sie uns.</p>
+            </section>
+        </div>
+
+        <!-- ENGLISH VERSION -->
+        <div data-lang-en>
+            <section class="hero">
+                <h1>API Privacy Addendum</h1>
+                <p class="hero-intro">
+                    Data protection addendum for the use of the Cryptospaces API.<br>
+                    <strong>Supplementary to the general Privacy Policy.</strong>
+                </p>
+            </section>
+
+            <section class="section">
+                <h2>1. Purpose of This API Privacy Addendum</h2>
+                <p>This API Privacy Addendum supplements the general Privacy Policy of Cryptospaces and applies specifically to users of the Cryptospaces API.</p>
+                <p>It governs data protection aspects related to automated and machine-based API usage.</p>
+            </section>
+
+            <section class="section">
+                <h2>2. Types of Data Processed</h2>
+                <p>In the context of API usage, the following data may be processed:</p>
+                <ul>
+                    <li><strong>Technical access data</strong> (IP address, timestamps)</li>
+                    <li><strong>API key and associated account</strong></li>
+                    <li><strong>Request metadata</strong> (endpoints, volume, status codes)</li>
+                    <li><strong>Usage and abuse indicators</strong></li>
+                </ul>
+                <p>The API does not provide personal data about third parties.</p>
+            </section>
+
+            <section class="section">
+                <h2>3. Purpose of Processing</h2>
+                <p>Data is processed solely for the following purposes:</p>
+                <ul>
+                    <li>Authentication and authorization</li>
+                    <li>Security and system stability</li>
+                    <li>Enforcement of rate limits and fair use</li>
+                    <li>Abuse and fraud detection</li>
+                    <li>Billing of API-related services</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>4. Legal Basis</h2>
+                <p>Processing is based on:</p>
+                <ul>
+                    <li><strong>Art. 6(1)(b) GDPR</strong> (performance of contract)</li>
+                    <li><strong>Art. 6(1)(f) GDPR</strong> (legitimate interest in security and stability)</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>5. Storage & Deletion</h2>
+                <p>API-related logs are:</p>
+                <ul>
+                    <li>Stored only as long as necessary,</li>
+                    <li>Deleted or anonymized thereafter,</li>
+                    <li>Removed at the latest after statutory retention periods.</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>6. Disclosure to Third Parties</h2>
+                <p>API-related personal data is not shared, except:</p>
+                <ul>
+                    <li>With processors under Art. 28 GDPR,</li>
+                    <li>Where legally required.</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>7. Security Measures</h2>
+                <p>Cryptospaces implements appropriate technical and organizational measures, including:</p>
+                <ul>
+                    <li>API key authentication</li>
+                    <li>Access controls</li>
+                    <li>Security logging</li>
+                    <li>Protection against unauthorized access</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>8. Responsibility for Downstream Processing</h2>
+                <p>API users are solely responsible for:</p>
+                <ul>
+                    <li>Lawful use of API data,</li>
+                    <li>Compliance within their own systems,</li>
+                    <li>Informing their end users where applicable.</li>
+                </ul>
+                <p>Cryptospaces assumes no responsibility for external data processing.</p>
+            </section>
+
+            <section class="section">
+                <h2>9. Provider & Contact</h2>
+                <div class="info-card">
+                    <h3>Cryptospaces</h3>
+                    <p>operated by:</p>
+                    <p><strong>Orhan Ayhan</strong></p>
+                    <p>CEO – Royalisimo / Formio24</p>
+                    <p>Munsterdamm 13</p>
+                    <p>12169 Berlin</p>
+                    <p>Germany</p>
+                    <p>📧 OrhanAyhan@Royalisimo.com</p>
+                    <p>📞 +49 157 35164992</p>
+                </div>
+            </section>
+
+            <section class="footer-note">
+                <p>This API Privacy Addendum is part of the Cryptospaces Terms of Service.</p>
+                <p>Questions about API usage? Contact us.</p>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = localStorage.getItem('apiPrivacyLang') || 'en';
+        
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('apiPrivacyLang', lang);
+            document.body.className = 'lang-' + lang;
+            document.getElementById('btnDE').classList.toggle('active', lang === 'de');
+            document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+        }
+        
+        setLang(currentLang);
+
+        // CryptoSpaces Dropdown
+        const cryptospacesDropdown = document.getElementById('cryptospacesDropdown');
+        const cryptospacesToggle = document.getElementById('cryptospacesToggle');
+        cryptospacesToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cryptospacesDropdown.classList.toggle('open');
+        });
+        document.addEventListener('click', (e) => {
+            if (!cryptospacesDropdown.contains(e.target)) {
+                cryptospacesDropdown.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>

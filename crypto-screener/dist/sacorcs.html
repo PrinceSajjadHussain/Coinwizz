@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SACORCS - Security, Audits & Compliance View</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Unified Header Styles & Variables */
+        :root {
+            --header-height: 80px;
+            --toolbar-height: 55px;
+            --total-header-height: 135px;
+        }
+        .unified-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: rgba(15, 5, 5, 0.9); /* Dark red tint */
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(220, 38, 38, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .unified-left { display: flex; align-items: center; gap: 1rem; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
+        }
+        .unified-nav {
+            display: flex;
+            gap: 2rem;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .unified-nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+        .unified-nav-link:hover, .unified-nav-link.active {
+            color: #fff;
+            background: rgba(220, 38, 38, 0.15);
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.2);
+        }
+        .unified-utils { display: flex; align-items: center; gap: 1rem; }
+        
+        /* Sub-Toolbar */
+        .sub-toolbar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            height: var(--toolbar-height);
+            background: rgba(15,5,5,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(220,38,38,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            z-index: 99;
+            padding: 0 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Layout Adjustments */
+        body { padding-top: var(--total-header-height) !important; }
+        .canvas-container { top: var(--total-header-height) !important; bottom: 50px; }
+        
+        /* Keep original styles below */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #dc2626;
+            --secondary: #991b1b;
+            --accent: #f87171;
+            --success: #22c55e;
+            --warning: #fbbf24;
+            --danger: #ef4444;
+            --critical: #7f1d1d;
+            --bg-dark: #0f0505;
+            --bg-darker: #0a0303;
+            --text: #f8fafc;
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--text);
+        }
+
+        .loading-overlay {
+            position: fixed; inset: 0;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 1000; transition: opacity 0.4s ease-out;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-title { font-size: 2rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 5px; margin-bottom: 8px; }
+        .loading-sub { font-size: 0.65rem; color: rgba(248,250,252,0.6); margin-bottom: 25px; letter-spacing: 2px; }
+        .progress-container { width: 280px; height: 6px; background: rgba(220,38,38,0.15); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 3px; transition: width 0.1s linear; }
+        .progress-percent { margin-top: 10px; font-size: 0.7rem; color: var(--primary); }
+
+        .header {
+            position: fixed; top: 0; left: 0; right: 0;
+            padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;
+            background: rgba(15,5,5,0.95); backdrop-filter: blur(10px); z-index: 100;
+            border-bottom: 1px solid rgba(220,38,38,0.2);
+        }
+        .title { font-size: 1.4rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 4px; }
+        .title-sub { font-size: 0.5rem; color: rgba(248,250,252,0.5); letter-spacing: 1px; margin-top: 2px; }
+        .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn {
+            background: rgba(220,38,38,0.15); border: 1px solid rgba(220,38,38,0.4); color: var(--primary);
+            padding: 8px 14px; border-radius: 8px; font-family: inherit; font-size: 0.65rem; cursor: pointer; transition: all 0.2s;
+        }
+        .btn:hover { background: rgba(220,38,38,0.25); border-color: var(--primary); }
+        .btn.active { background: rgba(220,38,38,0.4); border-color: var(--primary); }
+        .btn-nav { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.4); color: #3b82f6; text-decoration: none; }
+        .btn-nav:hover { background: rgba(59,130,246,0.25); }
+        .btn-time { background: rgba(153,27,27,0.15); border-color: rgba(153,27,27,0.4); color: var(--secondary); }
+        .btn-time.active { background: rgba(153,27,27,0.4); }
+        .divider { color: rgba(255,255,255,0.15); margin: 0 5px; }
+
+        .canvas-container { position: fixed; top: 60px; left: 0; right: 0; bottom: 50px; }
+        #mainCanvas { width: 100%; height: 100%; }
+
+        .footer {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            padding: 10px 20px; background: rgba(15,5,5,0.95); backdrop-filter: blur(10px);
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.6rem; color: rgba(248,250,252,0.5);
+            border-top: 1px solid rgba(220,38,38,0.2);
+        }
+        .disclaimer { max-width: 70%; }
+        .stats { display: flex; gap: 20px; }
+        .stat-val { color: var(--primary); font-weight: 700; }
+
+        .tooltip {
+            position: fixed; background: rgba(15,5,5,0.95); border: 1px solid rgba(220,38,38,0.5);
+            border-radius: 12px; padding: 14px 18px; pointer-events: none; opacity: 0; transition: opacity 0.2s;
+            z-index: 200; backdrop-filter: blur(12px); max-width: 300px; box-shadow: 0 0 30px rgba(220,38,38,0.2);
+        }
+        .tooltip.visible { opacity: 1; }
+        .tooltip-title { font-size: 0.9rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+        .tooltip-row { display: flex; justify-content: space-between; font-size: 0.65rem; margin: 4px 0; }
+        .tooltip-label { color: rgba(248,250,252,0.6); }
+        .tooltip-value { color: var(--text); font-family: 'JetBrains Mono', monospace; }
+        .tooltip-state { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(220,38,38,0.2); font-size: 0.6rem; }
+
+        .legend {
+            position: fixed; bottom: 70px; left: 20px;
+            background: rgba(15,5,5,0.9); border: 1px solid rgba(220,38,38,0.3);
+            border-radius: 10px; padding: 12px 16px; font-size: 0.6rem; backdrop-filter: blur(8px);
+        }
+        .legend-title { color: var(--primary); font-weight: 700; margin-bottom: 8px; font-size: 0.65rem; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin: 5px 0; color: rgba(248,250,252,0.7); }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .legend-line { width: 20px; height: 3px; border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-title">SACORCS</div>
+        <div class="loading-sub">RISK CONTAINMENT SYSTEM INITIALISIERUNG</div>
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+<!-- Unified Header -->
+    <header class="unified-header">
+        <div class="unified-left">
+            <div class="unified-logo">CRYPTOSPACES</div>
+        </div>
+        <nav class="unified-nav">
+            <a href="top100.html" class="unified-nav-link">TOP 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">WHALES</a>
+            <a href="our-vision.html" class="unified-nav-link">VISION</a>
+        </nav>
+        <div class="unified-utils"></div>
+    </header>
+
+    <!-- Sub-Toolbar -->
+    <div class="sub-toolbar">
+         <div style="margin-right: 20px;">
+            <div class="title" style="font-size: 1rem;">SACORCS</div>
+        </div>
+        <div class="controls">
+            <button class="btn active" data-state="all">ALLE</button>
+            <button class="btn" data-state="secure">SECURE</button>
+            <button class="btn" data-state="warning">WARNING</button>
+            <button class="btn" data-state="critical">CRITICAL</button>
+            <button class="btn" data-state="breach">BREACH</button>
+            <span class="divider">|</span>
+            <button class="btn btn-time active" data-time="24h">24H</button>
+            <button class="btn btn-time" data-time="7d">7D</button>
+            <button class="btn btn-time" data-time="30d">30D</button>
+            <span class="divider">|</span>
+            <a href="index.html" class="btn btn-nav">HOME</a>
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-title" id="tooltipTitle">Protocol</div>
+        <div class="tooltip-row"><span class="tooltip-label">TVL</span><span class="tooltip-value" id="ttTVL">-</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">Audit Status</span><span class="tooltip-value" id="ttAudit">-</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">Last Audit</span><span class="tooltip-value" id="ttLastAudit">-</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">Known Issues</span><span class="tooltip-value" id="ttIssues">-</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">Dependencies</span><span class="tooltip-value" id="ttDeps">-</span></div>
+        <div class="tooltip-state"><span class="tooltip-label">Security: </span><span id="ttState">-</span></div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-title">STRESS LEVELS</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #22c55e;"></div>Secure - Auditiert</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #fbbf24;"></div>Warning - Fruehe Risse</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #f97316;"></div>Critical - Tiefe Risse</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #ef4444;"></div>Breach - Exploit</div>
+        <div class="legend-title" style="margin-top: 10px;">DEPENDENCIES</div>
+        <div class="legend-item"><div class="legend-line" style="background: rgba(255,255,255,0.3);"></div>Normal</div>
+        <div class="legend-item"><div class="legend-line" style="background: #ef4444;"></div>Ueberlastet</div>
+    </div>
+
+    <footer class="footer">
+        <div class="disclaimer">DISCLAIMER: Diese Visualisierung zeigt simulierte Sicherheitsdaten. Keine Anlageberatung. Alle Angaben ohne Gewaehr. Fuehren Sie eigene Recherchen durch.</div>
+        <div class="stats">
+            <span>Protocols: <span class="stat-val" id="statProtocols">0</span></span>
+            <span>At Risk: <span class="stat-val" id="statRisk">0</span></span>
+            <span>Total TVL: <span class="stat-val" id="statTVL">0</span></span>
+        </div>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+        let W, H;
+
+        function resize() {
+            const container = canvas.parentElement;
+            W = canvas.width = container.clientWidth;
+            H = canvas.height = container.clientHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const STATE_COLORS = { secure: '#22c55e', warning: '#fbbf24', critical: '#f97316', breach: '#ef4444' };
+
+        const PROTOCOLS = [
+            { name: 'Aave', tvl: 12.5, state: 'secure', auditStatus: 'Verified', lastAudit: '2024-11', issues: 0, deps: 3 },
+            { name: 'Compound', tvl: 8.2, state: 'secure', auditStatus: 'Verified', lastAudit: '2024-10', issues: 1, deps: 2 },
+            { name: 'Uniswap', tvl: 6.8, state: 'warning', auditStatus: 'Verified', lastAudit: '2024-06', issues: 2, deps: 4 },
+            { name: 'Curve', tvl: 5.1, state: 'critical', auditStatus: 'Outdated', lastAudit: '2023-12', issues: 4, deps: 6 },
+            { name: 'MakerDAO', tvl: 7.9, state: 'secure', auditStatus: 'Verified', lastAudit: '2024-09', issues: 0, deps: 2 },
+            { name: 'Lido', tvl: 14.2, state: 'warning', auditStatus: 'Verified', lastAudit: '2024-05', issues: 3, deps: 5 },
+            { name: 'Convex', tvl: 3.8, state: 'critical', auditStatus: 'Pending', lastAudit: '2023-08', issues: 5, deps: 4 },
+            { name: 'Balancer', tvl: 2.1, state: 'breach', auditStatus: 'Failed', lastAudit: '2024-01', issues: 8, deps: 3 },
+            { name: 'Yearn', tvl: 1.9, state: 'warning', auditStatus: 'Verified', lastAudit: '2024-04', issues: 2, deps: 7 },
+            { name: 'SushiSwap', tvl: 1.2, state: 'secure', auditStatus: 'Verified', lastAudit: '2024-08', issues: 1, deps: 2 }
+        ];
+
+        const DEPENDENCIES = [
+            [0, 1], [0, 4], [1, 2], [2, 3], [3, 6], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [2, 9], [3, 5], [0, 5]
+        ];
+
+        let protocols = [];
+        let cracks = [];
+        let currentState = 'all';
+        let hoveredProtocol = null;
+        let time = 0;
+
+        class Protocol {
+            constructor(data, index, total) {
+                this.name = data.name;
+                this.tvl = data.tvl;
+                this.state = data.state;
+                this.auditStatus = data.auditStatus;
+                this.lastAudit = data.lastAudit;
+                this.issues = data.issues;
+                this.deps = data.deps;
+                this.index = index;
+                
+                const cols = Math.ceil(Math.sqrt(total));
+                const rows = Math.ceil(total / cols);
+                const cellW = (W - 300) / cols;
+                const cellH = (H - 100) / rows;
+                const col = index % cols;
+                const row = Math.floor(index / cols);
+                
+                this.x = 150 + col * cellW + cellW / 2;
+                this.y = 50 + row * cellH + cellH / 2;
+                this.size = 35 + (data.tvl * 2.5);
+                this.color = STATE_COLORS[this.state];
+                this.visible = true;
+                this.cracks = [];
+                this.pulsePhase = Math.random() * Math.PI * 2;
+                this.breachPhase = 0;
+                
+                this.generateCracks();
+            }
+
+            generateCracks() {
+                const crackCount = this.state === 'secure' ? 0 : 
+                                   this.state === 'warning' ? 2 + Math.floor(Math.random() * 2) :
+                                   this.state === 'critical' ? 4 + Math.floor(Math.random() * 3) :
+                                   6 + Math.floor(Math.random() * 4);
+                
+                for (let i = 0; i < crackCount; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const length = this.size * (0.3 + Math.random() * 0.5);
+                    this.cracks.push({
+                        angle,
+                        length,
+                        width: this.state === 'critical' || this.state === 'breach' ? 2 + Math.random() * 2 : 1 + Math.random(),
+                        branches: Math.random() > 0.5 ? this.generateBranches(angle, length) : [],
+                        pulseOffset: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            generateBranches(parentAngle, parentLength) {
+                const branches = [];
+                const count = 1 + Math.floor(Math.random() * 2);
+                for (let i = 0; i < count; i++) {
+                    branches.push({
+                        startRatio: 0.3 + Math.random() * 0.5,
+                        angle: parentAngle + (Math.random() - 0.5) * 1.2,
+                        length: parentLength * (0.3 + Math.random() * 0.4)
+                    });
+                }
+                return branches;
+            }
+
+            update() {
+                this.pulsePhase += 0.02;
+                if (this.state === 'breach') {
+                    this.breachPhase += 0.05;
+                }
+            }
+
+            draw() {
+                if (!this.visible) return;
+
+                // Audit reinforcement glow
+                if (this.auditStatus === 'Verified') {
+                    const months = this.getAuditAge();
+                    const glowAlpha = Math.max(0.1, 0.5 - months * 0.03);
+                    const auditGlow = ctx.createRadialGradient(this.x, this.y, this.size * 0.8, this.x, this.y, this.size * 1.5);
+                    auditGlow.addColorStop(0, `rgba(34, 197, 94, ${glowAlpha})`);
+                    auditGlow.addColorStop(1, 'transparent');
+                    ctx.fillStyle = auditGlow;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size * 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Hexagon body
+                ctx.beginPath();
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
+                    const px = this.x + Math.cos(angle) * this.size;
+                    const py = this.y + Math.sin(angle) * this.size;
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                
+                // Fill with state-based gradient
+                const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+                grad.addColorStop(0, this.color + '30');
+                grad.addColorStop(1, this.color + '10');
+                ctx.fillStyle = grad;
+                ctx.fill();
+                
+                // Border
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Draw cracks
+                this.cracks.forEach(crack => {
+                    const pulse = this.state === 'critical' || this.state === 'breach' 
+                        ? 1 + Math.sin(this.pulsePhase + crack.pulseOffset) * 0.3 : 1;
+                    
+                    const startX = this.x;
+                    const startY = this.y;
+                    const endX = this.x + Math.cos(crack.angle) * crack.length;
+                    const endY = this.y + Math.sin(crack.angle) * crack.length;
+
+                    ctx.beginPath();
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(endX, endY);
+                    ctx.strokeStyle = this.state === 'warning' ? '#fbbf24' : 
+                                      this.state === 'critical' ? '#f97316' : '#ef4444';
+                    ctx.lineWidth = crack.width * pulse;
+                    ctx.globalAlpha = 0.8;
+                    ctx.stroke();
+
+                    // Branches
+                    crack.branches.forEach(branch => {
+                        const bStartX = startX + (endX - startX) * branch.startRatio;
+                        const bStartY = startY + (endY - startY) * branch.startRatio;
+                        const bEndX = bStartX + Math.cos(branch.angle) * branch.length;
+                        const bEndY = bStartY + Math.sin(branch.angle) * branch.length;
+
+                        ctx.beginPath();
+                        ctx.moveTo(bStartX, bStartY);
+                        ctx.lineTo(bEndX, bEndY);
+                        ctx.lineWidth = crack.width * 0.6 * pulse;
+                        ctx.stroke();
+                    });
+                });
+                ctx.globalAlpha = 1;
+
+                // Breach explosion effect
+                if (this.state === 'breach') {
+                    const explosionRadius = this.size * (1 + Math.sin(this.breachPhase) * 0.5);
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, explosionRadius, 0, Math.PI * 2);
+                    ctx.strokeStyle = '#ef4444';
+                    ctx.lineWidth = 3;
+                    ctx.globalAlpha = 0.5 + Math.sin(this.breachPhase * 2) * 0.3;
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+                }
+
+                // Label
+                ctx.fillStyle = '#fff';
+                ctx.font = '600 10px Orbitron';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.name, this.x, this.y + this.size + 18);
+                
+                ctx.font = '500 8px JetBrains Mono';
+                ctx.fillStyle = this.color;
+                ctx.fillText('$' + this.tvl + 'B', this.x, this.y + 4);
+            }
+
+            getAuditAge() {
+                const [year, month] = this.lastAudit.split('-').map(Number);
+                const now = new Date();
+                return (now.getFullYear() - year) * 12 + (now.getMonth() + 1 - month);
+            }
+
+            containsPoint(px, py) {
+                const dx = px - this.x;
+                const dy = py - this.y;
+                return Math.sqrt(dx * dx + dy * dy) < this.size + 10;
+            }
+        }
+
+        function init() {
+            protocols = PROTOCOLS.map((data, i) => new Protocol(data, i, PROTOCOLS.length));
+            updateStats();
+        }
+
+        function updateStats() {
+            const visible = protocols.filter(p => p.visible);
+            const atRisk = visible.filter(p => p.state !== 'secure').length;
+            const totalTVL = visible.reduce((sum, p) => sum + p.tvl, 0);
+
+            document.getElementById('statProtocols').textContent = visible.length;
+            document.getElementById('statRisk').textContent = atRisk;
+            document.getElementById('statTVL').textContent = '$' + totalTVL.toFixed(1) + 'B';
+        }
+
+        function filterByState(state) {
+            currentState = state;
+            protocols.forEach(p => {
+                p.visible = state === 'all' || p.state === state;
+            });
+            updateStats();
+        }
+
+        function drawDependencies() {
+            DEPENDENCIES.forEach(([from, to]) => {
+                const pFrom = protocols[from];
+                const pTo = protocols[to];
+                if (!pFrom.visible || !pTo.visible) return;
+
+                const isOverloaded = pFrom.state === 'critical' || pFrom.state === 'breach' ||
+                                     pTo.state === 'critical' || pTo.state === 'breach';
+                
+                ctx.beginPath();
+                ctx.moveTo(pFrom.x, pFrom.y);
+                ctx.lineTo(pTo.x, pTo.y);
+                ctx.strokeStyle = isOverloaded ? 'rgba(239, 68, 68, 0.5)' : 'rgba(255, 255, 255, 0.15)';
+                ctx.lineWidth = isOverloaded ? 2 : 1;
+                ctx.stroke();
+
+                // Pulse on overloaded paths
+                if (isOverloaded) {
+                    const pulsePos = (time % 100) / 100;
+                    const px = pFrom.x + (pTo.x - pFrom.x) * pulsePos;
+                    const py = pFrom.y + (pTo.y - pFrom.y) * pulsePos;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 4, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ef4444';
+                    ctx.fill();
+                }
+            });
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(10,3,3,0.15)';
+            ctx.fillRect(0, 0, W, H);
+            time++;
+
+            // Background grid
+            ctx.strokeStyle = 'rgba(220, 38, 38, 0.05)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < W; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, H);
+                ctx.stroke();
+            }
+            for (let y = 0; y < H; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(W, y);
+                ctx.stroke();
+            }
+
+            drawDependencies();
+
+            protocols.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // Events
+        document.querySelectorAll('.btn[data-state]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.btn[data-state]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                filterByState(btn.dataset.state);
+            });
+        });
+
+        document.querySelectorAll('.btn-time').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.btn-time').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        const tooltip = document.getElementById('tooltip');
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+            hoveredProtocol = protocols.find(p => p.visible && p.containsPoint(x, y));
+
+            if (hoveredProtocol) {
+                tooltip.classList.add('visible');
+                tooltip.style.left = (e.clientX + 15) + 'px';
+                tooltip.style.top = (e.clientY + 15) + 'px';
+                document.getElementById('tooltipTitle').textContent = hoveredProtocol.name;
+                document.getElementById('ttTVL').textContent = '$' + hoveredProtocol.tvl + 'B';
+                document.getElementById('ttAudit').textContent = hoveredProtocol.auditStatus;
+                document.getElementById('ttLastAudit').textContent = hoveredProtocol.lastAudit;
+                document.getElementById('ttIssues').textContent = hoveredProtocol.issues;
+                document.getElementById('ttDeps').textContent = hoveredProtocol.deps + ' protocols';
+                const stateEl = document.getElementById('ttState');
+                stateEl.textContent = hoveredProtocol.state.toUpperCase();
+                stateEl.style.color = hoveredProtocol.color;
+            } else {
+                tooltip.classList.remove('visible');
+            }
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            tooltip.classList.remove('visible');
+        });
+
+        // Loading
+        let progress = 0;
+        const loadingInterval = setInterval(() => {
+            progress += Math.random() * 15 + 5;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(loadingInterval);
+                setTimeout(() => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    init();
+                    animate();
+                }, 300);
+            }
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressPercent').textContent = Math.floor(progress) + '%';
+        }, 100);
+    </script>
+</body>
+</html>

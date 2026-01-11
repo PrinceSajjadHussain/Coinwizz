@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGB | CRYPTOSPACES</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #3b82f6;
+            --accent: #06b6d4;
+            --gold: #fbbf24;
+            --bg-dark: #0a0f1e;
+            --bg-darker: #030712;
+            --text: #f8fafc;
+            --text-muted: rgba(248,250,252,0.6);
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            line-height: 1.8;
+        }
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(59,130,246,0.3);
+        }
+        .title { font-size: 1.2rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px; }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .lang-switch {
+            display: flex;
+            background: rgba(59,130,246,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(59,130,246,0.3);
+        }
+        .lang-btn {
+            padding: 6px 12px;
+            font-family: inherit;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .lang-btn.active { background: rgba(59,130,246,0.3); color: var(--text); }
+        .lang-btn:hover { color: var(--text); }
+        .btn-back {
+            background: rgba(59,130,246,0.15);
+            border: 1px solid rgba(59,130,246,0.4);
+            color: #3b82f6;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-back:hover { background: rgba(59,130,246,0.25); }
+
+        .main-container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 100px 20px 60px;
+        }
+
+        [data-lang-de], [data-lang-en] { display: none; }
+        body.lang-de [data-lang-de] { display: block; }
+        body.lang-en [data-lang-en] { display: block; }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 30px;
+            background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(6,182,212,0.05) 100%);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 20px;
+        }
+        .hero h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        .hero-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .section {
+            margin-bottom: 35px;
+            padding: 25px;
+            background: rgba(10,15,30,0.6);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 15px;
+        }
+        .section h2 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+        }
+        .section h3 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+        .section h3:first-child { margin-top: 0; }
+        .section p {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .section p:last-child { margin-bottom: 0; }
+        .section strong { color: var(--text); }
+        .section ul {
+            margin: 12px 0;
+            padding-left: 18px;
+        }
+        .section li {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 6px;
+        }
+        .section li strong { color: var(--text); }
+
+        .info-card {
+            background: rgba(59,130,246,0.05);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .info-card h3 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-top: 0;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+        .info-card p {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 6px;
+        }
+        .info-card p:last-child { margin-bottom: 0; }
+        .info-card strong { color: var(--text); }
+        .info-card a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .info-card a:hover { color: var(--accent); }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(251,191,36,0.1) 0%, rgba(59,130,246,0.1) 100%);
+            border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .highlight-box p {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 8px;
+        }
+        .highlight-box strong { color: var(--gold); }
+        .highlight-box p:last-child { margin-bottom: 0; }
+
+        .footer-note {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(6,182,212,0.1) 100%);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 15px;
+        }
+        .footer-note p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .footer-note p:last-child {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-top: 15px;
+            margin-bottom: 0;
+        }
+
+        /* CryptoSpaces Dropdown */
+        .cryptospaces-dropdown {
+            position: relative;
+        }
+        .cryptospaces-toggle {
+            background: rgba(251,191,36,0.15);
+            border: 1px solid rgba(251,191,36,0.4);
+            color: #fbbf24;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .cryptospaces-toggle:hover { background: rgba(251,191,36,0.25); }
+        .cryptospaces-toggle .chevron { font-size: 0.5rem; transition: transform 0.2s; }
+        .cryptospaces-dropdown.open .chevron { transform: rotate(180deg); }
+        .cryptospaces-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 10px;
+            min-width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-5px);
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+        .cryptospaces-dropdown.open .cryptospaces-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .cryptospaces-menu a {
+            display: block;
+            padding: 12px 16px;
+            color: rgba(248,250,252,0.8);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(251,191,36,0.1);
+            transition: all 0.15s;
+        }
+        .cryptospaces-menu a:last-child { border-bottom: none; }
+        .cryptospaces-menu a:hover {
+            background: rgba(251,191,36,0.1);
+            color: #fbbf24;
+            padding-left: 20px;
+        }
+        .cryptospaces-menu a.active { color: #fbbf24; background: rgba(251,191,36,0.08); }
+        .cryptospaces-menu a.lifetime { color: #10b981; }
+        .cryptospaces-menu a.lifetime:hover { background: rgba(16,185,129,0.1); color: #10b981; }
+        .cryptospaces-menu a.welcome-2026 { color: #a855f7; }
+        .cryptospaces-menu a.welcome-2026:hover { background: rgba(168,85,247,0.1); color: #a855f6; }
+    </style>
+</head>
+<body class="lang-de">
+<div style="position:fixed;top:10px;right:10px;z-index:9999;display:flex;gap:8px;">
+<a href="index.html" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);color:#3b82f6;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Home</a>
+<a href="financial-galaxy.html" style="background:rgba(34,211,238,0.2);border:1px solid rgba(34,211,238,0.4);color:#22d3ee;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Financial Galaxy</a>
+</div>
+    <header class="header">
+        <div class="title">AGB</div>
+        <div class="header-right">
+            <div class="cryptospaces-dropdown" id="cryptospacesDropdown">
+                <button class="cryptospaces-toggle" id="cryptospacesToggle">
+                    <span>CryptoSpaces</span>
+                    <span class="chevron">▼</span>
+                </button>
+                <div class="cryptospaces-menu">
+        <a href="magic-coins-today.html" style="color: #a855f7;">✨ Magic Coins</a>
+                    <a href="our-vision.html">Our Vision</a>
+                    <a href="impressum.html">Impressum</a>
+                    <a href="datenschutz.html">Datenschutz</a>
+                    <a href="preise.html">Preise</a>
+                    <a href="welcome-2026.html" class="welcome-2026">★ Welcome 2026</a>
+                    <a href="lifetime.html" class="lifetime">★ LIFETIME ACCESS</a>
+                </div>
+            </div>
+            <div class="lang-switch">
+                <button class="lang-btn active" id="btnDE" onclick="setLang('de')">DE</button>
+                <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+            </div>
+            <a href="index.html" class="btn-back">← CRYPTOSPACES</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- GERMAN VERSION -->
+        <div data-lang-de>
+            <section class="hero">
+                <h1>Allgemeine Geschäftsbedingungen</h1>
+                <p class="hero-date">Stand: Januar 2026</p>
+            </section>
+
+            <section class="section">
+                <h2>1. Geltungsbereich</h2>
+                <p> Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für alle Verträge, die zwischen <strong>Cryptospaces</strong> und Ihnen als Nutzer unserer digitalen Analyse- und Visualisierungsplattform geschlossen werden.</p>
+                <p>Cryptospaces ist eine <strong>digitale Analyse- und Visualisierungsplattform für Kryptowährungs- und Marktdaten</strong>. Es handelt sich ausdrücklich <strong>nicht um eine Anlage-, Finanz- oder Steuerberatung</strong>.</p>
+            </section>
+
+            <section class="section">
+                <h2>2. Leistungsbeschreibung</h2>
+                <p>Cryptospaces bietet Ihnen Zugang zu einer interaktiven Plattform zur Visualisierung und Analyse von Kryptowährungs-Marktdaten. Die genauen Leistungsumfänge ergeben sich aus der jeweiligen Produktbeschreibung auf unserer Website.</p>
+                <p>Wir behalten uns vor, unsere Leistungen anzupassen, weiterzuentwickeln oder zu ergänzen, soweit dies für Sie zumutbar ist.</p>
+            </section>
+
+            <section class="section">
+                <h2>3. Nutzungslizenz</h2>
+                <p>Nach erfolgreicher Registrierung und Zahlung erhalten Sie eine zeitlich begrenzte, nicht ausschließliche, nicht übertragbare Lizenz zur Nutzung unserer Plattform.</p>
+                <p>Sie sind verpflichtet, Ihre Zugangsdaten vertraulich zu behandeln und nicht an Dritte weiterzugeben.</p>
+            </section>
+
+            <section class="section">
+                <h2>4. Pflichten des Nutzers</h2>
+                <p>Sie verpflichten sich:</p>
+                <ul>
+                    <li>die Plattform nur im Rahmen der zulässigen Nutzung zu verwenden</li>
+                    <li>keine Handlungen vorzunehmen, die die Funktionsfähigkeit der Plattform beeinträchtigen</li>
+                    <li>keine urheberrechtlich geschützten Inhalte unbefugt zu vervielfältigen oder zu verbreiten</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>5. Widerrufsrecht</h2>
+                <p>Verbrauchern steht ein gesetzliches Widerrufsrecht zu. Details entnehmen Sie bitte unserer <a href="widerruf.html">Widerrufsbelehrung</a>.</p>
+            </section>
+
+            <section class="section">
+                <h2>6. Haftungsausschluss</h2>
+                <div class="highlight-box">
+                    <p><strong>Wichtig:</strong> Cryptospaces stellt keine Finanzanalysen, Anlageempfehlungen oder Trading-Signale bereit.</p>
+                    <p>Alle auf der Plattform bereitgestellten Informationen dienen ausschließlich zu Informations- und Demonstrationszwecken.</p>
+                    <p>Jegliche Entscheidungen, die Sie auf Grundlage dieser Informationen treffen, erfolgen in eigener Verantwortung.</p>
+                </div>
+                <p>Wir übernehmen keine Haftung für:</p>
+                <ul>
+                    <li>Entscheidungen, die auf Grundlage der bereitgestellten Informationen getroffen werden</li>
+                    <li>Verluste, die durch Kursschwankungen oder Marktveränderungen entstehen</li>
+                    <li>die ständige Verfügbarkeit der Plattform (vorbehaltlich erforderlicher Wartungsarbeiten)</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>7. Geistiges Eigentum</h2>
+                <p>Alle Rechte an der Plattform, einschließlich Software, Designs, Marken und Inhalte, stehen ausschließlich Cryptospaces oder seinen Lizenzgebern zu.</p>
+            </section>
+
+            <section class="section">
+                <h2>8. Datenschutz</h2>
+                <p>Die Verarbeitung Ihrer personenbezogenen Daten erfolgt gemäß unserer <a href="datenschutz.html">Datenschutzerklärung</a> und in Übereinstimmung mit der DSGVO.</p>
+                <p>Details zu Ihrem Widerrufsrecht entnehmen Sie bitte unserer <a href="widerruf.html">Widerrufsbelehrung</a>.</p>
+            </section>
+
+            <section class="section">
+                <h2>9. Schlussbestimmungen</h2>
+                <p>Es gilt das Recht der Bundesrepublik Deutschland. Gerichtsstand ist Berlin, soweit Sie Kaufmann oder juristische Person des öffentlichen Rechts sind.</p>
+                <p>Sollten einzelne Bestimmungen dieser AGB unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.</p>
+            </section>
+
+            <div class="info-card">
+                <h3>Anbieter</h3>
+                <p><strong>Cryptospaces</strong></p>
+                <p>betrieben durch:</p>
+                <p>Orhan Ayhan</p>
+                <p>CEO – Royalisimo / Formio24</p>
+                <p>Munsterdamm 13</p>
+                <p>12169 Berlin</p>
+                <p>Germany</p>
+                <p>E-Mail: OrhanAyhan@Royalisimo.com</p>
+                <p>Telefon: +49 157 35164992</p>
+            </div>
+        </div>
+
+        <!-- ENGLISH VERSION -->
+        <div data-lang-en>
+            <section class="hero">
+                <h1>Terms and Conditions</h1>
+                <p class="hero-date">Status: January 2026</p>
+            </section>
+
+            <section class="section">
+                <h2>1. Scope</h2>
+                <p>These Terms and Conditions (T&C) apply to all contracts concluded between <strong>Cryptospaces</strong> and you as a user of our digital analysis and visualization platform.</p>
+                <p>Cryptospaces is a <strong>digital platform for cryptocurrency and market analysis and visualization</strong>. It does <strong>not</strong> provide investment, financial, or tax advice.</p>
+            </section>
+
+            <section class="section">
+                <h2>2. Service Description</h2>
+                <p>Cryptospaces provides you with access to an interactive platform for visualizing and analyzing cryptocurrency market data. The exact scope of services results from the respective product description on our website.</p>
+                <p>We reserve the right to adapt, develop, or supplement our services, provided this is reasonable for you.</p>
+            </section>
+
+            <section class="section">
+                <h2>3. Usage License</h2>
+                <p>After successful registration and payment, you receive a limited, non-exclusive, non-transferable license to use our platform.</p>
+                <p>You are obliged to treat your access credentials confidentially and not to disclose them to third parties.</p>
+            </section>
+
+            <section class="section">
+                <h2>4. User Obligations</h2>
+                <p>You undertake to:</p>
+                <ul>
+                    <li>use the platform only within the scope of permitted use</li>
+                    <li>not perform any actions that impair the functionality of the platform</li>
+                    <li>not unauthorizedly reproduce or distribute copyrighted content</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>5. Right of Withdrawal</h2>
+                <p>Consumers are entitled to a statutory right of withdrawal. Please refer to our <a href="widerruf.html">Cancellation Policy</a> for details.</p>
+            </section>
+
+            <section class="section">
+                <h2>6. Disclaimer</h2>
+                <div class="highlight-box">
+                    <p><strong>Important:</strong> Cryptospaces does not provide financial analyses, investment recommendations, or trading signals.</p>
+                    <p>All information provided on the platform is for informational and demonstration purposes only.</p>
+                    <p>Any decisions you make based on this information are your own responsibility.</p>
+                </div>
+                <p>We accept no liability for:</p>
+                <ul>
+                    <li>decisions made based on the information provided</li>
+                    <li>losses resulting from price fluctuations or market changes</li>
+                    <li>the continuous availability of the platform (subject to necessary maintenance)</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>7. Intellectual Property</h2>
+                <p>All rights to the platform, including software, designs, trademarks and content, belong exclusively to Cryptospaces or its licensors.</p>
+            </section>
+
+            <section class="section">
+                <h2>8. Data Protection</h2>
+                <p>The processing of your personal data is carried out in accordance with our <a href="datenschutz.html">Privacy Policy</a> and in compliance with the GDPR.</p>
+                <p>For details on your right of withdrawal, please refer to our <a href="widerruf.html">Cancellation Policy</a>.</p>
+            </section>
+
+            <section class="section">
+                <h2>9. Final Provisions</h2>
+                <p>The law of the Federal Republic of Germany applies. The place of jurisdiction is Berlin, insofar as you are a merchant or legal entity under public law.</p>
+                <p>Should individual provisions of these T&C be ineffective, the effectiveness of the remaining provisions shall remain unaffected.</p>
+            </section>
+
+            <div class="info-card">
+                <h3>Provider</h3>
+                <p><strong>Cryptospaces</strong></p>
+                <p>operated by:</p>
+                <p>Orhan Ayhan</p>
+                <p>CEO – Royalisimo / Formio24</p>
+                <p>Munsterdamm 13</p>
+                <p>12169 Berlin</p>
+                <p>Germany</p>
+                <p>Email: OrhanAyhan@Royalisimo.com</p>
+                <p>Phone: +49 157 35164992</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = localStorage.getItem('agbLang') || 'en';
+        
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('agbLang', lang);
+            document.body.className = 'lang-' + lang;
+            document.getElementById('btnDE').classList.toggle('active', lang === 'de');
+            document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+        }
+        
+        setLang(currentLang);
+
+        // CryptoSpaces Dropdown
+        const cryptospacesDropdown = document.getElementById('cryptospacesDropdown');
+        const cryptospacesToggle = document.getElementById('cryptospacesToggle');
+        cryptospacesToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cryptospacesDropdown.classList.toggle('open');
+        });
+        document.addEventListener('click', (e) => {
+            if (!cryptospacesDropdown.contains(e.target)) {
+                cryptospacesDropdown.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>

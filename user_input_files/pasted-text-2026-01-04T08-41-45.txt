@@ -1,0 +1,240 @@
+VTP – **Minimax Textprompt: „Financial Galaxy“ Gesamt-Animation (Banken–Staat–Steuern–Crypto–Kundenverhalten) + Hover-Explain-Panel mit Live-Daten, Zahlen, Text & Diagrammen**
+
+**Ziel**
+Erstelle eine **interaktive Gesamt-Visualisierung** als eine einzige Szene (Hero-Animation), die **Geldbewegungen und Beziehungen** zwischen **Banken, Staat, Steuern, Crypto, Exchanges und Kundenverhalten** in **Echtzeit** verständlich macht. Nutzer sollen auf einen Blick sehen: *Wer zieht Geld an? Wer leitet um? Wer verliert? Wer gewinnt? Warum bewegt sich Kapital?*
+
+---
+
+## 1) Szene & Stil
+
+**Name der Seite:** `financial-galaxy.html` (oder als eigener Bereich in CryptoSpaces)
+**Look & Feel:** futuristisch, seriös, „Economic-Weather meets Space-Map“.
+**Farbcode (konzeptuell, nicht fest):**
+
+* Staat/Steuern: warm, schwer, gravitationsartig
+* Banken: neutral, technisch, stabil
+* Crypto/Chains: kalt, elektrisch, hochfrequent
+* Kundenverhalten: dynamisch, farbwechselnd nach Emotion/Signal
+
+**Kamera/Stage**
+
+* Zentraler Fokus: „Staat-Planet“ als schweres Zentrum
+* Banken als Orbital-Knoten
+* Exchanges als Portale/Wormholes
+* Crypto-Coins als Kometen/Partikel-Schwärme
+* Kunden als Partikelwolken, die durch Impulse gelenkt werden
+* Hintergrund: dezente Sternenkarte + „Economic Weather“ Layer (Wolken/Strömungen)
+
+---
+
+## 2) Akteure (Interaktive Elemente)
+
+**A) Staat (Planet)**
+
+* Gravitation zieht Steuerströme an
+* Empfang von Steuern sichtbar als Energieaufnahme
+
+**B) Banken (Orbit-Knoten)**
+
+* Leiten Geldströme, filtern, verzögern, splitten
+* Gebühren sichtbar als „Energy loss“ (Partikel verdampfen)
+
+**C) Steuern (Gravitationsstrahlen/Schleusen)**
+
+* Automatische Abzüge
+* Regeln/Schwellenwerte als visuelle Barrieren/Schleusentore
+
+**D) Crypto (Coins/Chains)**
+
+* Coins bewegen sich frei, reagieren auf Social Signals, Volumen, Preis
+* Blockchain/Chain als leuchtende Pfade mit bestätigten Transfers
+
+**E) Exchanges (Portale)**
+
+* Fiat → Crypto Kauf / Crypto → Fiat Verkauf
+* Conversion sichtbar als „Portal-Pulse“
+
+**F) Kundenverhalten (Schwärme)**
+
+* Emotion/Signal bestimmt Bewegungsrichtung:
+
+  * Angst → Rückzug zu Bank/Staat
+  * Gier → Schub in Crypto
+  * Vertrauen → stabile Ströme
+  * Panik → chaotische Strudel
+
+---
+
+## 3) Bewegungen & Effekte pro Vorgang (klar unterscheidbar)
+
+**1) Gehalt/Umsatz-Eingang**
+
+* Neue Energiequelle → „Inflow-Welle“ startet bei Kunden/Unternehmen-Knoten
+* Effekt: breiter Strom + ruhiger Puls
+
+**2) Steuerzahlung**
+
+* Automatischer Abzug → roter/gravierender Strahl zum Staat
+* Effekt: „Sog“, Partikel werden eingesammelt, kurze „Stempel“-Animation (Payment confirmed)
+
+**3) Bank-Überweisung**
+
+* Partikel fließen durch Bank-Knoten
+* Effekt: Delay (kurze Verzögerungs-Linie), dann „Settlement“-Flash
+
+**4) Gebühren & Reibung**
+
+* Mikroverlust sichtbar:
+
+  * Partikel schrumpfen
+  * feiner Verdampfungsnebel
+  * „Fee“-Label als minimaler Tooltip
+
+**5) Crypto-Kauf**
+
+* Fiat-Partikel werden ins Exchange-Portal gezogen
+* Portal-Effekt: ringförmige Pulse + Umfärbung (Fiat → Crypto)
+* Danach: Coin/Wallet erhält Energie → Coin wird heller, steigt/zoomt minimal
+
+**6) Crypto-Verkauf**
+
+* Umgekehrt: Crypto-Partikel in Portal → Fiat-Strom zurück
+* Effekt: „Cooling“ beim Coin (Licht sinkt), Verkaufsdruck sichtbar (Down-drift)
+
+**7) News/Social-Impulse**
+
+* Schockwellen treffen Coins/Kundenwolken
+* Effekt: Ripple-Waves, magnetische Verzerrung der Bahnen
+
+**8) Staatsmaßnahmen (Zins/Regulierung/Steueränderung)**
+
+* Wetterumschwung-Layer:
+
+  * Druckgebiete verändern Flussrichtungen
+  * neue Barrieren/Schleusen aktivieren
+
+---
+
+## 4) Interaktion: Mouseover + „Hoher Erklär-Overlay“ (MUSS)
+
+**Kernforderung**
+Bei **Mouseover** auf **jedes Element** (Staat, Bank, Steuerstrahl, Exchange, Coin, Kundenwolke, Strudel, Wellen) öffnet sich ein **hohes, großes Overlay-Fenster** (rechts oder mittig), das:
+
+1. **in Klartext erklärt**, was gerade passiert (1–3 Sätze, stark, verständlich)
+2. **Live-Daten** anzeigt (aus ankommenden Datenquellen, simuliert wenn keine vorhanden)
+3. **Zahlen** zeigt (groß, sauber, mit Einheiten)
+4. **Mini-Diagramme** zeigt (sparklines / mini charts)
+5. **Status/Trend** zeigt (Up/Down, Prozent, Volumen, Frequenz, Verzögerung)
+6. **Kontext** zeigt: „Ursache → Wirkung“ (z. B. „Social Spike → Buy Pressure → Price +2.3%“)
+
+### Overlay Layout (hochformat, klar strukturiert)
+
+**Header**
+
+* Element-Name + Typ (z. B. „Exchange Portal – Fiat→Crypto Conversion“)
+* Status-Badge: LIVE / DELAYED / SPIKE / LOW LIQUIDITY etc.
+
+**Section 1: Erklärung**
+
+* Kurzer erklärender Text, aktiv:
+
+  * „Hier wird Fiat in Crypto umgewandelt. Das erzeugt Kaufdruck und erhöht kurzfristig Volatilität.“
+
+**Section 2: Live-Zahlen (groß)**
+
+* Amount (z. B. 12,450.20 USD)
+* Change % (z. B. +2.31%)
+* Volume 1m / 5m / 1h
+* Fees (absolute + %)
+* Latency/Settlement Time (z. B. 2.4s / 18s)
+* Net Flow (In/Out)
+* Confidence/Signal Score (0–100)
+
+**Section 3: Mini-Diagramme**
+
+* Sparkline „Price last 60 min“
+* Sparkline „Volume last 60 min“
+* Balken „Inflow vs Outflow“
+* Event-Timeline „News/Social hits“ (Punkte mit Zeit)
+
+**Section 4: Ursache-Wirkung**
+
+* 3 Zeilen Kette:
+
+  * Trigger: „X/Twitter mention spike“
+  * Mechanik: „Buy orders increased“
+  * Effekt: „Coin drift up + volatility“
+
+**Footer**
+
+* Timestamp: Datum + Uhrzeit (LIVE)
+* Datenquelle (z. B. Market Feed / Social Feed / Simulated)
+* Button/Toggle: „Pin Panel“ (Panel bleibt stehen)
+
+---
+
+## 5) Daten-Visualisierung mit „ankommenden Daten“
+
+**Wenn echte Live-Daten verfügbar sind:**
+
+* Aktualisiere Overlay-Werte **alle 1–2 Sekunden**
+* Aktualisiere Mini-Charts kontinuierlich
+* Zeige letzte 10 Events als Timeline-Punkte
+
+**Wenn keine Daten verfügbar sind:**
+
+* Nutze plausible Simulation, aber markiere klar „SIMULATED“
+* Übergang zu Live automatisch, sobald Daten ankommen
+
+---
+
+## 6) UI Controls (minimal, aber mächtig)
+
+* Toggle: **Show Layers**
+
+  * Payments
+  * Taxes
+  * Bank Fees
+  * Crypto Flows
+  * Social/News Waves
+  * Economic Weather
+* Filter: **Nur Banken / Nur Crypto / Nur Steuern**
+* Speed Slider: 0.5× / 1× / 2× (Animation)
+* Pause/Resume
+* „Focus Mode“: Klick auf Element zoomt leicht rein, Overlay pinned
+
+---
+
+## 7) Verständlichkeit: „Keine Kunst ohne Klarheit“
+
+Jeder Effekt muss **eindeutig** sein:
+
+* Kaufdruck = Schub / hellere Energie / Aufwärtsdrift
+* Verkaufsdruck = Abkühlen / Down-drift / Verlustnebel
+* Steuern = Gravitation / Zwangsfluss
+* Gebühren = Energieverdampfung
+* Verzögerung = gestreckte Linie + „Pending“-Pulse
+* News = Schockwellen
+
+---
+
+## 8) Ergebnisbotschaft (am unteren Rand als dezenter Claim)
+
+„Aufmerksamkeit bewegt Kapital. Regeln lenken es. Reibung frisst es. Transparenz entscheidet.“
+
+---
+
+## 9) Performance & Qualität
+
+* 60 FPS Ziel (GPU-friendly)
+* Effekte fein, nicht kitschig
+* Typografie futuristisch, aber lesbar
+* Overlay immer kristallklar, keine Überladung
+* Mobile: Overlay als Bottom-Sheet
+
+---
+
+**Wichtig**
+Implementiere die Szene so, dass sie später problemlos mit echten Datenfeeds erweitert werden kann (Market Data, Social Signals, On-chain Transfers). Das Hover-Overlay ist Pflicht und ist das zentrale Feature: *Erklärung + Live-Zahlen + Mini-Charts + Timestamp.*
+
+**Ende des Textprompts**

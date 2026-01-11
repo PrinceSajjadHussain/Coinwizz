@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDDRVIIS - Identity, Privacy & DID View | Institutional Interaction System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #14b8a6;
+            --secondary: #0891b2;
+            --accent: #06b6d4;
+            --identity: #8b5cf6;
+            --privacy: #22c55e;
+            --compliance: #f59e0b;
+            --institutional: #3b82f6;
+            --bg-dark: #0a0f1e;
+            --bg-darker: #030712;
+            --text: #f8fafc;
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--text);
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.4s ease-out;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-title { font-size: 2rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--identity)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 5px; margin-bottom: 8px; }
+        .loading-sub { font-size: 0.65rem; color: rgba(248,250,252,0.6); margin-bottom: 25px; letter-spacing: 2px; }
+        .progress-container { width: 280px; height: 6px; background: rgba(20,184,166,0.15); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--identity)); border-radius: 3px; transition: width 0.1s linear; }
+        .progress-percent { margin-top: 10px; font-size: 0.7rem; color: var(--primary); }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(20,184,166,0.2);
+        }
+        .title-wrap {}
+        .title { font-size: 1.4rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--identity)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 4px; }
+        .title-sub { font-size: 0.5rem; color: rgba(248,250,252,0.5); letter-spacing: 1px; margin-top: 2px; }
+        .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn {
+            background: rgba(20,184,166,0.15);
+            border: 1px solid rgba(20,184,166,0.4);
+            color: var(--primary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: rgba(20,184,166,0.25); border-color: var(--primary); }
+        .btn.active { background: rgba(20,184,166,0.4); border-color: var(--primary); }
+        .btn-nav { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.4); color: #3b82f6; text-decoration: none; }
+        .btn-nav:hover { background: rgba(59,130,246,0.25); }
+        .divider { color: rgba(255,255,255,0.15); margin: 0 5px; }
+
+        /* Einheitliche Page Link Buttons */
+        .page-links { display: flex; gap: 6px; flex-wrap: wrap; }
+        .page-link {
+            background: linear-gradient(135deg, rgba(20,184,166,0.25), rgba(8,145,178,0.2));
+            border: 1px solid rgba(20,184,166,0.5);
+            color: var(--primary);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-link::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(20,184,166,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        .page-link:hover::before { left: 100%; }
+        .page-link:hover {
+            background: linear-gradient(135deg, rgba(20,184,166,0.4), rgba(8,145,178,0.35));
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(20,184,166,0.35);
+            color: var(--primary);
+        }
+        .page-link .icon { font-size: 0.9rem; }
+
+        /* Canvas */
+        .canvas-container { position: fixed; top: 60px; left: 0; right: 0; bottom: 50px; }
+        #mainCanvas { width: 100%; height: 100%; }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            padding: 10px 20px;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.6rem;
+            color: rgba(248,250,252,0.5);
+            border-top: 1px solid rgba(20,184,166,0.2);
+        }
+        .stats { display: flex; gap: 20px; }
+        .stat-val { color: var(--primary); font-weight: 600; }
+        .stat-val.identity { color: var(--identity); }
+        .stat-val.privacy { color: var(--privacy); }
+        .stat-val.compliance { color: var(--compliance); }
+        .disclaimer { color: var(--compliance); font-style: italic; }
+
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: rgba(10,15,30,0.95);
+            border: 1px solid rgba(20,184,166,0.5);
+            border-radius: 12px;
+            padding: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            z-index: 200;
+            min-width: 250px;
+            max-width: 320px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .tooltip.visible { opacity: 1; }
+        .tooltip-name { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+        .tooltip-desc { font-size: 0.6rem; color: rgba(248,250,252,0.6); margin-bottom: 10px; line-height: 1.5; }
+        .tooltip-section { margin: 8px 0; padding-top: 8px; border-top: 1px solid rgba(20,184,166,0.2); }
+        .tooltip-section-title { font-size: 0.55rem; color: rgba(248,250,252,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tooltip-row { display: flex; justify-content: space-between; font-size: 0.65rem; margin: 4px 0; }
+        .tooltip-label { color: rgba(248,250,252,0.6); }
+        .tooltip-value { font-family: 'JetBrains Mono', monospace; }
+        .tooltip-meter { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+        .tooltip-meter-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+        /* Info Panel */
+        .info-panel {
+            position: fixed;
+            left: 15px;
+            top: 75px;
+            width: 220px;
+            background: rgba(10,15,30,0.9);
+            border: 1px solid rgba(20,184,166,0.3);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.6rem;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+            max-height: calc(100vh - 150px);
+            overflow-y: auto;
+        }
+        .info-panel::-webkit-scrollbar { width: 4px; }
+        .info-panel::-webkit-scrollbar-track { background: transparent; }
+        .info-panel::-webkit-scrollbar-thumb { background: rgba(20,184,166,0.3); border-radius: 2px; }
+        .info-title { color: var(--primary); font-weight: 700; margin-bottom: 10px; letter-spacing: 1px; font-size: 0.7rem; border-bottom: 1px solid rgba(20,184,166,0.2); padding-bottom: 8px; }
+        .info-concept { margin-bottom: 12px; }
+        .info-concept-title { color: var(--identity); font-size: 0.65rem; font-weight: 600; margin-bottom: 4px; }
+        .info-concept-text { color: rgba(248,250,252,0.7); font-size: 0.55rem; line-height: 1.5; }
+        .info-divider { height: 1px; background: rgba(20,184,166,0.15); margin: 12px 0; }
+        .info-visual { margin-top: 10px; }
+        .info-visual-title { color: var(--privacy); font-size: 0.6rem; font-weight: 600; margin-bottom: 8px; }
+        .info-layer { display: flex; align-items: center; gap: 8px; margin: 6px 0; padding: 6px 8px; border-radius: 6px; background: rgba(255,255,255,0.03); }
+        .info-layer-icon { font-size: 1rem; }
+        .info-layer-name { font-size: 0.55rem; color: rgba(248,250,252,0.8); }
+
+        /* Legend */
+        .legend-panel {
+            position: fixed;
+            right: 15px;
+            top: 75px;
+            background: rgba(10,15,30,0.9);
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.55rem;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+            width: 170px;
+        }
+        .legend-title { color: var(--identity); font-weight: 700; margin-bottom: 10px; letter-spacing: 1px; font-size: 0.65rem; }
+        .legend-item { display: flex; align-items: center; gap: 10px; margin: 8px 0; color: rgba(248,250,252,0.8); }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+        .legend-label { font-size: 0.55rem; }
+        .legend-divider { height: 1px; background: rgba(139,92,246,0.2); margin: 10px 0; }
+        .legend-signal { margin-top: 10px; }
+        .legend-signal-title { color: var(--compliance); font-size: 0.6rem; font-weight: 600; margin-bottom: 6px; }
+        .legend-signal-item { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 0.5rem; color: rgba(248,250,252,0.6); }
+    </style>
+</head>
+<body>
+<div style="position:fixed;top:10px;right:10px;z-index:9999;display:flex;gap:8px;">
+<a href="index.html" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);color:#3b82f6;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Home</a>
+<a href="crypto-matrix-vision.html" style="background:rgba(0,255,65,0.2);border:1px solid rgba(0,255,65,0.4);color:#00ff41;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Matrix Vision</a>
+<a href="financial-galaxy.html" style="background:rgba(34,211,238,0.2);border:1px solid rgba(34,211,238,0.4);color:#22d3ee;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Financial Galaxy</a>
+</div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-title">IDDRVIIS</div>
+        <div class="loading-sub">Identity, Privacy & DID View | Institutional Interaction System</div>
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+    <div class="header">
+        <div class="title-wrap">
+            <div class="title">IDDRVIIS</div>
+            <div class="title-sub">INSTITUTIONAL IDENTITY & PRIVACY INTERFACE</div>
+        </div>
+        <div class="controls">
+            <button class="btn active" id="toggleIdentity">🔑 Identity</button>
+            <button class="btn active" id="togglePrivacy">🛡️ Privacy</button>
+            <button class="btn active" id="toggleCompliance">⚖️ Compliance</button>
+            <span class="divider">|</span>
+            <button class="btn" id="toggleFlows">Flows</button>
+            <button class="btn active" id="toggleGates">Gates</button>
+            <span class="divider">|</span>
+            <div class="page-links">
+                <a href="lyps.html" class="page-link"><span class="icon">🔥</span>LYPS</a>
+                <a href="cscs.html" class="page-link"><span class="icon">💧</span>CSCS</a>
+                <a href="sacorcs.html" class="page-link"><span class="icon">🛡️</span>SAC</a>
+                <a href="index.html" class="page-link">Home</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <div class="info-title">PURPOSE OF THIS VIEW</div>
+        <div class="info-concept">
+            <div class="info-concept-title">Core Concept</div>
+            <div class="info-concept-text">Identity is required for scale.<br>Privacy is required for freedom.<br><br>Remove identity → no institutional adoption.<br>Remove privacy → no individual participation.</div>
+        </div>
+        <div class="info-divider"></div>
+        <div class="info-concept">
+            <div class="info-concept-title">Visual Metaphor</div>
+            <div class="info-concept-text">Permission layers where identity nodes act as access gates, credentials serve as verification keys, and privacy fields create protection zones.</div>
+        </div>
+        <div class="info-divider"></div>
+        <div class="info-visual">
+            <div class="info-visual-title">LAYER STRUCTURE</div>
+            <div class="info-layer"><span class="info-layer-icon">🔑</span><span class="info-layer-name">Identity Nodes</span></div>
+            <div class="info-layer"><span class="info-layer-icon">📜</span><span class="info-layer-name">Credential Keys</span></div>
+            <div class="info-layer"><span class="info-layer-icon">🛡️</span><span class="info-layer-name">Privacy Fields</span></div>
+            <div class="info-layer"><span class="info-layer-icon">🔓</span><span class="info-layer-name">Disclosure Paths</span></div>
+            <div class="info-layer"><span class="info-layer-icon">🏛️</span><span class="info-layer-name">Institutional Gates</span></div>
+        </div>
+    </div>
+
+    <div class="legend-panel">
+        <div class="legend-title">PERMISSION LAYERS</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--identity); box-shadow: 0 0 8px var(--identity);"></div><span class="legend-label">Identity Node</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--privacy); box-shadow: 0 0 8px var(--privacy);"></div><span class="legend-label">Privacy Zone</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--compliance); box-shadow: 0 0 8px var(--compliance);"></div><span class="legend-label">Compliance Gate</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--institutional); box-shadow: 0 0 8px var(--institutional);"></div><span class="legend-label">Institutional Interface</span></div>
+        <div class="legend-divider"></div>
+        <div class="legend-signal">
+            <div class="legend-signal-title">KEY SIGNALS</div>
+            <div class="legend-signal-item"><span style="color: var(--privacy);">✓</span> Balanced layers → Adoption ready</div>
+            <div class="legend-signal-item"><span style="color: var(--compliance);">⚠</span> Overexposed → User resistance</div>
+            <div class="legend-signal-item"><span style="color: #ef4444;">✗</span> Extreme opacity → Regulatory friction</div>
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-name" id="ttName">Identity Node</div>
+        <div class="tooltip-desc" id="ttDesc">Decentralized identity verification layer</div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Node Status</div>
+            <div class="tooltip-row"><span class="tooltip-label">Verification</span><span class="tooltip-value" id="ttVerification">Active</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Privacy Level</span><span class="tooltip-value" id="ttPrivacy">Protected</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Compliance</span><span class="tooltip-value" id="ttCompliance">Compatible</span></div>
+        </div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Access Balance</div>
+            <div class="tooltip-meter"><div class="tooltip-meter-fill" id="ttMeter" style="width: 65%; background: linear-gradient(90deg, var(--privacy), var(--identity));"></div></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="stats">
+            <span>Identity Nodes: <span class="stat-val identity" id="statIdentity">8</span></span>
+            <span>Privacy Zones: <span class="stat-val privacy" id="statPrivacy">12</span></span>
+            <span>Compliance Gates: <span class="stat-val compliance" id="statCompliance">5</span></span>
+            <span>Disclosure Paths: <span class="stat-val" id="statPaths">14</span></span>
+        </div>
+        <div class="disclaimer">Access is never binary. It is layered and conditional.</div>
+    </div>
+
+    <script>
+    // ==================== SYSTEM CONFIG ====================
+    const IDENTITY_NODES = [
+        { id: 'did-core', name: 'DID Core', desc: 'Decentralized Identifier Foundation', type: 'identity', x: 0.5, y: 0.3, size: 70, verified: true },
+        { id: 'credential-issuer', name: 'Credential Issuer', desc: 'Verifiable Credential Authority', type: 'identity', x: 0.3, y: 0.45, size: 55, verified: true },
+        { id: 'kyc-bridge', name: 'KYC Bridge', desc: 'Know Your Customer Interface', type: 'compliance', x: 0.7, y: 0.45, size: 60, verified: true },
+        { id: 'privacy-vault', name: 'Privacy Vault', desc: 'Zero-Knowledge Proof Storage', type: 'privacy', x: 0.25, y: 0.65, size: 65, verified: true },
+        { id: 'selective-disclosure', name: 'Selective Disclosure', desc: 'Controlled Information Release', type: 'privacy', x: 0.5, y: 0.55, size: 50, verified: true },
+        { id: 'institutional-gateway', name: 'Institutional Gateway', desc: 'Enterprise & Government Interface', type: 'institutional', x: 0.75, y: 0.65, size: 75, verified: true },
+        { id: 'consent-layer', name: 'Consent Layer', desc: 'User Permission Management', type: 'privacy', x: 0.4, y: 0.75, size: 45, verified: true },
+        { id: 'audit-trail', name: 'Audit Trail', desc: 'Compliance Verification Records', type: 'compliance', x: 0.6, y: 0.75, size: 50, verified: true }
+    ];
+
+    const PRIVACY_ZONES = [
+        { centerX: 0.35, centerY: 0.55, radius: 120, opacity: 0.15, type: 'user' },
+        { centerX: 0.65, centerY: 0.55, radius: 100, opacity: 0.12, type: 'institutional' },
+        { centerX: 0.5, centerY: 0.45, radius: 80, opacity: 0.1, type: 'shared' }
+    ];
+
+    const DISCLOSURE_PATHS = [
+        { from: 'did-core', to: 'credential-issuer', strength: 0.8 },
+        { from: 'did-core', to: 'kyc-bridge', strength: 0.7 },
+        { from: 'credential-issuer', to: 'privacy-vault', strength: 0.9 },
+        { from: 'privacy-vault', to: 'selective-disclosure', strength: 0.95 },
+        { from: 'selective-disclosure', to: 'institutional-gateway', strength: 0.6 },
+        { from: 'kyc-bridge', to: 'institutional-gateway', strength: 0.85 },
+        { from: 'consent-layer', to: 'selective-disclosure', strength: 0.9 },
+        { from: 'audit-trail', to: 'institutional-gateway', strength: 0.8 },
+        { from: 'consent-layer', to: 'audit-trail', strength: 0.7 }
+    ];
+
+    // ==================== STATE ====================
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+
+    let width, height, centerX, centerY;
+    let nodes = [];
+    let zones = [];
+    let paths = [];
+    let particles = [];
+    let gates = [];
+    let animId = null;
+    let hoveredNode = null;
+    let time = 0;
+    let showIdentity = true, showPrivacy = true, showCompliance = true;
+    let showFlows = false, showGates = true;
+
+    // ==================== COLORS ====================
+    const COLORS = {
+        identity: '#8b5cf6',
+        privacy: '#22c55e',
+        compliance: '#f59e0b',
+        institutional: '#3b82f6'
+    };
+
+    // ==================== INITIALIZATION ====================
+    function resize() {
+        width = canvas.width = canvas.parentElement.clientWidth;
+        height = canvas.height = canvas.parentElement.clientHeight;
+        centerX = width / 2;
+        centerY = height / 2;
+        initSystem();
+    }
+
+    function initSystem() {
+        // Initialize nodes with absolute positions
+        nodes = IDENTITY_NODES.map(cfg => ({
+            ...cfg,
+            absX: cfg.x * width,
+            absY: cfg.y * height,
+            pulsePhase: Math.random() * Math.PI * 2,
+            glowIntensity: 0.5 + Math.random() * 0.5,
+            connections: []
+        }));
+
+        // Initialize privacy zones
+        zones = PRIVACY_ZONES.map(z => ({
+            ...z,
+            absX: z.centerX * width,
+            absY: z.centerY * height,
+            absRadius: z.radius * (Math.min(width, height) / 800),
+            breathPhase: Math.random() * Math.PI * 2
+        }));
+
+        // Initialize disclosure paths
+        paths = DISCLOSURE_PATHS.map(p => {
+            const fromNode = nodes.find(n => n.id === p.from);
+            const toNode = nodes.find(n => n.id === p.to);
+            return {
+                ...p,
+                fromNode,
+                toNode,
+                flowPhase: Math.random() * Math.PI * 2,
+                particles: []
+            };
+        });
+
+        // Initialize access gates
+        initGates();
+
+        // Initialize flow particles
+        initParticles();
+
+        updateStats();
+    }
+
+    function initGates() {
+        gates = [];
+        // Create gates at intersections
+        const gatePositions = [
+            { x: 0.4, y: 0.4, type: 'identity', label: 'ID Verify' },
+            { x: 0.6, y: 0.4, type: 'compliance', label: 'KYC Check' },
+            { x: 0.35, y: 0.6, type: 'privacy', label: 'ZK Proof' },
+            { x: 0.65, y: 0.6, type: 'institutional', label: 'Reg Gate' },
+            { x: 0.5, y: 0.65, type: 'privacy', label: 'Consent' }
+        ];
+
+        gatePositions.forEach((g, i) => {
+            gates.push({
+                ...g,
+                absX: g.x * width,
+                absY: g.y * height,
+                size: 20,
+                open: Math.random() > 0.3,
+                pulsePhase: Math.random() * Math.PI * 2
+            });
+        });
+    }
+
+    function initParticles() {
+        particles = [];
+        paths.forEach(path => {
+            const numParticles = Math.floor(path.strength * 5) + 2;
+            for (let i = 0; i < numParticles; i++) {
+                path.particles.push({
+                    t: Math.random(),
+                    speed: 0.003 + Math.random() * 0.004,
+                    size: 2 + Math.random() * 2
+                });
+            }
+        });
+    }
+
+    function updateStats() {
+        const activeIdentity = nodes.filter(n => n.type === 'identity' && n.verified).length;
+        const activePrivacy = zones.length + nodes.filter(n => n.type === 'privacy').length;
+        const activeCompliance = nodes.filter(n => n.type === 'compliance').length + gates.filter(g => g.type === 'compliance').length;
+        const activePaths = paths.length;
+
+        document.getElementById('statIdentity').textContent = activeIdentity;
+        document.getElementById('statPrivacy').textContent = activePrivacy;
+        document.getElementById('statCompliance').textContent = activeCompliance;
+        document.getElementById('statPaths').textContent = activePaths;
+    }
+
+    // ==================== UPDATE ====================
+    function update() {
+        time += 0.016;
+
+        // Update nodes
+        nodes.forEach(node => {
+            node.pulsePhase += 0.02;
+            node.glowIntensity = 0.5 + Math.sin(node.pulsePhase) * 0.3;
+        });
+
+        // Update privacy zones
+        zones.forEach(zone => {
+            zone.breathPhase += 0.01;
+        });
+
+        // Update gates
+        gates.forEach(gate => {
+            gate.pulsePhase += 0.03;
+            // Randomly toggle gates occasionally
+            if (Math.random() < 0.001) {
+                gate.open = !gate.open;
+            }
+        });
+
+        // Update path particles
+        paths.forEach(path => {
+            if (!path.fromNode || !path.toNode) return;
+            path.particles.forEach(p => {
+                p.t += p.speed * path.strength;
+                if (p.t > 1) p.t = 0;
+            });
+        });
+    }
+
+    // ==================== DRAWING ====================
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Background grid
+        drawBackgroundGrid();
+
+        // Privacy zones
+        if (showPrivacy) {
+            drawPrivacyZones();
+        }
+
+        // Disclosure paths
+        drawDisclosurePaths();
+
+        // Access gates
+        if (showGates) {
+            drawAccessGates();
+        }
+
+        // Identity nodes
+        drawIdentityNodes();
+
+        // Central hub
+        drawCentralHub();
+    }
+
+    function drawBackgroundGrid() {
+        ctx.strokeStyle = 'rgba(20, 184, 166, 0.03)';
+        ctx.lineWidth = 1;
+
+        // Hexagonal grid pattern
+        const hexSize = 40;
+        const hexHeight = hexSize * Math.sqrt(3);
+
+        for (let row = -1; row < height / hexHeight + 1; row++) {
+            for (let col = -1; col < width / hexSize / 1.5 + 1; col++) {
+                const x = col * hexSize * 1.5;
+                const y = row * hexHeight + (col % 2 ? hexHeight / 2 : 0);
+                drawHexagon(x, y, hexSize * 0.9);
+            }
+        }
+    }
+
+    function drawHexagon(x, y, size) {
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+            const angle = (Math.PI / 3) * i - Math.PI / 6;
+            const px = x + size * Math.cos(angle);
+            const py = y + size * Math.sin(angle);
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.stroke();
+    }
+
+    function drawPrivacyZones() {
+        zones.forEach(zone => {
+            const breath = 1 + Math.sin(zone.breathPhase) * 0.05;
+            const radius = zone.absRadius * breath;
+
+            // Multiple concentric rings
+            for (let i = 3; i >= 0; i--) {
+                const ringRadius = radius * (1 - i * 0.2);
+                const alpha = zone.opacity * (1 - i * 0.25);
+
+                const grad = ctx.createRadialGradient(zone.absX, zone.absY, 0, zone.absX, zone.absY, ringRadius);
+                grad.addColorStop(0, `rgba(34, 197, 94, ${alpha * 0.3})`);
+                grad.addColorStop(0.7, `rgba(34, 197, 94, ${alpha * 0.15})`);
+                grad.addColorStop(1, 'transparent');
+
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(zone.absX, zone.absY, ringRadius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Zone border
+            ctx.strokeStyle = `rgba(34, 197, 94, ${zone.opacity * 2})`;
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.arc(zone.absX, zone.absY, radius, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        });
+    }
+
+    function drawDisclosurePaths() {
+        paths.forEach(path => {
+            if (!path.fromNode || !path.toNode) return;
+
+            const from = path.fromNode;
+            const to = path.toNode;
+
+            // Path line
+            const pathColor = COLORS[from.type] || COLORS.identity;
+            const alpha = 0.2 + path.strength * 0.3;
+
+            ctx.beginPath();
+            ctx.moveTo(from.absX, from.absY);
+
+            // Curved path
+            const midX = (from.absX + to.absX) / 2;
+            const midY = (from.absY + to.absY) / 2;
+            const perpX = -(to.absY - from.absY) * 0.2;
+            const perpY = (to.absX - from.absX) * 0.2;
+
+            ctx.quadraticCurveTo(midX + perpX, midY + perpY, to.absX, to.absY);
+
+            ctx.strokeStyle = pathColor + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+            ctx.lineWidth = 1 + path.strength * 2;
+            ctx.stroke();
+
+            // Flow particles
+            if (showFlows) {
+                path.particles.forEach(p => {
+                    const t = p.t;
+                    // Quadratic bezier position
+                    const x = (1-t)*(1-t)*from.absX + 2*(1-t)*t*(midX + perpX) + t*t*to.absX;
+                    const y = (1-t)*(1-t)*from.absY + 2*(1-t)*t*(midY + perpY) + t*t*to.absY;
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, p.size, 0, Math.PI * 2);
+
+                    const particleGrad = ctx.createRadialGradient(x, y, 0, x, y, p.size * 2);
+                    particleGrad.addColorStop(0, pathColor);
+                    particleGrad.addColorStop(1, 'transparent');
+                    ctx.fillStyle = particleGrad;
+                    ctx.fill();
+                });
+            }
+        });
+    }
+
+    function drawAccessGates() {
+        gates.forEach(gate => {
+            const pulse = 1 + Math.sin(gate.pulsePhase) * 0.15;
+            const size = gate.size * pulse;
+            const color = COLORS[gate.type] || COLORS.compliance;
+
+            // Gate glow
+            const glowGrad = ctx.createRadialGradient(gate.absX, gate.absY, 0, gate.absX, gate.absY, size * 2);
+            glowGrad.addColorStop(0, color + '40');
+            glowGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = glowGrad;
+            ctx.beginPath();
+            ctx.arc(gate.absX, gate.absY, size * 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Gate symbol
+            ctx.save();
+            ctx.translate(gate.absX, gate.absY);
+
+            if (gate.open) {
+                // Open gate - checkmark
+                ctx.strokeStyle = COLORS.privacy;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(-6, 0);
+                ctx.lineTo(-2, 4);
+                ctx.lineTo(6, -4);
+                ctx.stroke();
+            } else {
+                // Closed gate - lock
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.rect(-5, -2, 10, 8);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(0, -2, 4, Math.PI, 0);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+
+            // Gate label
+            ctx.font = "8px 'Orbitron', sans-serif";
+            ctx.fillStyle = 'rgba(248,250,252,0.5)';
+            ctx.textAlign = 'center';
+            ctx.fillText(gate.label, gate.absX, gate.absY + size + 12);
+        });
+    }
+
+    function drawIdentityNodes() {
+        nodes.forEach(node => {
+            if ((node.type === 'identity' && !showIdentity) ||
+                (node.type === 'privacy' && !showPrivacy) ||
+                (node.type === 'compliance' && !showCompliance)) return;
+
+            const color = COLORS[node.type] || COLORS.identity;
+            const pulse = 1 + Math.sin(node.pulsePhase) * 0.08;
+            const size = node.size * pulse;
+
+            // Node glow
+            const glowGrad = ctx.createRadialGradient(node.absX, node.absY, size * 0.3, node.absX, node.absY, size * 1.5);
+            glowGrad.addColorStop(0, color + '50');
+            glowGrad.addColorStop(0.5, color + '20');
+            glowGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = glowGrad;
+            ctx.beginPath();
+            ctx.arc(node.absX, node.absY, size * 1.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Node body
+            const bodyGrad = ctx.createRadialGradient(node.absX - size * 0.2, node.absY - size * 0.2, 0, node.absX, node.absY, size);
+            bodyGrad.addColorStop(0, color);
+            bodyGrad.addColorStop(0.5, color + 'cc');
+            bodyGrad.addColorStop(1, '#0a0f1e');
+            ctx.fillStyle = bodyGrad;
+            ctx.beginPath();
+            ctx.arc(node.absX, node.absY, size, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Verification ring
+            if (node.verified) {
+                ctx.strokeStyle = COLORS.privacy + '80';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(node.absX, node.absY, size + 5, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Type icon
+            let icon = '🔑';
+            if (node.type === 'privacy') icon = '🛡️';
+            else if (node.type === 'compliance') icon = '⚖️';
+            else if (node.type === 'institutional') icon = '🏛️';
+
+            ctx.font = `${size * 0.5}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(icon, node.absX, node.absY - 5);
+
+            // Node label
+            ctx.font = "bold 9px 'Orbitron', sans-serif";
+            ctx.fillStyle = '#fff';
+            ctx.fillText(node.name, node.absX, node.absY + size + 15);
+
+            // Hover effect
+            if (hoveredNode === node) {
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(node.absX, node.absY, size + 10, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        });
+    }
+
+    function drawCentralHub() {
+        const hubSize = 35;
+        const pulse = 1 + Math.sin(time * 2) * 0.1;
+
+        // Hub glow
+        const hubGrad = ctx.createRadialGradient(centerX, centerY - height * 0.1, 0, centerX, centerY - height * 0.1, hubSize * 2.5 * pulse);
+        hubGrad.addColorStop(0, 'rgba(20, 184, 166, 0.4)');
+        hubGrad.addColorStop(0.5, 'rgba(139, 92, 246, 0.2)');
+        hubGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = hubGrad;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY - height * 0.1, hubSize * 2.5 * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Hub body
+        const bodyGrad = ctx.createRadialGradient(centerX - 10, centerY - height * 0.1 - 10, 0, centerX, centerY - height * 0.1, hubSize);
+        bodyGrad.addColorStop(0, '#14b8a6');
+        bodyGrad.addColorStop(0.6, '#0891b2');
+        bodyGrad.addColorStop(1, '#0a0f1e');
+        ctx.fillStyle = bodyGrad;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY - height * 0.1, hubSize * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rotating rings
+        ctx.save();
+        ctx.translate(centerX, centerY - height * 0.1);
+        ctx.rotate(time * 0.5);
+        ctx.strokeStyle = 'rgba(20, 184, 166, 0.5)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, hubSize + 10, 0, Math.PI * 1.2);
+        ctx.stroke();
+        ctx.rotate(Math.PI * 0.8);
+        ctx.beginPath();
+        ctx.arc(0, 0, hubSize + 10, 0, Math.PI * 0.8);
+        ctx.stroke();
+        ctx.restore();
+
+        // Hub label
+        ctx.font = "bold 10px 'Orbitron', sans-serif";
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.fillText('DID', centerX, centerY - height * 0.1 - 3);
+        ctx.font = "7px 'Orbitron', sans-serif";
+        ctx.fillStyle = 'rgba(248,250,252,0.6)';
+        ctx.fillText('CORE', centerX, centerY - height * 0.1 + 8);
+    }
+
+    // ==================== INTERACTION ====================
+    function findNode(mx, my) {
+        const rect = canvas.getBoundingClientRect();
+        const x = mx - rect.left, y = my - rect.top;
+
+        for (let node of nodes) {
+            if (Math.hypot(x - node.absX, y - node.absY) <= node.size * 1.2) return node;
+        }
+        return null;
+    }
+
+    function showTooltipFor(node, x, y) {
+        document.getElementById('ttName').textContent = node.name;
+        document.getElementById('ttDesc').textContent = node.desc;
+
+        document.getElementById('ttVerification').textContent = node.verified ? 'Active' : 'Pending';
+        document.getElementById('ttVerification').style.color = node.verified ? COLORS.privacy : COLORS.compliance;
+
+        const privacyLevels = ['Exposed', 'Minimal', 'Protected', 'Maximum'];
+        const privacyLevel = node.type === 'privacy' ? 'Maximum' : node.type === 'institutional' ? 'Minimal' : 'Protected';
+        document.getElementById('ttPrivacy').textContent = privacyLevel;
+        document.getElementById('ttPrivacy').style.color = COLORS.privacy;
+
+        document.getElementById('ttCompliance').textContent = node.type === 'compliance' ? 'Required' : 'Compatible';
+        document.getElementById('ttCompliance').style.color = COLORS.compliance;
+
+        const balance = node.type === 'privacy' ? 85 : node.type === 'institutional' ? 45 : 65;
+        document.getElementById('ttMeter').style.width = balance + '%';
+
+        tooltip.style.left = (x + 15) + 'px';
+        tooltip.style.top = (y + 15) + 'px';
+        tooltip.classList.add('visible');
+    }
+
+    canvas.addEventListener('mousemove', e => {
+        const node = findNode(e.clientX, e.clientY);
+        hoveredNode = node;
+        canvas.style.cursor = node ? 'pointer' : 'default';
+        if (node) {
+            showTooltipFor(node, e.clientX, e.clientY);
+        } else {
+            tooltip.classList.remove('visible');
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        hoveredNode = null;
+        tooltip.classList.remove('visible');
+    });
+
+    // ==================== CONTROLS ====================
+    document.getElementById('toggleIdentity').addEventListener('click', function() {
+        showIdentity = !showIdentity;
+        this.classList.toggle('active', showIdentity);
+    });
+
+    document.getElementById('togglePrivacy').addEventListener('click', function() {
+        showPrivacy = !showPrivacy;
+        this.classList.toggle('active', showPrivacy);
+    });
+
+    document.getElementById('toggleCompliance').addEventListener('click', function() {
+        showCompliance = !showCompliance;
+        this.classList.toggle('active', showCompliance);
+    });
+
+    document.getElementById('toggleFlows').addEventListener('click', function() {
+        showFlows = !showFlows;
+        this.classList.toggle('active', showFlows);
+    });
+
+    document.getElementById('toggleGates').addEventListener('click', function() {
+        showGates = !showGates;
+        this.classList.toggle('active', showGates);
+    });
+
+    // ==================== ANIMATION ====================
+    function animate() {
+        update();
+        draw();
+        animId = requestAnimationFrame(animate);
+    }
+
+    // ==================== INIT ====================
+    const overlay = document.getElementById('loadingOverlay');
+    const progressBar = document.getElementById('progressBar');
+    const progressPercent = document.getElementById('progressPercent');
+
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 8 + Math.random() * 12;
+            if (progress > 90) progress = 90;
+            progressBar.style.width = progress + '%';
+            progressPercent.textContent = Math.round(progress) + '%';
+        }
+    }, 60);
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    setTimeout(() => {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressPercent.textContent = '100%';
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            animate();
+        }, 200);
+    }, 400);
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cancelAnimationFrame(animId);
+        } else {
+            animate();
+        }
+    });
+    </script>
+</body>
+</html>

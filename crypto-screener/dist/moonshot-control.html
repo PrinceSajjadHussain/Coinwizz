@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOONSHOT CONTROL CENTER | CryptoSpaces</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --control-dark: #0a0c10;
+            --control-darker: #060709;
+            --panel-bg: rgba(15, 20, 30, 0.85);
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --accent-orange: #f59e0b;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #e2e8f0;
+            --text-muted: rgba(226, 232, 240, 0.5);
+            --glass: rgba(14, 165, 233, 0.08);
+            --border: rgba(14, 165, 233, 0.2);
+        }
+
+        /* Unified Header */
+        .unified-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(10, 12, 16, 0.98) 0%, rgba(10, 12, 16, 0.8) 100%);
+            padding: 12px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border);
+        }
+        .unified-left { display: flex; align-items: center; gap: 20px; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+        .unified-nav { display: flex; gap: 10px; }
+        .unified-nav-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: 0.6rem;
+            font-family: 'Orbitron', sans-serif;
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            transition: all 0.2s;
+            background: var(--glass);
+        }
+        .unified-nav-link:hover {
+            background: rgba(14, 165, 233, 0.15);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
+        }
+        .unified-utils { display: flex; gap: 10px; }
+        .unified-btn {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .unified-btn:hover {
+            background: rgba(14, 165, 233, 0.15);
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0.2);
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: var(--control-dark);
+            min-height: 100vh;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* Mission Control Room */
+        .control-room {
+            position: fixed;
+            top: 55px; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(ellipse at 50% 120%, rgba(14, 165, 233, 0.03) 0%, transparent 60%),
+                linear-gradient(180deg, var(--control-dark) 0%, var(--control-darker) 100%);
+            overflow: hidden;
+        }
+
+        /* Ambient particles */
+        .ambient-particles {
+            position: absolute;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+        .particle {
+            position: absolute;
+            width: 2px; height: 2px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: float-particle 20s linear infinite;
+        }
+        @keyframes float-particle {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) translateX(20px); opacity: 0; }
+        }
+
+        /* Main title bar */
+        .mission-title-bar {
+            position: absolute;
+            top: 15px; left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+        }
+        .mission-title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: 6px;
+            background: linear-gradient(90deg, var(--accent-orange), #fbbf24, var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(245, 158, 11, 0.4);
+        }
+        .mission-subtitle {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            letter-spacing: 3px;
+            margin-top: 5px;
+        }
+
+        /* Control workstations (bottom arc) */
+        .workstations {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 180px;
+            background: linear-gradient(180deg, transparent 0%, rgba(10, 15, 25, 0.95) 30%);
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 20px 15px;
+            align-items: flex-end;
+        }
+        .workstation {
+            width: 120px;
+            height: 90px;
+            background: linear-gradient(180deg, rgba(20, 30, 50, 0.9), rgba(10, 15, 25, 0.95));
+            border: 1px solid var(--border);
+            border-radius: 6px 6px 0 0;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .ws-label {
+            font-size: 0.45rem;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+        .ws-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--success);
+        }
+        .ws-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(14, 165, 233, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .ws-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Launch pads viewport */
+        .launch-viewport {
+            position: absolute;
+            top: 80px; left: 20px; right: 20px; bottom: 200px;
+            background: 
+                linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.5) 100%),
+                radial-gradient(ellipse at 50% 100%, rgba(245, 158, 11, 0.02) 0%, transparent 50%);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Glass window effect */
+        .viewport-glass {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .viewport-frame {
+            position: absolute;
+            top: -1px; left: -1px; right: -1px; bottom: -1px;
+            border: 2px solid rgba(14, 165, 233, 0.1);
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        /* Launch pads container */
+        .launch-pads {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 25px;
+            height: 100%;
+            padding: 20px 30px 40px;
+        }
+
+        /* Individual launch pad */
+        .launch-pad {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .launch-pad:hover {
+            transform: scale(1.05);
+        }
+
+        /* Rocket container */
+        .rocket-container {
+            position: relative;
+            width: 60px;
+            height: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        /* Rocket body */
+        .rocket {
+            position: relative;
+            width: 40px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .rocket-nose {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 30px solid #64748b;
+            filter: drop-shadow(0 0 10px rgba(100, 116, 139, 0.3));
+        }
+        .rocket-body {
+            width: 40px;
+            height: 70px;
+            background: linear-gradient(180deg, #64748b 0%, #475569 50%, #334155 100%);
+            border-radius: 0 0 5px 5px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                inset 2px 0 8px rgba(255,255,255,0.1),
+                inset -2px 0 8px rgba(0,0,0,0.3);
+        }
+        .rocket-logo {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: contain;
+            background: rgba(0,0,0,0.3);
+            padding: 3px;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+        .rocket-fins {
+            display: flex;
+            justify-content: space-between;
+            width: 60px;
+            margin-top: -5px;
+        }
+        .fin {
+            width: 0;
+            height: 0;
+            border-top: 20px solid #475569;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+        }
+        .fin-left { transform: skewX(20deg); }
+        .fin-right { transform: skewX(-20deg); }
+
+        /* Thruster effects */
+        .thruster {
+            width: 24px;
+            height: 0;
+            background: linear-gradient(180deg, #fbbf24, #f59e0b, #ea580c, transparent);
+            border-radius: 0 0 50% 50%;
+            opacity: 0;
+            transition: all 0.3s ease;
+            filter: blur(2px);
+        }
+        .launch-pad.active .thruster {
+            height: 40px;
+            opacity: 1;
+            animation: thruster-pulse 0.1s ease-in-out infinite alternate;
+        }
+        .launch-pad.launching .thruster {
+            height: 80px;
+            opacity: 1;
+            animation: thruster-intense 0.05s ease-in-out infinite alternate;
+        }
+        @keyframes thruster-pulse {
+            0% { height: 35px; opacity: 0.8; }
+            100% { height: 45px; opacity: 1; }
+        }
+        @keyframes thruster-intense {
+            0% { height: 70px; filter: blur(2px); }
+            100% { height: 90px; filter: blur(4px); }
+        }
+
+        /* Smoke effect */
+        .smoke-container {
+            position: absolute;
+            bottom: 0;
+            width: 100px;
+            height: 60px;
+            pointer-events: none;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .launch-pad.active .smoke-container,
+        .launch-pad.launching .smoke-container {
+            opacity: 1;
+        }
+        .smoke {
+            position: absolute;
+            bottom: 0;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(148, 163, 184, 0.4) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: smoke-rise 1.5s ease-out infinite;
+        }
+        @keyframes smoke-rise {
+            0% { transform: translateY(0) scale(1); opacity: 0.6; }
+            100% { transform: translateY(-60px) scale(3); opacity: 0; }
+        }
+
+        /* Platform base */
+        .platform {
+            width: 80px;
+            height: 15px;
+            background: linear-gradient(180deg, #374151 0%, #1f2937 100%);
+            border-radius: 3px;
+            margin-top: 5px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .platform::before {
+            content: '';
+            position: absolute;
+            top: 2px; left: 5px; right: 5px;
+            height: 2px;
+            background: rgba(14, 165, 233, 0.3);
+            border-radius: 1px;
+        }
+
+        /* Coin info display */
+        .coin-info {
+            margin-top: 10px;
+            text-align: center;
+            background: var(--panel-bg);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            min-width: 90px;
+        }
+        .coin-symbol {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+        .coin-price {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text);
+            margin-top: 3px;
+        }
+        .coin-ath-distance {
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .coin-ath-distance.close {
+            color: var(--accent-orange);
+            animation: pulse-orange 1s ease-in-out infinite;
+        }
+        @keyframes pulse-orange {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; text-shadow: 0 0 10px var(--accent-orange); }
+        }
+
+        /* Status indicators */
+        .status-light {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin: 5px auto 0;
+        }
+        .status-light.green {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+            animation: blink-green 2s ease-in-out infinite;
+        }
+        .status-light.orange {
+            background: var(--warning);
+            box-shadow: 0 0 10px var(--warning);
+            animation: blink-orange 0.5s ease-in-out infinite;
+        }
+        .status-light.red {
+            background: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+        @keyframes blink-green {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        @keyframes blink-orange {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Countdown HUD - Subtle corner display */
+        .countdown-hud {
+            position: fixed;
+            bottom: 220px;
+            left: 30px;
+            background: rgba(10, 15, 25, 0.7);
+            border: 1px solid rgba(14, 165, 233, 0.25);
+            border-radius: 8px;
+            padding: 12px 18px;
+            backdrop-filter: blur(10px);
+            z-index: 500;
+            display: none;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 140px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        .countdown-hud.active {
+            display: flex;
+            opacity: 0.85;
+            transform: translateY(0);
+        }
+        .countdown-hud-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .countdown-hud-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            animation: hud-pulse 1s ease-in-out infinite;
+        }
+        @keyframes hud-pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; box-shadow: 0 0 8px var(--accent-cyan); }
+        }
+        .countdown-hud-coin {
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            letter-spacing: 2px;
+        }
+        .countdown-hud-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 400;
+            color: rgba(226, 232, 240, 0.9);
+            letter-spacing: 2px;
+        }
+        .countdown-hud-time::before {
+            content: 'T–';
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-right: 2px;
+        }
+        .countdown-hud-label {
+            font-size: 0.45rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+        /* Progress arc around launchpad */
+        .launch-progress-ring {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 90px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .launch-pad.countdown-active .launch-progress-ring {
+            opacity: 1;
+        }
+        .progress-ring-circle {
+            fill: none;
+            stroke: var(--accent-cyan);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-dasharray: 251;
+            stroke-dashoffset: 251;
+            transform: rotate(-90deg);
+            transform-origin: center;
+            transition: stroke-dashoffset 1s linear;
+            filter: drop-shadow(0 0 4px var(--accent-cyan));
+        }
+
+        /* Launch success - Subtle corner notification */
+        .launch-success {
+            position: fixed;
+            top: 80px;
+            right: 240px;
+            background: rgba(10, 25, 20, 0.85);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            border-radius: 8px;
+            padding: 15px 20px;
+            backdrop-filter: blur(10px);
+            z-index: 600;
+            display: none;
+            flex-direction: column;
+            align-items: flex-start;
+            max-width: 280px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.4s ease;
+        }
+        .launch-success.active {
+            display: flex;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .success-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .success-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        .success-text {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--success);
+            letter-spacing: 2px;
+        }
+        .success-subtitle {
+            font-size: 0.55rem;
+            color: var(--text);
+            letter-spacing: 1px;
+            line-height: 1.4;
+        }
+
+        /* Abort notification - Subtle corner display */
+        .abort-overlay {
+            position: fixed;
+            top: 80px;
+            right: 240px;
+            background: rgba(25, 15, 15, 0.85);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 8px;
+            padding: 15px 20px;
+            backdrop-filter: blur(10px);
+            z-index: 600;
+            display: none;
+            flex-direction: column;
+            align-items: flex-start;
+            max-width: 280px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.4s ease;
+        }
+        .abort-overlay.active {
+            display: flex;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .abort-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .abort-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        .abort-text {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--danger);
+            letter-spacing: 2px;
+        }
+        .abort-reason {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            line-height: 1.4;
+        }
+
+        /* Side panels */
+        .side-panel {
+            position: absolute;
+            top: 80px;
+            width: 200px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .side-panel.left { left: 20px; }
+        .side-panel.right { right: 20px; }
+        .panel-title {
+            font-size: 0.55rem;
+            color: var(--accent-cyan);
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .panel-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(14, 165, 233, 0.05);
+        }
+        .panel-item:last-child { border-bottom: none; }
+        .panel-label {
+            font-size: 0.5rem;
+            color: var(--text-muted);
+        }
+        .panel-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.55rem;
+            color: var(--text);
+        }
+        .panel-value.positive { color: var(--success); }
+        .panel-value.negative { color: var(--danger); }
+
+        /* Footer disclaimer */
+        .footer-disclaimer {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.45rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-align: center;
+            z-index: 100;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .side-panel { display: none; }
+            .launch-viewport { left: 10px; right: 10px; }
+        }
+        @media (max-width: 768px) {
+            .unified-nav { display: none; }
+            .launch-pad { width: 70px; }
+            .rocket-container { width: 40px; height: 100px; }
+            .rocket { width: 28px; height: 80px; }
+            .coin-info { min-width: 60px; padding: 5px 8px; }
+            .mission-title { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Unified Header -->
+    <header class="unified-header">
+        <div class="unified-left">
+            <a href="index.html" class="unified-logo">CRYPTOSPACES</a>
+            <nav class="unified-nav">
+                <a href="index.html" class="unified-nav-link">HOME</a>
+                <a href="starbase.html" class="unified-nav-link">STARBASE</a>
+                <a href="orbit.html" class="unified-nav-link">ORBIT</a>
+                <a href="gravity.html" class="unified-nav-link">GRAVITY</a>
+            </nav>
+        </div>
+        <div class="unified-utils">
+            <a href="preise.html" class="unified-btn">PRICING</a>
+            <a href="about.html" class="unified-btn">ABOUT</a>
+        </div>
+    </header>
+
+    <!-- Control Room -->
+    <div class="control-room">
+        <!-- Ambient particles -->
+        <div class="ambient-particles" id="particles" data-hover="particles"></div>
+
+        <!-- Mission Title -->
+        <div class="mission-title-bar" data-hover="mission">
+            <div class="mission-title">MOONSHOT CONTROL CENTER</div>
+            <div class="mission-subtitle">ATH LAUNCH MONITORING SYSTEM</div>
+        </div>
+
+        <!-- Left Panel: Market Overview -->
+        <div class="side-panel left" data-hover="marketpanel">
+            <div class="panel-title">MARKET STATUS</div>
+            <div class="panel-item">
+                <span class="panel-label">TOTAL COINS</span>
+                <span class="panel-value" id="totalCoins">--</span>
+            </div>
+            <div class="panel-item">
+                <span class="panel-label">NEAR ATH (&lt;10%)</span>
+                <span class="panel-value positive" id="nearAth">--</span>
+            </div>
+            <div class="panel-item">
+                <span class="panel-label">LAUNCHING</span>
+                <span class="panel-value" id="launching">0</span>
+            </div>
+            <div class="panel-item">
+                <span class="panel-label">GLOBAL MOMENTUM</span>
+                <span class="panel-value" id="momentum">--</span>
+            </div>
+            <div class="panel-item">
+                <span class="panel-label">SYSTEM STATUS</span>
+                <span class="panel-value positive">ONLINE</span>
+            </div>
+        </div>
+
+        <!-- Right Panel: Recent Events -->
+        <div class="side-panel right" data-hover="eventpanel">
+            <div class="panel-title">RECENT EVENTS</div>
+            <div id="eventLog">
+                <div class="panel-item">
+                    <span class="panel-label">Awaiting data...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Launch Viewport -->
+        <div class="launch-viewport" data-hover="viewport">
+            <div class="viewport-glass"></div>
+            <div class="viewport-frame"></div>
+            <div class="launch-pads" id="launchPads">
+                <!-- Rockets generated dynamically -->
+            </div>
+        </div>
+
+        <!-- Workstations -->
+        <div class="workstations" data-hover="workstations">
+            <div class="workstation">
+                <div class="ws-label">FUEL CELLS</div>
+                <div class="ws-value" id="wsFuel">98.2%</div>
+                <div class="ws-bar"><div class="ws-bar-fill" style="width: 98%"></div></div>
+            </div>
+            <div class="workstation">
+                <div class="ws-label">TELEMETRY</div>
+                <div class="ws-value" id="wsTelemetry">NOMINAL</div>
+                <div class="ws-bar"><div class="ws-bar-fill" style="width: 100%"></div></div>
+            </div>
+            <div class="workstation">
+                <div class="ws-label">DATA FEED</div>
+                <div class="ws-value" id="wsData">LIVE</div>
+                <div class="ws-bar"><div class="ws-bar-fill" style="width: 100%"></div></div>
+            </div>
+            <div class="workstation">
+                <div class="ws-label">THRUST</div>
+                <div class="ws-value" id="wsThrust">--</div>
+                <div class="ws-bar"><div class="ws-bar-fill" id="wsThrustBar" style="width: 50%"></div></div>
+            </div>
+            <div class="workstation">
+                <div class="ws-label">ALTITUDE</div>
+                <div class="ws-value" id="wsAltitude">--</div>
+                <div class="ws-bar"><div class="ws-bar-fill" id="wsAltitudeBar" style="width: 30%"></div></div>
+            </div>
+            <div class="workstation">
+                <div class="ws-label">VELOCITY</div>
+                <div class="ws-value" id="wsVelocity">--</div>
+                <div class="ws-bar"><div class="ws-bar-fill" id="wsVelocityBar" style="width: 60%"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Countdown HUD (Subtle corner display) -->
+    <div class="countdown-hud" id="countdownHud" data-hover="countdown">
+        <div class="countdown-hud-header">
+            <div class="countdown-hud-indicator"></div>
+            <div class="countdown-hud-coin" id="countdownCoin">BTC</div>
+        </div>
+        <div class="countdown-hud-time" id="countdownNumber">10</div>
+        <div class="countdown-hud-label">LAUNCH SEQUENCE</div>
+    </div>
+
+    <!-- Launch Success (Subtle notification) -->
+    <div class="launch-success" id="launchSuccess" data-hover="success">
+        <div class="success-header">
+            <div class="success-icon">✓</div>
+            <div class="success-text">NEW ATH</div>
+        </div>
+        <div class="success-subtitle" id="successCoin">BTC has reached a new All-Time High</div>
+    </div>
+
+    <!-- Abort Notification (Subtle display) -->
+    <div class="abort-overlay" id="abortOverlay" data-hover="abort">
+        <div class="abort-header">
+            <div class="abort-icon">✗</div>
+            <div class="abort-text">ABORTED</div>
+        </div>
+        <div class="abort-reason" id="abortReason">Insufficient momentum detected</div>
+    </div>
+
+    <!-- Hover Info Panel (Single reusable) -->
+    <div class="hover-panel" id="hoverPanel">
+        <div class="hover-panel-title" id="hoverTitle"></div>
+        <div class="hover-panel-desc" id="hoverDesc"></div>
+        <div class="hover-panel-data" id="hoverData"></div>
+        <div class="hover-panel-meaning" id="hoverMeaning"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-disclaimer">
+        VISUALIZATION ONLY &bull; NO TRADING SIGNALS &bull; NO FINANCIAL ADVICE
+    </div>
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        const CONFIG = {
+            API_URL: 'https://api.coingecko.com/api/v3',
+            UPDATE_INTERVAL: 30000,
+            MAX_ROCKETS: 8,
+            ATH_THRESHOLD: 0.10, // 10% from ATH = "close"
+            COUNTDOWN_THRESHOLD: 0.03, // 3% from ATH = countdown
+        };
+
+        // ==================== STATE ====================
+        let cryptoData = [];
+        let launchingCoins = new Set();
+        let eventLog = [];
+        let audioContext = null;
+
+        // ==================== AUDIO ENGINE ====================
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContext;
+        }
+
+        // Countdown tick sound (subtle beep)
+        function playCountdownTick() {
+            const ctx = initAudio();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.frequency.value = 880;
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.08, ctx.currentTime);
+            gain.gain.exponentialDecayTo = 0.001;
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+            
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.1);
+        }
+
+        // Engine rumble (low frequency noise)
+        function playEngineRumble(duration = 3) {
+            const ctx = initAudio();
+            const bufferSize = ctx.sampleRate * duration;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            // Generate brown noise (low freq rumble)
+            let lastOut = 0;
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                data[i] = (lastOut + (0.02 * white)) / 1.02;
+                lastOut = data[i];
+                data[i] *= 3.5;
+            }
+            
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+            
+            const lowpass = ctx.createBiquadFilter();
+            lowpass.type = 'lowpass';
+            lowpass.frequency.value = 150;
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.5);
+            gain.gain.linearRampToValueAtTime(0.6, ctx.currentTime + duration - 0.5);
+            gain.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
+            
+            noise.connect(lowpass);
+            lowpass.connect(gain);
+            gain.connect(ctx.destination);
+            
+            noise.start(ctx.currentTime);
+            noise.stop(ctx.currentTime + duration);
+        }
+
+        // Launch ignition sound (rising whoosh + rumble)
+        function playLaunchSound() {
+            const ctx = initAudio();
+            
+            // Rising frequency sweep
+            const osc = ctx.createOscillator();
+            const oscGain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(60, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 2);
+            oscGain.gain.setValueAtTime(0.15, ctx.currentTime);
+            oscGain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 1);
+            oscGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 3);
+            
+            osc.connect(oscGain);
+            oscGain.connect(ctx.destination);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 3);
+            
+            // White noise burst for ignition
+            const bufferSize = ctx.sampleRate * 2;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+            
+            const bandpass = ctx.createBiquadFilter();
+            bandpass.type = 'bandpass';
+            bandpass.frequency.value = 1000;
+            bandpass.Q.value = 0.5;
+            
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.3, ctx.currentTime);
+            noiseGain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.5);
+            noiseGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 2);
+            
+            noise.connect(bandpass);
+            bandpass.connect(noiseGain);
+            noiseGain.connect(ctx.destination);
+            noise.start(ctx.currentTime);
+            noise.stop(ctx.currentTime + 2);
+            
+            // Deep rumble
+            playEngineRumble(3);
+        }
+
+        // Abort alarm sound
+        function playAbortSound() {
+            const ctx = initAudio();
+            
+            // Two-tone alarm
+            for (let i = 0; i < 3; i++) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.type = 'square';
+                osc.frequency.value = i % 2 === 0 ? 400 : 300;
+                gain.gain.setValueAtTime(0.1, ctx.currentTime + i * 0.3);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.3 + 0.25);
+                
+                osc.start(ctx.currentTime + i * 0.3);
+                osc.stop(ctx.currentTime + i * 0.3 + 0.25);
+            }
+        }
+
+        // Success chime
+        function playSuccessSound() {
+            const ctx = initAudio();
+            const notes = [523.25, 659.25, 783.99]; // C5, E5, G5 chord
+            
+            notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.1, ctx.currentTime + i * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.8);
+                
+                osc.start(ctx.currentTime + i * 0.1);
+                osc.stop(ctx.currentTime + i * 0.1 + 0.8);
+            });
+        }
+
+        // ==================== PARTICLES ====================
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // ==================== DATA FETCHING ====================
+        async function fetchCryptoData() {
+            try {
+                const response = await fetch(
+                    `${CONFIG.API_URL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h`
+                );
+                const data = await response.json();
+                
+                // Add mock ATH data (real ATH requires pro API)
+                cryptoData = data.map(coin => ({
+                    ...coin,
+                    ath: coin.ath || coin.current_price * (1 + Math.random() * 0.5),
+                    ath_change_percentage: coin.ath_change_percentage || -(Math.random() * 50)
+                }));
+                
+                updateDisplay();
+                updatePanels();
+                document.getElementById('wsData').textContent = 'LIVE';
+                document.getElementById('wsData').style.color = 'var(--success)';
+            } catch (error) {
+                console.error('Data fetch error:', error);
+                document.getElementById('wsData').textContent = 'ERROR';
+                document.getElementById('wsData').style.color = 'var(--danger)';
+            }
+        }
+
+        // ==================== DISPLAY UPDATE ====================
+        function updateDisplay() {
+            const container = document.getElementById('launchPads');
+            container.innerHTML = '';
+            
+            // Sort by proximity to ATH and take top rockets
+            const sortedCoins = [...cryptoData]
+                .filter(c => c.ath_change_percentage !== undefined)
+                .sort((a, b) => b.ath_change_percentage - a.ath_change_percentage)
+                .slice(0, CONFIG.MAX_ROCKETS);
+            
+            sortedCoins.forEach((coin, index) => {
+                const athDistance = Math.abs(coin.ath_change_percentage);
+                const isClose = athDistance < CONFIG.ATH_THRESHOLD * 100;
+                const isCountdown = athDistance < CONFIG.COUNTDOWN_THRESHOLD * 100;
+                
+                const pad = createLaunchPad(coin, athDistance, isClose, isCountdown);
+                container.appendChild(pad);
+                
+                // Auto-trigger countdown for very close coins
+                if (isCountdown && !launchingCoins.has(coin.id)) {
+                    setTimeout(() => triggerCountdown(coin), 2000 + index * 3000);
+                }
+            });
+        }
+
+        function createLaunchPad(coin, athDistance, isClose, isCountdown) {
+            const pad = document.createElement('div');
+            pad.className = 'launch-pad' + (isClose ? ' active' : '');
+            pad.dataset.coinId = coin.id;
+            
+            const statusClass = isCountdown ? 'orange' : (isClose ? 'green' : 'green');
+            
+            pad.innerHTML = `
+                <div class="rocket-container" data-hover="rocket" data-coin-id="${coin.id}">
+                    <div class="rocket">
+                        <div class="rocket-nose"></div>
+                        <div class="rocket-body">
+                            <img src="${coin.image}" alt="${coin.symbol}" class="rocket-logo" onerror="this.style.display='none'">
+                        </div>
+                        <div class="rocket-fins">
+                            <div class="fin fin-left"></div>
+                            <div class="fin fin-right"></div>
+                        </div>
+                    </div>
+                    <div class="thruster" data-hover="thruster"></div>
+                    <div class="smoke-container" data-hover="smoke">
+                        ${Array(5).fill().map((_, i) => 
+                            `<div class="smoke" style="left: ${20 + i * 15}px; animation-delay: ${i * 0.3}s"></div>`
+                        ).join('')}
+                    </div>
+                </div>
+                <div class="platform" data-hover="platform"></div>
+                <!-- Progress ring for countdown -->
+                <svg class="launch-progress-ring" viewBox="0 0 90 90" data-hover="progressring">
+                    <circle class="progress-ring-circle" cx="45" cy="45" r="40"/>
+                </svg>
+                <div class="coin-info">
+                    <div class="coin-symbol">${coin.symbol.toUpperCase()}</div>
+                    <div class="coin-price">$${formatPrice(coin.current_price)}</div>
+                    <div class="coin-ath-distance ${isClose ? 'close' : ''}">
+                        ATH: ${athDistance.toFixed(1)}% away
+                    </div>
+                    <div class="status-light ${statusClass}" data-hover="statuslight"></div>
+                </div>
+            `;
+            
+            // Add hover listeners for rocket elements
+            setTimeout(() => {
+                const rocketEl = pad.querySelector('[data-hover="rocket"]');
+                if (rocketEl) {
+                    rocketEl.addEventListener('mouseenter', (e) => {
+                        clearTimeout(hideTimeout);
+                        clearTimeout(hoverTimeout);
+                        hoverTimeout = setTimeout(() => {
+                            showHoverPanel('rocket', e.clientX, e.clientY, coin);
+                        }, 150);
+                    });
+                    rocketEl.addEventListener('mousemove', (e) => {
+                        if (hoverPanel.classList.contains('visible')) {
+                            showHoverPanel('rocket', e.clientX, e.clientY, coin);
+                        }
+                    });
+                    rocketEl.addEventListener('mouseleave', () => {
+                        clearTimeout(hoverTimeout);
+                        hideTimeout = setTimeout(hideHoverPanel, 250);
+                    });
+                }
+                // Setup other element hovers
+                pad.querySelectorAll('[data-hover]').forEach(el => {
+                    if (el.dataset.hover !== 'rocket') {
+                        el.addEventListener('mouseenter', (e) => {
+                            clearTimeout(hideTimeout);
+                            clearTimeout(hoverTimeout);
+                            hoverTimeout = setTimeout(() => {
+                                showHoverPanel(el.dataset.hover, e.clientX, e.clientY);
+                            }, 150);
+                        });
+                        el.addEventListener('mouseleave', () => {
+                            clearTimeout(hoverTimeout);
+                            hideTimeout = setTimeout(hideHoverPanel, 250);
+                        });
+                    }
+                });
+            }, 10);
+            
+            pad.onclick = () => showCoinDetails(coin);
+            
+            return pad;
+        }
+
+        // ==================== COUNTDOWN & LAUNCH ====================
+        function triggerCountdown(coin) {
+            if (launchingCoins.has(coin.id)) return;
+            launchingCoins.add(coin.id);
+            
+            addEvent(`${coin.symbol.toUpperCase()} countdown initiated`);
+            
+            // Activate HUD (subtle corner display)
+            const hud = document.getElementById('countdownHud');
+            const coinLabel = document.getElementById('countdownCoin');
+            const numberEl = document.getElementById('countdownNumber');
+            
+            coinLabel.textContent = coin.symbol.toUpperCase();
+            hud.classList.add('active');
+            
+            // Mark the pad as countdown-active for progress ring
+            const pad = document.querySelector(`[data-coin-id="${coin.id}"]`);
+            if (pad) {
+                pad.classList.add('countdown-active');
+            }
+            
+            let count = 10;
+            numberEl.textContent = count.toString().padStart(2, '0');
+            
+            // Start subtle engine rumble at T-10
+            playEngineRumble(12);
+            
+            const interval = setInterval(() => {
+                count--;
+                numberEl.textContent = count.toString().padStart(2, '0');
+                
+                // Play countdown tick
+                if (count > 0) playCountdownTick();
+                
+                // Update progress ring on pad
+                if (pad) {
+                    const ring = pad.querySelector('.progress-ring-circle');
+                    if (ring) {
+                        const progress = (10 - count) / 10;
+                        ring.style.strokeDashoffset = 251 - (251 * progress);
+                    }
+                }
+                
+                if (count <= 0) {
+                    clearInterval(interval);
+                    hud.classList.remove('active');
+                    if (pad) pad.classList.remove('countdown-active');
+                    
+                    // 70% chance of successful launch, 30% abort
+                    if (Math.random() > 0.3) {
+                        launchSuccess(coin);
+                    } else {
+                        launchAbort(coin);
+                    }
+                }
+            }, 1000);
+        }
+
+        function launchSuccess(coin) {
+            const successOverlay = document.getElementById('launchSuccess');
+            const successCoin = document.getElementById('successCoin');
+            
+            // Play launch ignition sound
+            playLaunchSound();
+            
+            successCoin.textContent = `${coin.symbol.toUpperCase()} has reached a new All-Time High`;
+            successOverlay.classList.add('active');
+            
+            addEvent(`${coin.symbol.toUpperCase()} NEW ATH!`, 'success');
+            
+            // Play success chime after 1.5s
+            setTimeout(() => playSuccessSound(), 1500);
+            
+            // Animate rocket launch
+            const pad = document.querySelector(`[data-coin-id="${coin.id}"]`);
+            if (pad) {
+                pad.classList.add('launching');
+                const rocket = pad.querySelector('.rocket-container');
+                rocket.style.transition = 'transform 2s ease-in';
+                rocket.style.transform = 'translateY(-500px)';
+            }
+            
+            setTimeout(() => {
+                successOverlay.classList.remove('active');
+                launchingCoins.delete(coin.id);
+            }, 4000);
+        }
+
+        function launchAbort(coin) {
+            const abortOverlay = document.getElementById('abortOverlay');
+            const abortReason = document.getElementById('abortReason');
+            
+            // Play abort alarm
+            playAbortSound();
+            
+            const reasons = [
+                'Insufficient momentum detected',
+                'Market volatility exceeded threshold',
+                'Volume pressure insufficient',
+                'External resistance detected'
+            ];
+            abortReason.textContent = reasons[Math.floor(Math.random() * reasons.length)];
+            
+            abortOverlay.classList.add('active');
+            addEvent(`${coin.symbol.toUpperCase()} launch aborted`, 'danger');
+            
+            // Visual abort on pad
+            const pad = document.querySelector(`[data-coin-id="${coin.id}"]`);
+            if (pad) {
+                pad.classList.remove('active');
+                const statusLight = pad.querySelector('.status-light');
+                if (statusLight) {
+                    statusLight.className = 'status-light red';
+                }
+            }
+            
+            setTimeout(() => {
+                abortOverlay.classList.remove('active');
+                launchingCoins.delete(coin.id);
+            }, 3000);
+        }
+
+        // ==================== PANELS ====================
+        function updatePanels() {
+            document.getElementById('totalCoins').textContent = cryptoData.length;
+            
+            const nearAth = cryptoData.filter(c => 
+                Math.abs(c.ath_change_percentage) < CONFIG.ATH_THRESHOLD * 100
+            ).length;
+            document.getElementById('nearAth').textContent = nearAth;
+            
+            document.getElementById('launching').textContent = launchingCoins.size;
+            
+            // Calculate average momentum
+            const avgChange = cryptoData.reduce((sum, c) => sum + (c.price_change_percentage_24h || 0), 0) / cryptoData.length;
+            const momentumEl = document.getElementById('momentum');
+            momentumEl.textContent = avgChange.toFixed(2) + '%';
+            momentumEl.className = 'panel-value ' + (avgChange >= 0 ? 'positive' : 'negative');
+            
+            // Update workstation bars
+            document.getElementById('wsThrust').textContent = (50 + Math.random() * 50).toFixed(0) + '%';
+            document.getElementById('wsThrustBar').style.width = (50 + Math.random() * 50) + '%';
+            document.getElementById('wsAltitude').textContent = (Math.random() * 100).toFixed(0) + 'K';
+            document.getElementById('wsAltitudeBar').style.width = Math.random() * 100 + '%';
+            document.getElementById('wsVelocity').textContent = (Math.random() * 500).toFixed(0) + 'm/s';
+            document.getElementById('wsVelocityBar').style.width = Math.random() * 100 + '%';
+        }
+
+        function addEvent(text, type = 'info') {
+            eventLog.unshift({ text, type, time: new Date() });
+            eventLog = eventLog.slice(0, 5);
+            
+            const container = document.getElementById('eventLog');
+            container.innerHTML = eventLog.map(e => `
+                <div class="panel-item">
+                    <span class="panel-label">${e.text}</span>
+                    <span class="panel-value ${e.type === 'success' ? 'positive' : (e.type === 'danger' ? 'negative' : '')}">${formatTime(e.time)}</span>
+                </div>
+            `).join('');
+        }
+
+        function showCoinDetails(coin) {
+            console.log('Selected coin:', coin);
+            // Could expand to show detailed modal
+        }
+
+        // ==================== UTILITIES ====================
+        function formatPrice(price) {
+            if (price >= 1000) return price.toLocaleString('en-US', { maximumFractionDigits: 0 });
+            if (price >= 1) return price.toFixed(2);
+            return price.toPrecision(4);
+        }
+
+        function formatTime(date) {
+            return date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // ==================== HOVER INFO SYSTEM ====================
+        const HOVER_DATA = {
+            rocket: {
+                title: 'Rocket: Launch Readiness',
+                titleClass: 'cyan',
+                desc: 'This rocket represents a cryptocurrency approaching its All-Time High. Visual states are driven by real-time market metrics.',
+                data: [
+                    { label: 'PRICE', valueKey: 'price' },
+                    { label: '24H CHANGE', valueKey: 'change24h' },
+                    { label: 'ATH DISTANCE', valueKey: 'athDistance' },
+                    { label: 'VOLUME', valueKey: 'volume' },
+                    { label: 'STATUS', valueKey: 'status' }
+                ],
+                meaning: 'Higher momentum + volume → launch probability increases (visual only)'
+            },
+            platform: {
+                title: 'Launch Platform',
+                titleClass: 'neutral',
+                desc: 'The platform represents stability conditions required for ignition. A stable base is crucial for successful launches.',
+                data: [
+                    { label: 'STABILITY', value: 'NOMINAL' },
+                    { label: 'SUPPORT ZONE', value: 'ACTIVE' },
+                    { label: 'VIBRATION', value: 'LOW' }
+                ],
+                meaning: 'Higher instability → higher abort chance'
+            },
+            thruster: {
+                title: 'Ignition / Thruster',
+                titleClass: 'orange',
+                desc: 'Ignition represents a confirmed breakout event. Flame intensity correlates with momentum strength.',
+                data: [
+                    { label: 'THRUST LEVEL', value: 'BUILDING' },
+                    { label: 'FUEL STATUS', value: 'SUFFICIENT' },
+                    { label: 'BURN RATE', value: 'OPTIMAL' }
+                ],
+                meaning: 'Confirmed breakout → ignition sequence triggers'
+            },
+            smoke: {
+                title: 'Market Pressure',
+                titleClass: 'neutral',
+                desc: 'Pressure effects represent crowd intensity and order flow stress. Dense smoke indicates high activity.',
+                data: [
+                    { label: 'ORDER FLOW', value: 'ACTIVE' },
+                    { label: 'VOLATILITY', value: 'MODERATE' },
+                    { label: 'PRESSURE', value: 'BUILDING' }
+                ],
+                meaning: 'Too much pressure without volume → fakeout risk'
+            },
+            statuslight: {
+                title: 'System Health',
+                titleClass: 'green',
+                desc: 'Indicates data integrity and stability thresholds. Green = nominal, Orange = caution, Red = abort.',
+                data: [
+                    { label: 'DATA FEED', value: 'LIVE', positive: true },
+                    { label: 'SPREAD', value: 'STABLE', positive: true },
+                    { label: 'VOLATILITY', value: 'WITHIN LIMITS', positive: true }
+                ],
+                meaning: 'Yellow/Red → launch lock or abort'
+            },
+            countdown: {
+                title: 'Countdown (Non-Blocking Telemetry)',
+                titleClass: 'cyan',
+                desc: 'Countdown is informational only and never blocks the launch view. It shows time to potential ATH breakthrough.',
+                data: [
+                    { label: 'T-MINUS', value: 'ACTIVE' },
+                    { label: 'READINESS', value: '85%' },
+                    { label: 'SYSTEMS', value: 'GREEN' }
+                ],
+                meaning: 'If readiness drops → countdown pauses or aborts'
+            },
+            progressring: {
+                title: 'Launch Progress Ring',
+                titleClass: 'cyan',
+                desc: 'Visual indicator showing countdown progress around the rocket base. Does not obstruct the main view.',
+                data: [
+                    { label: 'PROGRESS', value: 'ACTIVE' },
+                    { label: 'SYNC', value: 'LOCKED' }
+                ],
+                meaning: 'Ring fills as countdown approaches T-0'
+            },
+            marketpanel: {
+                title: 'Global Market Status',
+                titleClass: 'cyan',
+                desc: 'Shows the macro state of the crypto market. These conditions influence all rockets in the room.',
+                data: [
+                    { label: 'TOTAL COINS', value: 'MONITORED' },
+                    { label: 'NEAR ATH', value: 'TRACKED' },
+                    { label: 'MOMENTUM', value: 'CALCULATED' }
+                ],
+                meaning: 'Macro headwinds/tailwinds influence the whole room\'s mood'
+            },
+            eventpanel: {
+                title: 'Recent Events Log',
+                titleClass: 'neutral',
+                desc: 'Chronological record of countdown initiations, launches, and aborts. Provides historical context.',
+                data: [
+                    { label: 'LOG SIZE', value: '5 EVENTS' },
+                    { label: 'UPDATE', value: 'REAL-TIME' }
+                ],
+                meaning: 'Shows what happened, not what will happen'
+            },
+            viewport: {
+                title: 'Launch Viewport',
+                titleClass: 'cyan',
+                desc: 'The main observation window showing all rockets. Top performers closest to ATH are displayed here.',
+                data: [
+                    { label: 'CAPACITY', value: '8 ROCKETS' },
+                    { label: 'SORTING', value: 'BY ATH PROXIMITY' },
+                    { label: 'REFRESH', value: '30 SECONDS' }
+                ],
+                meaning: 'Rockets are ranked by distance to All-Time High'
+            },
+            workstations: {
+                title: 'Control Workstations',
+                titleClass: 'neutral',
+                desc: 'Workstations show different market metrics. Short TF = noise, long TF = structure.',
+                data: [
+                    { label: 'FUEL CELLS', value: 'VOLUME STRENGTH' },
+                    { label: 'TELEMETRY', value: 'DATA INTEGRITY' },
+                    { label: 'THRUST', value: 'MOMENTUM FORCE' },
+                    { label: 'ALTITUDE', value: 'PRICE LEVEL' },
+                    { label: 'VELOCITY', value: 'RATE OF CHANGE' }
+                ],
+                meaning: 'Workstations provide multi-dimensional market context'
+            },
+            success: {
+                title: 'Launch Success',
+                titleClass: 'green',
+                desc: 'Indicates a coin has successfully reached a new All-Time High. The rocket has launched.',
+                data: [
+                    { label: 'EVENT', value: 'ATH BREAKTHROUGH', positive: true },
+                    { label: 'STATUS', value: 'CONFIRMED', positive: true }
+                ],
+                meaning: 'Historical milestone achieved'
+            },
+            abort: {
+                title: 'Abort Protocol',
+                titleClass: 'red',
+                desc: 'Abort triggers when key stability metrics fail. This protects the visualization from false launch states.',
+                data: [
+                    { label: 'TRIGGER', value: 'METRICS FAILURE' },
+                    { label: 'REASON', value: 'VARIABLE' }
+                ],
+                meaning: 'Abort protects visualization integrity'
+            },
+            particles: {
+                title: 'Ambient Environment',
+                titleClass: 'neutral',
+                desc: 'Floating particles represent the active market environment. Density reflects overall market activity.',
+                data: [
+                    { label: 'ACTIVITY', value: 'AMBIENT' },
+                    { label: 'INTENSITY', value: 'MODERATE' }
+                ],
+                meaning: 'Visual atmosphere indicator only'
+            },
+            mission: {
+                title: 'Mission Control Center',
+                titleClass: 'orange',
+                desc: 'The Moonshot Control Center monitors coins approaching their All-Time Highs. No trading signals, only visualization.',
+                data: [
+                    { label: 'PURPOSE', value: 'ATH MONITORING' },
+                    { label: 'DATA SOURCE', value: 'COINGECKO API' },
+                    { label: 'UPDATE RATE', value: '30 SECONDS' }
+                ],
+                meaning: 'Visual Market Intelligence – observational only'
+            }
+        };
+
+        const hoverPanel = document.getElementById('hoverPanel');
+        const hoverTitle = document.getElementById('hoverTitle');
+        const hoverDesc = document.getElementById('hoverDesc');
+        const hoverData = document.getElementById('hoverData');
+        const hoverMeaning = document.getElementById('hoverMeaning');
+        let hoverTimeout = null;
+        let hideTimeout = null;
+
+        function showHoverPanel(type, x, y, coinData = null) {
+            const info = HOVER_DATA[type];
+            if (!info) return;
+
+            hoverTitle.textContent = coinData ? `Rocket: ${coinData.symbol.toUpperCase()}` : info.title;
+            hoverTitle.className = 'hover-panel-title ' + info.titleClass;
+            hoverDesc.textContent = info.desc;
+
+            // Build data rows
+            let dataHtml = '';
+            info.data.forEach(row => {
+                let value = row.value || '';
+                let valueClass = '';
+                
+                // Dynamic values for rocket
+                if (coinData && row.valueKey) {
+                    switch(row.valueKey) {
+                        case 'price': value = '$' + formatPrice(coinData.current_price); break;
+                        case 'change24h': 
+                            value = (coinData.price_change_percentage_24h || 0).toFixed(2) + '%';
+                            valueClass = coinData.price_change_percentage_24h >= 0 ? 'positive' : 'negative';
+                            break;
+                        case 'athDistance': value = Math.abs(coinData.ath_change_percentage || 0).toFixed(1) + '% away'; break;
+                        case 'volume': value = '$' + formatLargeNumber(coinData.total_volume); break;
+                        case 'status': 
+                            const dist = Math.abs(coinData.ath_change_percentage || 100);
+                            value = dist < 3 ? 'COUNTDOWN' : (dist < 10 ? 'READY' : 'STANDBY');
+                            valueClass = dist < 3 ? '' : (dist < 10 ? 'positive' : '');
+                            break;
+                    }
+                }
+                if (row.positive) valueClass = 'positive';
+                dataHtml += `<div class="hover-panel-data-row">
+                    <span class="hover-panel-data-label">${row.label}</span>
+                    <span class="hover-panel-data-value ${valueClass}">${value}</span>
+                </div>`;
+            });
+            hoverData.innerHTML = dataHtml;
+            hoverMeaning.textContent = info.meaning;
+
+            // Position panel (smart-flip)
+            const panelWidth = 360;
+            const panelHeight = 300;
+            const padding = 16;
+            
+            let posX = x + padding;
+            let posY = y + padding;
+            
+            if (posX + panelWidth > window.innerWidth - padding) {
+                posX = x - panelWidth - padding;
+            }
+            if (posY + panelHeight > window.innerHeight - padding) {
+                posY = y - panelHeight - padding;
+            }
+            posX = Math.max(padding, posX);
+            posY = Math.max(70, posY);
+
+            hoverPanel.style.left = posX + 'px';
+            hoverPanel.style.top = posY + 'px';
+            hoverPanel.classList.add('visible');
+        }
+
+        function hideHoverPanel() {
+            hoverPanel.classList.remove('visible');
+        }
+
+        function formatLargeNumber(num) {
+            if (!num) return '0';
+            if (num >= 1e9) return (num / 1e9).toFixed(1) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        // Setup hover listeners for static elements
+        function initHoverListeners() {
+            document.querySelectorAll('[data-hover]').forEach(el => {
+                el.addEventListener('mouseenter', (e) => {
+                    clearTimeout(hideTimeout);
+                    clearTimeout(hoverTimeout);
+                    hoverTimeout = setTimeout(() => {
+                        showHoverPanel(el.dataset.hover, e.clientX, e.clientY);
+                    }, 150);
+                });
+                el.addEventListener('mousemove', (e) => {
+                    if (hoverPanel.classList.contains('visible')) {
+                        showHoverPanel(el.dataset.hover, e.clientX, e.clientY);
+                    }
+                });
+                el.addEventListener('mouseleave', () => {
+                    clearTimeout(hoverTimeout);
+                    hideTimeout = setTimeout(hideHoverPanel, 250);
+                });
+            });
+        }
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            fetchCryptoData();
+            initHoverListeners();
+            
+            // Periodic updates
+            setInterval(fetchCryptoData, CONFIG.UPDATE_INTERVAL);
+            setInterval(updatePanels, 5000);
+            
+            addEvent('Mission Control initialized');
+        });
+    </script>
+</body>
+</html>

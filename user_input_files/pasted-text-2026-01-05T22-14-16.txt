@@ -1,0 +1,242 @@
+VTP – **moonshot-control.html: Hover-Fenster für ALLE Elemente (Data-Explainer, High-End UI, ohne Raketen zu verdecken)**
+
+**Ziel**
+Erstelle auf **moonshot-control.html** ein einheitliches System aus **Hover-Infopanels** (Tooltip/Info-Card), sodass **jedes sichtbare Element** im Moonshot Control Center beim Mouseover **kurz, klar und datenbasiert** erklärt wird.
+Wichtig: **Kein Hover darf Raketen/Coins blockieren.** Fokus bleibt immer auf der Szene.
+
+---
+
+## 1) Hover-System (global, einheitlich)
+
+**Trigger**
+
+* Desktop: `hover` + `focus`
+* Mobile: `tap` (öffnet), `tap outside` (schließt)
+
+**Positionierung**
+
+* Panel erscheint **seitlich versetzt** zum Element (8–16px Abstand)
+* **Smart-Flip**: wenn am Rand → automatisch auf die andere Seite wechseln
+* **Nie zentriert**, nie Fullscreen
+* **Auto-Avoid**: Panel darf **nie** über Rocket/Launchpad liegen → wenn nötig: außerhalb der Szene an den Rand „andocken“
+
+**Design**
+
+* Glassmorphism, matte Oberfläche, dezenter Glow
+* Größe: **360×200** (Desktop), **320×220** (Mobile)
+* Opacity 0.88–0.92, weiche Schatten, 16px Radius
+* Öffnen: 150–220ms Fade+Slide, Schließen: 120–180ms
+
+**Inhalt-Format (immer gleich)**
+
+* Titel (kurz)
+* 1–2 Sätze Erklärung
+* **Live Data Block** (3–5 Werte, kompakt)
+* **What it means** (1 Zeile Wirkung auf Start/Abbruch)
+
+**Zeit & Verhalten**
+
+* Hover bleibt sichtbar solange Maus drauf / Fokus aktiv
+* Wenn Maus weg: 250ms delay (kein Flackern)
+* Maximal **1 Panel gleichzeitig** (optional: “pin” per Klick)
+
+---
+
+## 2) Datenlogik (neutral, rechtssicher)
+
+**Erlaubt**
+
+* Zustandsbeschreibung: “Momentum rising”, “Volume increasing”
+* Schwellen: “Near ATH”, “Breakout confirmed”
+* Mechanik: “Open interest indicates leverage buildup”
+
+**Nicht erlaubt**
+
+* Kauf-/Verkaufsempfehlung
+* Performance-/Profit-Versprechen
+* “This will go up” oder “Guaranteed breakout”
+
+---
+
+## 3) Hover-Fenster für ALLE Elemente (Set)
+
+### A) Rocket / Coin (jede einzelne Rakete)
+
+**Titel:** `Rocket: {COIN} / Launch Readiness`
+**Erklärung:** “This rocket represents the coin. Visual states are driven by real-time market metrics.”
+**Live Data:** Price, 24h %, Volume 24h, Volatility, Liquidity
+**Meaning:** “Higher momentum + volume → launch probability increases (visual only).”
+
+---
+
+### B) Rocket Logo / Nameplate (am Rumpf)
+
+**Titel:** `Identity & Market Snapshot`
+**Erklärung:** “Coin identity and current market snapshot.”
+**Live Data:** Ticker, Market Cap, Rank, Circulating Supply
+**Meaning:** “Context only. No recommendations.”
+
+---
+
+### C) Launchpad / Base Ring
+
+**Titel:** `Launch Platform`
+**Erklärung:** “The platform shows stability conditions required for ignition.”
+**Live Data:** Support zone distance, Spread, Slippage estimate
+**Meaning:** “Higher instability → higher abort chance.”
+
+---
+
+### D) Fuel Gauge (Treibstoffanzeige)
+
+**Titel:** `Fuel = Volume Strength`
+**Erklärung:** “Fuel fills with sustained volume and demand intensity.”
+**Live Data:** Buy Volume, Sell Volume, Volume Delta, Volume Trend
+**Meaning:** “More fuel → stronger ignition sequence.”
+
+---
+
+### E) Momentum Line / Pulse (pulsierende Linie)
+
+**Titel:** `Momentum`
+**Erklärung:** “Momentum captures the speed of price movement, not its direction alone.”
+**Live Data:** 5m/15m/1h momentum, Rate of change, Acceleration
+**Meaning:** “Sharp momentum spikes → countdown arms faster.”
+
+---
+
+### F) Volatility Heat / Glow (Leuchteffekt am Rocket Body)
+
+**Titel:** `Volatility`
+**Erklärung:** “Volatility measures how violently price moves.”
+**Live Data:** ATR / Volatility index, Intraday range, Wick ratio (optional)
+**Meaning:** “Extreme volatility → system enters caution mode.”
+
+---
+
+### G) Open Interest Panel (falls vorhanden)
+
+**Titel:** `Open Interest (Leverage Pressure)`
+**Erklärung:** “Open interest reflects leveraged positioning in derivatives.”
+**Live Data:** OI value, OI change, Funding rate (optional)
+**Meaning:** “Rapid OI rise → higher liquidation risk.”
+
+---
+
+### H) Liquidation Alarm Light (gelb/rot)
+
+**Titel:** `Liquidation Risk`
+**Erklärung:** “This indicator highlights liquidation clusters and stress.”
+**Live Data:** Liquidations 1h/24h, Long/Short ratio, Volatility spike
+**Meaning:** “High liquidation pressure → abort warnings.”
+
+---
+
+### I) ATH Marker (All-Time-High Linie/Markierung)
+
+**Titel:** `All-Time High (ATH)`
+**Erklärung:** “ATH is a psychological and technical threshold.”
+**Live Data:** ATH price, Distance to ATH %, Attempts count (optional)
+**Meaning:** “Near ATH → countdown becomes eligible.”
+
+---
+
+### J) Countdown Module (klein, off-center)
+
+**Titel:** `Countdown (Non-Blocking Telemetry)`
+**Erklärung:** “Countdown is informational only and never blocks the launch view.”
+**Live Data:** T-minus, Readiness %, Systems green/yellow
+**Meaning:** “If readiness drops → countdown pauses or aborts.”
+
+---
+
+### K) Ignition Nozzle / Engine Flame Zone
+
+**Titel:** `Ignition`
+**Erklärung:** “Ignition represents a confirmed breakout event (visualization).”
+**Live Data:** Breakout confirmation, Volume confirmation, Spread stability
+**Meaning:** “Confirmed breakout → ignition sequence triggers.”
+
+---
+
+### L) Smoke / Vapor / Pressure Waves
+
+**Titel:** `Market Pressure`
+**Erklärung:** “Pressure effects represent crowd intensity and order flow stress.”
+**Live Data:** Order flow imbalance, Volatility, OI change
+**Meaning:** “Too much pressure without volume → fakeout risk.”
+
+---
+
+### M) Main Mission Screen (großer Screen im Control Room)
+
+**Titel:** `Global Market Status`
+**Erklärung:** “Shows the macro state of the crypto market.”
+**Live Data:** Total Market Cap, BTC.D, Fear & Greed, Total Volume
+**Meaning:** “Macro headwinds/tailwinds influence the whole room’s mood.”
+
+---
+
+### N) Radar / Satellite Mini-Map (falls vorhanden)
+
+**Titel:** `Signal Radar`
+**Erklärung:** “Tracks attention and market signal density (not predictions).”
+**Live Data:** Social volume, News intensity, Trend score
+**Meaning:** “High attention → faster reactions, less stability.”
+
+---
+
+### O) Operator Desk Screens (kleine Monitore)
+
+**Titel:** `Timeframes`
+**Erklärung:** “Different timeframes show different market ‘rhythms’.”
+**Live Data:** 5m, 15m, 1h, 4h, 1D (sparsam)
+**Meaning:** “Short TF = noise, long TF = structure.”
+
+---
+
+### P) Green/Yellow/Red System Lights (Statuslampen)
+
+**Titel:** `System Health`
+**Erklärung:** “Indicates data integrity and stability thresholds.”
+**Live Data:** Data feed status, Spread stability, Volatility limit
+**Meaning:** “Yellow/Red → launch lock or abort.”
+
+---
+
+### Q) Abort Lever / Abort Button (falls im Design)
+
+**Titel:** `Abort Protocol`
+**Erklärung:** “Abort triggers when key stability metrics fail.”
+**Live Data:** Reason code: volatility, volume drop, spread spike
+**Meaning:** “Abort protects the visualization from false launch states.”
+
+---
+
+### R) History Trail / Afterglow (wenn Rocket Spur hinterlässt)
+
+**Titel:** `Launch Trail (History)`
+**Erklärung:** “Marks the launch moment and immediate aftermath.”
+**Live Data:** Timestamp, Price at launch, % move after launch (short window)
+**Meaning:** “Shows what happened, not what will happen.”
+
+---
+
+## 4) Mini-UX: “Explain Mode” (optional, Premium)
+
+* Toggle “Explain Mode” oben rechts
+* Bei aktivem Modus: alle hover-hotspots leicht sichtbar (dezente Outline)
+* Normalmodus: Hotspots unsichtbar, nur bei Hover aktiv
+
+---
+
+## 5) Performance-Regeln (damit nix einfriert)
+
+* Hover-Panels sind **DOM-reused** (ein einziges Panel, Inhalt wechselt)
+* Keine schweren Re-renders pro Mousemove
+* Debounce 50–80ms für Daten-Update
+* Max 10 Updates/Sekunde für Live-Zahlen im Hover
+
+---
+
+Wenn du mir kurz sagst, **welche Elemente in moonshot-control.html wirklich drin sind** (z. B. Mission Screen, Radar, Abort-Lever ja/nein), passe ich die Liste auf **100% exaktes 1:1 Matching** an – ohne irgendwas zu erfinden oder zu viel zu bauen.

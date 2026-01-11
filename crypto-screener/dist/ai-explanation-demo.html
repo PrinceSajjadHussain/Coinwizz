@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KI-Erklärung Demo | CryptoSpaces</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --space-black: #000510;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-gold: #fbbf24;
+            --text-light: #f1f5f9;
+            --gradient-ai: linear-gradient(135deg, #8b5cf6, #ec4899, #0ea5e9);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--space-black);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Language Toggle */
+        [data-lang-de], [data-lang-en] { display: none; }
+        body.lang-de [data-lang-de] { display: inline; }
+        body.lang-en [data-lang-en] { display: inline; }
+        body.lang-de [data-lang-de-block] { display: block; }
+        body.lang-en [data-lang-en-block] { display: block; }
+        [data-lang-de-block], [data-lang-en-block] { display: none; }
+
+        .lang-switch {
+            display: flex;
+            gap: 5px;
+            background: rgba(15,23,42,0.8);
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid rgba(139,92,246,0.3);
+        }
+        .lang-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            background: transparent;
+            color: rgba(241,245,249,0.5);
+        }
+        .lang-btn.active {
+            background: var(--gradient-ai);
+            color: white;
+        }
+
+        /* Background */
+        .ai-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(139,92,246,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(236,72,153,0.1) 0%, transparent 50%);
+        }
+
+        /* Header */
+        header {
+            position: relative;
+            z-index: 100;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,5,16,0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(139,92,246,0.2);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .logo-icon { font-size: 1.8rem; }
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: var(--gradient-ai);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .back-btn {
+            padding: 8px 16px;
+            background: rgba(139,92,246,0.1);
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 8px;
+            color: var(--accent-purple);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            background: rgba(139,92,246,0.2);
+        }
+
+        /* Main */
+        main {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        /* Title */
+        .title-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .title-section h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            background: var(--gradient-ai);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        /* Live Demo */
+        .demo-container {
+            background: rgba(15,23,42,0.8);
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        /* Coin Selector */
+        .coin-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .coin-btn {
+            padding: 12px 20px;
+            background: rgba(139,92,246,0.1);
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 10px;
+            color: var(--text-light);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .coin-btn:hover, .coin-btn.active {
+            background: var(--gradient-ai);
+            border-color: transparent;
+            transform: scale(1.05);
+        }
+        .coin-icon { font-size: 1.2rem; }
+
+        /* AI Analysis Panel */
+        .ai-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .ai-panel { grid-template-columns: 1fr; }
+        }
+
+        .panel-card {
+            background: rgba(0,5,16,0.6);
+            border: 1px solid rgba(139,92,246,0.2);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(139,92,246,0.2);
+        }
+        .panel-icon { font-size: 1.5rem; }
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--accent-purple);
+        }
+
+        /* Price Display */
+        .price-display {
+            text-align: center;
+            padding: 20px;
+        }
+        .current-price {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+        .price-change {
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+        .price-change.positive { color: var(--accent-green); }
+        .price-change.negative { color: var(--accent-red); }
+
+        /* AI Explanation */
+        .ai-explanation {
+            line-height: 1.7;
+        }
+        .ai-explanation .highlight {
+            background: rgba(236,72,153,0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-pink);
+        }
+        .typing-indicator {
+            display: inline-block;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Factors */
+        .factor-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .factor-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(139,92,246,0.1);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .factor-item:hover {
+            background: rgba(139,92,246,0.2);
+            transform: translateX(5px);
+        }
+        .factor-icon { font-size: 1.3rem; }
+        .factor-text { flex: 1; font-size: 0.95rem; }
+        .factor-impact {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        .factor-impact.bullish { background: rgba(34,197,94,0.2); color: var(--accent-green); }
+        .factor-impact.bearish { background: rgba(239,68,68,0.2); color: var(--accent-red); }
+        .factor-impact.neutral { background: rgba(251,191,36,0.2); color: var(--accent-gold); }
+
+        /* Prediction */
+        .prediction-box {
+            text-align: center;
+            padding: 20px;
+        }
+        .prediction-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: rgba(241,245,249,0.6);
+            margin-bottom: 10px;
+        }
+        .prediction-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        .prediction-value.bullish { color: var(--accent-green); }
+        .prediction-value.bearish { color: var(--accent-red); }
+        .confidence-bar {
+            margin-top: 15px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .confidence-fill {
+            height: 100%;
+            background: var(--gradient-ai);
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+        .confidence-label {
+            font-size: 0.8rem;
+            color: rgba(241,245,249,0.6);
+            margin-top: 8px;
+        }
+
+        /* News Feed */
+        .news-item {
+            padding: 12px;
+            border-left: 3px solid var(--accent-purple);
+            margin-bottom: 12px;
+            background: rgba(139,92,246,0.05);
+        }
+        .news-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+        }
+        .news-text {
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0,5,16,0.95);
+            border-top: 1px solid rgba(139,92,246,0.2);
+            padding: 20px;
+            text-align: center;
+        }
+        .disclaimer {
+            font-size: 0.8rem;
+            color: rgba(241,245,249,0.5);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="lang-de">
+
+<div class="ai-bg"></div>
+
+<header>
+    <a href="index.html" class="logo">
+        <span class="logo-icon">🚀</span>
+        <span class="logo-text">CryptoSpaces</span>
+    </a>
+    <div class="header-right">
+        <div class="lang-switch">
+            <button class="lang-btn active" onclick="setLang('de')">DE</button>
+            <button class="lang-btn" onclick="setLang('en')">EN</button>
+        </div>
+        <a href="ai-visualization.html" class="back-btn">
+            <span data-lang-de>← Zurück</span>
+            <span data-lang-en>← Back</span>
+        </a>
+    </div>
+</header>
+
+<main>
+    <section class="title-section">
+        <h1>
+            <span data-lang-de>🤖 KI-Marktanalyse Live Demo</span>
+            <span data-lang-en>🤖 AI Market Analysis Live Demo</span>
+        </h1>
+        <p style="color: rgba(241,245,249,0.7);">
+            <span data-lang-de>Wähle einen Coin und erhalte sofortige KI-Erklärungen</span>
+            <span data-lang-en>Select a coin and get instant AI explanations</span>
+        </p>
+    </section>
+
+    <div class="demo-container">
+        <!-- Coin Selector -->
+        <div class="coin-selector">
+            <button class="coin-btn active" onclick="selectCoin('btc')">
+                <span class="coin-icon">₿</span> Bitcoin
+            </button>
+            <button class="coin-btn" onclick="selectCoin('eth')">
+                <span class="coin-icon">Ξ</span> Ethereum
+            </button>
+            <button class="coin-btn" onclick="selectCoin('sol')">
+                <span class="coin-icon">◎</span> Solana
+            </button>
+            <button class="coin-btn" onclick="selectCoin('xrp')">
+                <span class="coin-icon">✕</span> XRP
+            </button>
+        </div>
+
+        <!-- AI Analysis Panel -->
+        <div class="ai-panel">
+            <!-- Price & Explanation -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <span class="panel-icon">📊</span>
+                    <span class="panel-title" id="coinName">Bitcoin (BTC)</span>
+                </div>
+                <div class="price-display">
+                    <div class="current-price" id="currentPrice">$102,450</div>
+                    <div class="price-change positive" id="priceChange">+5.2% (24h)</div>
+                </div>
+                <div class="ai-explanation" id="aiExplanation">
+                    <span data-lang-de>
+                        <strong>🤖 KI-Analyse:</strong> Der Preisanstieg wird durch <span class="highlight">institutionelle ETF-Zuflüsse</span> von $890M getrieben. Zusätzlich verstärkt eine <span class="highlight">FOMO-Welle</span> in sozialen Medien die Nachfrage. On-Chain-Daten zeigen <span class="highlight">Akkumulation</span> bei Langzeit-Haltern.
+                    </span>
+                    <span data-lang-en>
+                        <strong>🤖 AI Analysis:</strong> The price increase is driven by <span class="highlight">institutional ETF inflows</span> of $890M. Additionally, a <span class="highlight">FOMO wave</span> on social media is amplifying demand. On-chain data shows <span class="highlight">accumulation</span> by long-term holders.
+                    </span>
+                </div>
+            </div>
+
+            <!-- Factors -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <span class="panel-icon">⚡</span>
+                    <span class="panel-title">
+                        <span data-lang-de>Einflussfaktoren</span>
+                        <span data-lang-en>Influencing Factors</span>
+                    </span>
+                </div>
+                <div class="factor-list" id="factorList">
+                    <div class="factor-item">
+                        <span class="factor-icon">🏦</span>
+                        <span class="factor-text">ETF-Zuflüsse +$890M</span>
+                        <span class="factor-impact bullish">+3.2%</span>
+                    </div>
+                    <div class="factor-item">
+                        <span class="factor-icon">📱</span>
+                        <span class="factor-text">Social Media FOMO</span>
+                        <span class="factor-impact bullish">+1.5%</span>
+                    </div>
+                    <div class="factor-item">
+                        <span class="factor-icon">🐋</span>
+                        <span class="factor-text">Whale Akkumulation</span>
+                        <span class="factor-impact bullish">+0.8%</span>
+                    </div>
+                    <div class="factor-item">
+                        <span class="factor-icon">📰</span>
+                        <span class="factor-text">Positive Nachrichten</span>
+                        <span class="factor-impact neutral">±0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prediction -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <span class="panel-icon">🔮</span>
+                    <span class="panel-title">
+                        <span data-lang-de>KI-Prognose (24h)</span>
+                        <span data-lang-en>AI Prediction (24h)</span>
+                    </span>
+                </div>
+                <div class="prediction-box">
+                    <div class="prediction-label">
+                        <span data-lang-de>Erwartete Richtung</span>
+                        <span data-lang-en>Expected Direction</span>
+                    </div>
+                    <div class="prediction-value bullish" id="predictionValue">📈 BULLISH</div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceFill" style="width: 78%;"></div>
+                    </div>
+                    <div class="confidence-label">
+                        <span data-lang-de>Konfidenz: 78%</span>
+                        <span data-lang-en>Confidence: 78%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <span class="panel-icon">📰</span>
+                    <span class="panel-title">
+                        <span data-lang-de>Relevante Nachrichten</span>
+                        <span data-lang-en>Relevant News</span>
+                    </span>
+                </div>
+                <div id="newsFeed">
+                    <div class="news-item">
+                        <div class="news-time">vor 2h</div>
+                        <div class="news-text">BlackRock ETF verzeichnet Rekordzuflüsse</div>
+                    </div>
+                    <div class="news-item">
+                        <div class="news-time">vor 5h</div>
+                        <div class="news-text">Bitcoin durchbricht $100k Widerstand</div>
+                    </div>
+                    <div class="news-item">
+                        <div class="news-time">vor 8h</div>
+                        <div class="news-text">Institutionelle Adoption steigt weiter</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="disclaimer">
+        <span data-lang-de>⚠️ Dies ist eine Demo. Keine finanzielle Beratung. Alle Daten dienen nur zur Veranschaulichung.</span>
+        <span data-lang-en>⚠️ This is a demo. No financial advice. All data is for illustration purposes only.</span>
+    </div>
+</footer>
+
+<script>
+    function setLang(lang) {
+        document.body.classList.remove('lang-de', 'lang-en');
+        document.body.classList.add('lang-' + lang);
+        document.querySelectorAll('.lang-btn').forEach(function(btn) { btn.classList.remove('active'); });
+        event.target.classList.add('active');
+        localStorage.setItem('cryptospaces-lang', lang);
+    }
+
+    var savedLang = localStorage.getItem('cryptospaces-lang');
+    if (savedLang) {
+        document.body.classList.remove('lang-de', 'lang-en');
+        document.body.classList.add('lang-' + savedLang);
+        document.querySelectorAll('.lang-btn').forEach(function(btn) {
+            btn.classList.toggle('active', btn.textContent === savedLang.toUpperCase());
+        });
+    }
+
+    var coinData = {
+        btc: {
+            name: 'Bitcoin (BTC)',
+            price: '$102,450',
+            change: '+5.2%',
+            positive: true,
+            prediction: 'BULLISH',
+            confidence: 78,
+            de: '<strong>🤖 KI-Analyse:</strong> Der Preisanstieg wird durch <span class="highlight">institutionelle ETF-Zuflüsse</span> von $890M getrieben. Zusätzlich verstärkt eine <span class="highlight">FOMO-Welle</span> in sozialen Medien die Nachfrage.',
+            en: '<strong>🤖 AI Analysis:</strong> The price increase is driven by <span class="highlight">institutional ETF inflows</span> of $890M. A <span class="highlight">FOMO wave</span> on social media is amplifying demand.',
+            factors: [
+                { icon: '🏦', text: 'ETF-Zuflüsse +$890M', impact: '+3.2%', type: 'bullish' },
+                { icon: '📱', text: 'Social Media FOMO', impact: '+1.5%', type: 'bullish' },
+                { icon: '🐋', text: 'Whale Akkumulation', impact: '+0.8%', type: 'bullish' }
+            ]
+        },
+        eth: {
+            name: 'Ethereum (ETH)',
+            price: '$3,850',
+            change: '-2.1%',
+            positive: false,
+            prediction: 'NEUTRAL',
+            confidence: 52,
+            de: '<strong>🤖 KI-Analyse:</strong> <span class="highlight">Gewinnmitnahmen</span> nach der 30-Tage-Rally belasten den Kurs. On-Chain-Daten zeigen erhöhte <span class="highlight">Wallet-Bewegungen zu Börsen</span>.',
+            en: '<strong>🤖 AI Analysis:</strong> <span class="highlight">Profit-taking</span> after the 30-day rally is weighing on the price. On-chain data shows increased <span class="highlight">wallet movements to exchanges</span>.',
+            factors: [
+                { icon: '💰', text: 'Gewinnmitnahmen', impact: '-2.5%', type: 'bearish' },
+                { icon: '📊', text: 'Exchange Inflows', impact: '-0.8%', type: 'bearish' },
+                { icon: '🔧', text: 'Dencun Update', impact: '+1.2%', type: 'bullish' }
+            ]
+        },
+        sol: {
+            name: 'Solana (SOL)',
+            price: '$245',
+            change: '+8.7%',
+            positive: true,
+            prediction: 'BULLISH',
+            confidence: 85,
+            de: '<strong>🤖 KI-Analyse:</strong> Starke <span class="highlight">DeFi-Aktivität</span> und <span class="highlight">NFT-Boom</span> treiben den Kurs. Meme-Coins auf Solana generieren hohes Volumen.',
+            en: '<strong>🤖 AI Analysis:</strong> Strong <span class="highlight">DeFi activity</span> and <span class="highlight">NFT boom</span> are driving the price. Meme coins on Solana are generating high volume.',
+            factors: [
+                { icon: '🎮', text: 'NFT Volumen +340%', impact: '+4.2%', type: 'bullish' },
+                { icon: '🐕', text: 'Meme Coin Hype', impact: '+3.1%', type: 'bullish' },
+                { icon: '⚡', text: 'Netzwerk Speed', impact: '+1.4%', type: 'bullish' }
+            ]
+        },
+        xrp: {
+            name: 'XRP',
+            price: '$2.45',
+            change: '+12.3%',
+            positive: true,
+            prediction: 'BULLISH',
+            confidence: 71,
+            de: '<strong>🤖 KI-Analyse:</strong> <span class="highlight">Positive SEC-Entwicklungen</span> und <span class="highlight">Partnerschaften</span> mit Banken treiben die Rally.',
+            en: '<strong>🤖 AI Analysis:</strong> <span class="highlight">Positive SEC developments</span> and <span class="highlight">bank partnerships</span> are driving the rally.',
+            factors: [
+                { icon: '⚖️', text: 'SEC Klarheit', impact: '+8.5%', type: 'bullish' },
+                { icon: '🏦', text: 'Bank Partnerschaften', impact: '+2.8%', type: 'bullish' },
+                { icon: '🌍', text: 'Global Adoption', impact: '+1.0%', type: 'bullish' }
+            ]
+        }
+    };
+
+    function selectCoin(coin) {
+        document.querySelectorAll('.coin-btn').forEach(function(btn) { btn.classList.remove('active'); });
+        event.target.closest('.coin-btn').classList.add('active');
+        
+        var data = coinData[coin];
+        var isDE = document.body.classList.contains('lang-de');
+        
+        document.getElementById('coinName').textContent = data.name;
+        document.getElementById('currentPrice').textContent = data.price;
+        document.getElementById('priceChange').textContent = data.change + ' (24h)';
+        document.getElementById('priceChange').className = 'price-change ' + (data.positive ? 'positive' : 'negative');
+        document.getElementById('aiExplanation').innerHTML = isDE ? data.de : data.en;
+        document.getElementById('predictionValue').textContent = (data.prediction === 'BULLISH' ? '📈' : data.prediction === 'BEARISH' ? '📉' : '➡️') + ' ' + data.prediction;
+        document.getElementById('predictionValue').className = 'prediction-value ' + data.prediction.toLowerCase();
+        document.getElementById('confidenceFill').style.width = data.confidence + '%';
+        
+        var factorHTML = '';
+        data.factors.forEach(function(f) {
+            factorHTML += '<div class="factor-item"><span class="factor-icon">' + f.icon + '</span><span class="factor-text">' + f.text + '</span><span class="factor-impact ' + f.type + '">' + f.impact + '</span></div>';
+        });
+        document.getElementById('factorList').innerHTML = factorHTML;
+    }
+</script>
+
+</body>
+</html>

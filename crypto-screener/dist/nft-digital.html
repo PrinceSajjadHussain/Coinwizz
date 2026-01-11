@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT-Digital - Ownership Expansion System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Unified Header Styles */
+        :root {
+            --header-height: 80px;
+            --toolbar-height: 55px;
+            --total-header-height: 135px;
+            --primary: #ec4899;
+        }
+        .unified-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: rgba(10, 15, 30, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(236, 72, 153, 0.3); /* Pink border for NFT theme */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .unified-left { display: flex; align-items: center; gap: 1rem; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+        }
+        .unified-nav {
+            display: flex;
+            gap: 2rem;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .unified-nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+        .unified-nav-link:hover, .unified-nav-link.active {
+            color: #fff;
+            background: rgba(236, 72, 153, 0.15);
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.2);
+        }
+        .unified-utils { display: flex; align-items: center; gap: 1rem; }
+        
+        /* Sub-Toolbar für Controls */
+        .sub-toolbar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            height: var(--toolbar-height);
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(236,72,153,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            z-index: 99;
+            padding: 0 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Adjust body and fixed elements */
+        body { padding-top: var(--total-header-height) !important; }
+        .canvas-container { top: var(--total-header-height) !important; bottom: 50px; }
+        .legend, .filter-panel, .tooltip { top: 150px !important; }
+
+        /* Preserve Original Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #ec4899;
+            --secondary: #d946ef;
+            --accent: #a855f7;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0a0f1e;
+            --bg-darker: #030712;
+            --text: #f8fafc;
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--text);
+        }
+
+        .loading-overlay {
+            position: fixed; inset: 0;
+            background: radial-gradient(ellipse at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 1000; transition: opacity 0.4s ease-out;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-title { font-size: 1.8rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 4px; margin-bottom: 8px; }
+        .loading-sub { font-size: 0.65rem; color: rgba(248,250,252,0.6); margin-bottom: 25px; letter-spacing: 2px; }
+        .progress-container { width: 280px; height: 6px; background: rgba(236,72,153,0.15); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 3px; transition: width 0.1s linear; }
+        .progress-percent { margin-top: 10px; font-size: 0.7rem; color: var(--primary); }
+
+        .header {
+            position: fixed; top: 0; left: 0; right: 0;
+            padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;
+            background: rgba(10,15,30,0.95); backdrop-filter: blur(10px);
+            z-index: 100; border-bottom: 1px solid rgba(236,72,153,0.2);
+        }
+        .title { font-size: 1.3rem; font-weight: 900; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px; }
+        .title-sub { font-size: 0.5rem; color: rgba(248,250,252,0.5); letter-spacing: 1px; margin-top: 2px; }
+        .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn {
+            background: rgba(236,72,153,0.15); border: 1px solid rgba(236,72,153,0.4);
+            color: var(--primary); padding: 8px 14px; border-radius: 8px;
+            font-family: inherit; font-size: 0.65rem; cursor: pointer; transition: all 0.2s;
+        }
+        .btn:hover { background: rgba(236,72,153,0.25); border-color: var(--primary); }
+        .btn.active { background: rgba(236,72,153,0.4); border-color: var(--primary); }
+        .btn-nav { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.4); color: #3b82f6; text-decoration: none; }
+        .btn-time { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.4); color: var(--accent); }
+        .btn-time.active { background: rgba(168,85,247,0.4); }
+        .btn-state { font-size: 0.6rem; padding: 6px 10px; }
+        .btn-state.infrastructure { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.5); color: var(--success); }
+        .btn-state.infrastructure.active { background: rgba(34,197,94,0.5); }
+        .btn-state.speculation { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.5); color: var(--danger); }
+        .btn-state.speculation.active { background: rgba(239,68,68,0.5); }
+        .btn-state.dormant { background: rgba(107,114,128,0.2); border-color: rgba(107,114,128,0.5); color: #9ca3af; }
+        .btn-state.dormant.active { background: rgba(107,114,128,0.5); }
+        .divider { color: rgba(255,255,255,0.15); margin: 0 5px; }
+
+        /* Einheitliche Page Link Buttons */
+        .page-links { display: flex; gap: 6px; flex-wrap: wrap; }
+        .page-link {
+            background: linear-gradient(135deg, rgba(236,72,153,0.25), rgba(168,85,247,0.2));
+            border: 1px solid rgba(236,72,153,0.5);
+            color: var(--primary);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-link::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(236,72,153,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        .page-link:hover::before { left: 100%; }
+        .page-link:hover {
+            background: linear-gradient(135deg, rgba(236,72,153,0.4), rgba(168,85,247,0.35));
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(236,72,153,0.35);
+            color: var(--primary);
+        }
+        .page-link .icon { font-size: 0.9rem; }
+
+        .canvas-container { position: fixed; top: 60px; left: 0; right: 0; bottom: 50px; }
+        #mainCanvas { width: 100%; height: 100%; }
+
+        .footer {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            padding: 10px 20px; background: rgba(10,15,30,0.95); backdrop-filter: blur(10px);
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.6rem; color: rgba(248,250,252,0.5);
+            border-top: 1px solid rgba(236,72,153,0.2);
+        }
+        .stats { display: flex; gap: 20px; }
+        .stat-val { color: var(--primary); font-weight: 600; }
+        .disclaimer { color: var(--warning); font-style: italic; }
+
+        .tooltip {
+            position: fixed; background: rgba(10,15,30,0.95);
+            border: 1px solid rgba(236,72,153,0.5); border-radius: 12px;
+            padding: 14px; pointer-events: none; opacity: 0;
+            transition: opacity 0.15s; z-index: 200; min-width: 200px;
+            backdrop-filter: blur(15px); box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .tooltip.visible { opacity: 1; }
+        .tooltip-name { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+        .tooltip-cat { font-size: 0.55rem; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+        .tooltip-section { margin: 8px 0; padding-top: 8px; border-top: 1px solid rgba(236,72,153,0.2); }
+        .tooltip-section-title { font-size: 0.55rem; color: rgba(248,250,252,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tooltip-row { display: flex; justify-content: space-between; font-size: 0.65rem; margin: 4px 0; }
+        .tooltip-label { color: rgba(248,250,252,0.6); }
+        .tooltip-value { font-family: 'JetBrains Mono', monospace; }
+
+        .legend {
+            position: fixed; left: 15px; top: 75px;
+            background: rgba(10,15,30,0.85); border: 1px solid rgba(236,72,153,0.2);
+            border-radius: 12px; padding: 12px; font-size: 0.55rem;
+            backdrop-filter: blur(10px); z-index: 90; width: 150px;
+        }
+        .legend-title { color: var(--primary); font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; font-size: 0.6rem; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin: 6px 0; color: rgba(248,250,252,0.7); }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .legend-line { width: 20px; height: 3px; border-radius: 2px; }
+
+        .filter-panel {
+            position: fixed; right: 15px; top: 75px;
+            background: rgba(10,15,30,0.85); border: 1px solid rgba(168,85,247,0.3);
+            border-radius: 12px; padding: 12px; font-size: 0.55rem;
+            backdrop-filter: blur(10px); z-index: 90; width: 140px;
+        }
+        .filter-title { color: var(--accent); font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; font-size: 0.6rem; }
+        .filter-item {
+            display: flex; align-items: center; gap: 8px; margin: 5px 0;
+            padding: 5px 6px; border-radius: 5px; cursor: pointer; transition: background 0.2s;
+        }
+        .filter-item:hover { background: rgba(168,85,247,0.15); }
+        .filter-item.active { background: rgba(168,85,247,0.25); }
+        .filter-check { width: 14px; height: 14px; border: 1px solid rgba(168,85,247,0.5); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.5rem; }
+        .filter-item.active .filter-check { background: var(--accent); border-color: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-title">NFT-DIGITAL</div>
+        <div class="loading-sub">Ownership Expansion System</div>
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+<!-- Unified Header -->
+    <header class="unified-header">
+        <div class="unified-left">
+            <div class="unified-logo">CRYPTOSPACES</div>
+        </div>
+        <nav class="unified-nav">
+            <a href="top100.html" class="unified-nav-link">TOP 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">WHALES</a>
+            <a href="our-vision.html" class="unified-nav-link">VISION</a>
+        </nav>
+        <div class="unified-utils">
+             <!-- Specific utils can go here if needed, but we use toolbar for main controls -->
+        </div>
+    </header>
+
+    <!-- Sub-Toolbar for Page Controls -->
+    <div class="sub-toolbar">
+         <div style="margin-right: 20px;">
+            <div class="title" style="font-size: 1rem;">NFT-DIGITAL</div>
+        </div>
+        <div class="controls">
+            <button class="btn btn-state infrastructure active" data-state="infrastructure">Infrastructure</button>
+            <button class="btn btn-state speculation" data-state="speculation">Speculation</button>
+            <button class="btn btn-state dormant" data-state="dormant">Dormant</button>
+            <span class="divider">|</span>
+            <button class="btn btn-time" data-time="24h">24h</button>
+            <button class="btn btn-time active" data-time="7d">7d</button>
+            <button class="btn btn-time" data-time="30d">30d</button>
+            <span class="divider">|</span>
+            <div class="page-links">
+                <a href="cscs.html" class="page-link">CSCS</a>
+                <a href="lyps.html" class="page-link">LYPS</a>
+                <a href="rr.html" class="page-link">RR</a>
+                <a href="game-vev.html" class="page-link"><span class="icon">🎮</span>GAME</a>
+                <a href="misvav.html" class="page-link"><span class="icon">⛏️</span>MIS</a>
+                <a href="sacorcs.html" class="page-link"><span class="icon">🛡️</span>SAC</a>
+                <a href="index.html" class="page-link">Home</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-title">KATEGORIEN</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #ec4899;"></div> Art</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #22c55e;"></div> Gaming</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #3b82f6;"></div> Utility</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #f59e0b;"></div> Identity</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #8b5cf6;"></div> Access</div>
+        <div style="margin: 10px 0; border-top: 1px solid rgba(236,72,153,0.2);"></div>
+        <div class="legend-title">TRANSFER</div>
+        <div class="legend-item"><div class="legend-line" style="background: var(--success);"></div> Accumulation</div>
+        <div class="legend-item"><div class="legend-line" style="background: var(--danger);"></div> Distribution</div>
+    </div>
+
+    <div class="filter-panel">
+        <div class="filter-title">ZONE FILTER</div>
+        <div class="filter-item active" data-cat="art"><div class="filter-check">x</div><span>Art</span></div>
+        <div class="filter-item active" data-cat="gaming"><div class="filter-check">x</div><span>Gaming</span></div>
+        <div class="filter-item active" data-cat="utility"><div class="filter-check">x</div><span>Utility</span></div>
+        <div class="filter-item active" data-cat="identity"><div class="filter-check">x</div><span>Identity</span></div>
+        <div class="filter-item active" data-cat="access"><div class="filter-check">x</div><span>Access</span></div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-name" id="ttName" style="color: var(--primary);">CryptoPunks #1234</div>
+        <div class="tooltip-cat" id="ttCat" style="background: rgba(236,72,153,0.3); color: var(--primary);">Art</div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Ownership Details</div>
+            <div class="tooltip-row"><span class="tooltip-label">Haltezeit</span><span class="tooltip-value" id="ttHold">324 Tage</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Transfers</span><span class="tooltip-value" id="ttTransfers">3</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Stabilitaet</span><span class="tooltip-value" id="ttStability">Hoch</span></div>
+        </div>
+        <div class="tooltip-section">
+            <div class="tooltip-section-title">Collection Zone</div>
+            <div class="tooltip-row"><span class="tooltip-label">Collection</span><span class="tooltip-value" id="ttCollection">CryptoPunks</span></div>
+            <div class="tooltip-row"><span class="tooltip-label">Zone-Aktivitaet</span><span class="tooltip-value" id="ttActivity">Moderat</span></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="stats">
+            <span>Zones: <span class="stat-val" id="statZones">8</span></span>
+            <span>Anchors: <span class="stat-val" id="statAnchors">156</span></span>
+            <span>Wallets: <span class="stat-val" id="statWallets">42</span></span>
+            <span>State: <span class="stat-val" id="statState">Infrastructure</span></span>
+        </div>
+        <div class="disclaimer">Simulierte Daten - Keine Anlageberatung</div>
+    </div>
+
+    <script>
+    // ==================== CONFIG ====================
+    const CATEGORIES = {
+        art: { color: '#ec4899', name: 'Art' },
+        gaming: { color: '#22c55e', name: 'Gaming' },
+        utility: { color: '#3b82f6', name: 'Utility' },
+        identity: { color: '#f59e0b', name: 'Identity' },
+        access: { color: '#8b5cf6', name: 'Access' }
+    };
+
+    const COLLECTIONS = [
+        { id: 'punks', name: 'CryptoPunks', category: 'art', size: 1.0, tokens: 25 },
+        { id: 'bayc', name: 'BAYC', category: 'art', size: 0.9, tokens: 22 },
+        { id: 'azuki', name: 'Azuki', category: 'art', size: 0.7, tokens: 18 },
+        { id: 'artblocks', name: 'Art Blocks', category: 'art', size: 0.6, tokens: 15 },
+        { id: 'ens', name: 'ENS Domains', category: 'identity', size: 0.8, tokens: 20 },
+        { id: 'sandbox', name: 'Sandbox Land', category: 'gaming', size: 0.75, tokens: 16 },
+        { id: 'decentraland', name: 'Decentraland', category: 'gaming', size: 0.65, tokens: 14 },
+        { id: 'uniswap', name: 'Uniswap V3', category: 'utility', size: 0.55, tokens: 12 }
+    ];
+
+    const STATE_CONFIG = {
+        infrastructure: { pathLength: 1.0, transferSpeed: 0.3, activity: 0.4, accumulation: 0.8 },
+        speculation: { pathLength: 0.3, transferSpeed: 1.5, activity: 1.0, accumulation: 0.3 },
+        dormant: { pathLength: 0.1, transferSpeed: 0.1, activity: 0.15, accumulation: 0.5 }
+    };
+
+    // ==================== STATE ====================
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+
+    let width, height, centerX, centerY;
+    let zones = [];
+    let anchors = [];
+    let wallets = [];
+    let transfers = [];
+    let activeCategories = new Set(['art', 'gaming', 'utility', 'identity', 'access']);
+    let currentState = 'infrastructure';
+    let hoveredAnchor = null;
+    let time = 0;
+    let animId = null;
+
+    // ==================== INIT ====================
+    function resize() {
+        width = canvas.width = canvas.parentElement.clientWidth;
+        height = canvas.height = canvas.parentElement.clientHeight;
+        centerX = width / 2;
+        centerY = height / 2;
+        initZones();
+        initAnchors();
+        initWallets();
+        initTransfers();
+        updateStats();
+    }
+
+    function initZones() {
+        zones = [];
+        const radius = Math.min(width, height) * 0.35;
+        const angleStep = (Math.PI * 2) / COLLECTIONS.length;
+
+        COLLECTIONS.forEach((coll, i) => {
+            const angle = angleStep * i - Math.PI / 2;
+            const zoneRadius = 60 + coll.size * 50;
+
+            zones.push({
+                ...coll,
+                x: centerX + Math.cos(angle) * radius,
+                y: centerY + Math.sin(angle) * radius,
+                radius: zoneRadius,
+                pulsePhase: Math.random() * Math.PI * 2,
+                activity: 0.3 + Math.random() * 0.5
+            });
+        });
+    }
+
+    function initAnchors() {
+        anchors = [];
+
+        zones.forEach(zone => {
+            const numAnchors = zone.tokens;
+            for (let i = 0; i < numAnchors; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * zone.radius * 0.85;
+                const holdTime = Math.floor(30 + Math.random() * 600);
+                const stability = holdTime > 300 ? 'Hoch' : holdTime > 100 ? 'Mittel' : 'Niedrig';
+
+                anchors.push({
+                    zone,
+                    x: zone.x + Math.cos(angle) * dist,
+                    y: zone.y + Math.sin(angle) * dist,
+                    baseX: zone.x + Math.cos(angle) * dist,
+                    baseY: zone.y + Math.sin(angle) * dist,
+                    size: 4 + zone.size * 6 + Math.random() * 4,
+                    holdTime,
+                    stability,
+                    transfers: Math.floor(1 + Math.random() * 8),
+                    pulsePhase: Math.random() * Math.PI * 2,
+                    orbitPhase: Math.random() * Math.PI * 2,
+                    orbitRadius: 2 + Math.random() * 5
+                });
+            }
+        });
+    }
+
+    function initWallets() {
+        wallets = [];
+        const numWallets = 15 + Math.floor(Math.random() * 10);
+
+        for (let i = 0; i < numWallets; i++) {
+            const isWhale = Math.random() < 0.2;
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 50 + Math.random() * (Math.min(width, height) * 0.4);
+
+            wallets.push({
+                x: centerX + Math.cos(angle) * dist,
+                y: centerY + Math.sin(angle) * dist,
+                size: isWhale ? 12 + Math.random() * 8 : 4 + Math.random() * 4,
+                isWhale,
+                connections: [],
+                pulsePhase: Math.random() * Math.PI * 2
+            });
+        }
+
+        // Connect wallets to random anchors
+        wallets.forEach(wallet => {
+            const numConnections = wallet.isWhale ? 3 + Math.floor(Math.random() * 5) : 1 + Math.floor(Math.random() * 2);
+            for (let i = 0; i < numConnections; i++) {
+                const anchor = anchors[Math.floor(Math.random() * anchors.length)];
+                wallet.connections.push(anchor);
+            }
+        });
+    }
+
+    function initTransfers() {
+        transfers = [];
+        const stateConfig = STATE_CONFIG[currentState];
+        const numTransfers = Math.floor(20 * stateConfig.activity);
+
+        for (let i = 0; i < numTransfers; i++) {
+            const fromAnchor = anchors[Math.floor(Math.random() * anchors.length)];
+            const toWallet = wallets[Math.floor(Math.random() * wallets.length)];
+            const isAccumulation = Math.random() < stateConfig.accumulation;
+
+            transfers.push({
+                from: isAccumulation ? toWallet : fromAnchor,
+                to: isAccumulation ? fromAnchor : toWallet,
+                isAccumulation,
+                progress: Math.random(),
+                speed: 0.002 + Math.random() * 0.003,
+                pathLength: stateConfig.pathLength,
+                particles: []
+            });
+
+            // Add particles
+            const numParticles = 3 + Math.floor(Math.random() * 4);
+            for (let p = 0; p < numParticles; p++) {
+                transfers[transfers.length - 1].particles.push({
+                    t: Math.random(),
+                    size: 2 + Math.random() * 2
+                });
+            }
+        }
+    }
+
+    function updateStats() {
+        const visibleZones = zones.filter(z => activeCategories.has(z.category)).length;
+        const visibleAnchors = anchors.filter(a => activeCategories.has(a.zone.category)).length;
+
+        document.getElementById('statZones').textContent = visibleZones;
+        document.getElementById('statAnchors').textContent = visibleAnchors;
+        document.getElementById('statWallets').textContent = wallets.length;
+        document.getElementById('statState').textContent = currentState.charAt(0).toUpperCase() + currentState.slice(1);
+    }
+
+    // ==================== UPDATE ====================
+    function update() {
+        time += 0.016;
+        const stateConfig = STATE_CONFIG[currentState];
+
+        // Update zones
+        zones.forEach(z => {
+            z.pulsePhase += 0.02 * stateConfig.activity;
+        });
+
+        // Update anchors
+        anchors.forEach(a => {
+            a.pulsePhase += 0.03;
+            a.orbitPhase += 0.01 * stateConfig.activity;
+
+            // Subtle orbital movement
+            const orbit = stateConfig.activity * a.orbitRadius;
+            a.x = a.baseX + Math.cos(a.orbitPhase) * orbit;
+            a.y = a.baseY + Math.sin(a.orbitPhase) * orbit;
+        });
+
+        // Update wallets
+        wallets.forEach(w => {
+            w.pulsePhase += 0.02;
+        });
+
+        // Update transfers
+        transfers.forEach(t => {
+            t.particles.forEach(p => {
+                p.t += t.speed * stateConfig.transferSpeed;
+                if (p.t > 1) p.t = 0;
+            });
+        });
+    }
+
+    // ==================== DRAWING ====================
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Background
+        drawBackground();
+
+        // Draw wallet connections (faint)
+        drawWalletConnections();
+
+        // Draw zones
+        zones.forEach(z => {
+            if (activeCategories.has(z.category)) drawZone(z);
+        });
+
+        // Draw transfer paths
+        drawTransfers();
+
+        // Draw anchors
+        anchors.forEach(a => {
+            if (activeCategories.has(a.zone.category)) drawAnchor(a);
+        });
+
+        // Draw wallets
+        drawWallets();
+    }
+
+    function drawBackground() {
+        const bgGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(width, height) * 0.6);
+        bgGrad.addColorStop(0, 'rgba(236,72,153,0.05)');
+        bgGrad.addColorStop(0.5, 'rgba(168,85,247,0.03)');
+        bgGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, width, height);
+    }
+
+    function drawZone(zone) {
+        const stateConfig = STATE_CONFIG[currentState];
+        const pulse = 1 + Math.sin(zone.pulsePhase) * 0.05 * stateConfig.activity;
+        const radius = zone.radius * pulse;
+        const color = CATEGORIES[zone.category].color;
+
+        // Zone glow
+        const glowGrad = ctx.createRadialGradient(zone.x, zone.y, radius * 0.3, zone.x, zone.y, radius * 1.3);
+        glowGrad.addColorStop(0, color + '25');
+        glowGrad.addColorStop(0.6, color + '10');
+        glowGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = glowGrad;
+        ctx.beginPath();
+        ctx.arc(zone.x, zone.y, radius * 1.3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Zone boundary
+        ctx.beginPath();
+        ctx.arc(zone.x, zone.y, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = color + '40';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 5]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Zone label
+        ctx.font = "bold 10px 'Orbitron', sans-serif";
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.fillText(zone.name, zone.x, zone.y - radius - 10);
+
+        // Activity indicator
+        ctx.font = "8px 'JetBrains Mono', monospace";
+        ctx.fillStyle = 'rgba(248,250,252,0.5)';
+        const activityText = zone.activity > 0.7 ? 'Hoch' : zone.activity > 0.4 ? 'Moderat' : 'Niedrig';
+        ctx.fillText(activityText, zone.x, zone.y - radius - 22);
+    }
+
+    function drawAnchor(anchor) {
+        const stateConfig = STATE_CONFIG[currentState];
+        const pulse = 1 + Math.sin(anchor.pulsePhase) * 0.15;
+        const size = anchor.size * pulse;
+        const color = CATEGORIES[anchor.zone.category].color;
+        const isHovered = hoveredAnchor === anchor;
+
+        // Stability glow for long-term holders
+        if (anchor.holdTime > 200) {
+            const glowSize = size * 2.5;
+            const glowGrad = ctx.createRadialGradient(anchor.x, anchor.y, 0, anchor.x, anchor.y, glowSize);
+            glowGrad.addColorStop(0, color + '40');
+            glowGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = glowGrad;
+            ctx.beginPath();
+            ctx.arc(anchor.x, anchor.y, glowSize, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Anchor body
+        const bodyGrad = ctx.createRadialGradient(anchor.x - size * 0.2, anchor.y - size * 0.2, 0, anchor.x, anchor.y, size);
+        bodyGrad.addColorStop(0, '#fff');
+        bodyGrad.addColorStop(0.3, color);
+        bodyGrad.addColorStop(1, color + '80');
+        ctx.fillStyle = bodyGrad;
+        ctx.beginPath();
+        ctx.arc(anchor.x, anchor.y, size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Hover effect
+        if (isHovered) {
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(anchor.x, anchor.y, size + 5, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    }
+
+    function drawWallets() {
+        wallets.forEach(wallet => {
+            const pulse = 1 + Math.sin(wallet.pulsePhase) * 0.1;
+            const size = wallet.size * pulse;
+
+            // Wallet glow
+            const glowGrad = ctx.createRadialGradient(wallet.x, wallet.y, 0, wallet.x, wallet.y, size * 2);
+            glowGrad.addColorStop(0, wallet.isWhale ? 'rgba(168,85,247,0.5)' : 'rgba(107,114,128,0.3)');
+            glowGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = glowGrad;
+            ctx.beginPath();
+            ctx.arc(wallet.x, wallet.y, size * 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Wallet body
+            ctx.beginPath();
+            ctx.arc(wallet.x, wallet.y, size, 0, Math.PI * 2);
+            ctx.fillStyle = wallet.isWhale ? '#a855f7' : '#6b7280';
+            ctx.fill();
+
+            // Whale indicator
+            if (wallet.isWhale) {
+                ctx.strokeStyle = '#d946ef';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(wallet.x, wallet.y, size + 4, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        });
+    }
+
+    function drawWalletConnections() {
+        ctx.globalAlpha = 0.15;
+        wallets.forEach(wallet => {
+            wallet.connections.forEach(anchor => {
+                if (!activeCategories.has(anchor.zone.category)) return;
+
+                ctx.beginPath();
+                ctx.moveTo(wallet.x, wallet.y);
+                ctx.lineTo(anchor.x, anchor.y);
+                ctx.strokeStyle = '#6b7280';
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+            });
+        });
+        ctx.globalAlpha = 1;
+    }
+
+    function drawTransfers() {
+        const stateConfig = STATE_CONFIG[currentState];
+
+        transfers.forEach(transfer => {
+            const { from, to, isAccumulation, particles } = transfer;
+
+            // Check if visible
+            if (from.zone && !activeCategories.has(from.zone.category)) return;
+            if (to.zone && !activeCategories.has(to.zone.category)) return;
+
+            const color = isAccumulation ? '#22c55e' : '#ef4444';
+
+            // Draw path
+            ctx.beginPath();
+            ctx.moveTo(from.x, from.y);
+
+            // Curved path
+            const midX = (from.x + to.x) / 2;
+            const midY = (from.y + to.y) / 2;
+            const perpX = -(to.y - from.y) * 0.2;
+            const perpY = (to.x - from.x) * 0.2;
+
+            ctx.quadraticCurveTo(midX + perpX, midY + perpY, to.x, to.y);
+            ctx.strokeStyle = color + '30';
+            ctx.lineWidth = 1 + stateConfig.activity;
+            ctx.stroke();
+
+            // Draw particles
+            particles.forEach(p => {
+                const t = p.t;
+                const x = (1-t)*(1-t)*from.x + 2*(1-t)*t*(midX+perpX) + t*t*to.x;
+                const y = (1-t)*(1-t)*from.y + 2*(1-t)*t*(midY+perpY) + t*t*to.y;
+
+                ctx.beginPath();
+                ctx.arc(x, y, p.size, 0, Math.PI * 2);
+                const pGrad = ctx.createRadialGradient(x, y, 0, x, y, p.size * 2);
+                pGrad.addColorStop(0, color);
+                pGrad.addColorStop(1, color + '00');
+                ctx.fillStyle = pGrad;
+                ctx.fill();
+            });
+        });
+    }
+
+    // ==================== INTERACTION ====================
+    function findAnchor(mx, my) {
+        const rect = canvas.getBoundingClientRect();
+        const x = mx - rect.left, y = my - rect.top;
+
+        for (let a of anchors) {
+            if (!activeCategories.has(a.zone.category)) continue;
+            if (Math.hypot(x - a.x, y - a.y) <= a.size + 5) return a;
+        }
+        return null;
+    }
+
+    function showTooltip(anchor, mx, my) {
+        const color = CATEGORIES[anchor.zone.category].color;
+
+        document.getElementById('ttName').textContent = anchor.zone.name + ' #' + Math.floor(Math.random() * 9999);
+        document.getElementById('ttName').style.color = color;
+
+        const catEl = document.getElementById('ttCat');
+        catEl.textContent = CATEGORIES[anchor.zone.category].name;
+        catEl.style.background = color + '30';
+        catEl.style.color = color;
+
+        document.getElementById('ttHold').textContent = anchor.holdTime + ' Tage';
+        document.getElementById('ttTransfers').textContent = anchor.transfers;
+
+        const stabEl = document.getElementById('ttStability');
+        stabEl.textContent = anchor.stability;
+        stabEl.style.color = anchor.stability === 'Hoch' ? 'var(--success)' : anchor.stability === 'Mittel' ? 'var(--warning)' : 'var(--danger)';
+
+        document.getElementById('ttCollection').textContent = anchor.zone.name;
+
+        const actEl = document.getElementById('ttActivity');
+        const actText = anchor.zone.activity > 0.7 ? 'Hoch' : anchor.zone.activity > 0.4 ? 'Moderat' : 'Niedrig';
+        actEl.textContent = actText;
+
+        tooltip.style.left = (mx + 15) + 'px';
+        tooltip.style.top = (my + 15) + 'px';
+        tooltip.classList.add('visible');
+    }
+
+    canvas.addEventListener('mousemove', e => {
+        const anchor = findAnchor(e.clientX, e.clientY);
+        hoveredAnchor = anchor;
+        canvas.style.cursor = anchor ? 'pointer' : 'default';
+        if (anchor) showTooltip(anchor, e.clientX, e.clientY);
+        else tooltip.classList.remove('visible');
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        hoveredAnchor = null;
+        tooltip.classList.remove('visible');
+    });
+
+    // ==================== CONTROLS ====================
+    document.querySelectorAll('.btn-state').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.btn-state').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentState = this.dataset.state;
+            initTransfers();
+            updateStats();
+        });
+    });
+
+    document.querySelectorAll('.btn-time').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.btn-time').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            initAnchors();
+            initTransfers();
+        });
+    });
+
+    document.querySelectorAll('.filter-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const cat = this.dataset.cat;
+            if (activeCategories.has(cat)) {
+                activeCategories.delete(cat);
+                this.classList.remove('active');
+                this.querySelector('.filter-check').textContent = '';
+            } else {
+                activeCategories.add(cat);
+                this.classList.add('active');
+                this.querySelector('.filter-check').textContent = 'x';
+            }
+            updateStats();
+        });
+    });
+
+    // ==================== ANIMATION ====================
+    function animate() {
+        update();
+        draw();
+        animId = requestAnimationFrame(animate);
+    }
+
+    // ==================== INIT ====================
+    const overlay = document.getElementById('loadingOverlay');
+    const progressBar = document.getElementById('progressBar');
+    const progressPercent = document.getElementById('progressPercent');
+
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 8 + Math.random() * 12;
+            if (progress > 90) progress = 90;
+            progressBar.style.width = progress + '%';
+            progressPercent.textContent = Math.round(progress) + '%';
+        }
+    }, 60);
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    setTimeout(() => {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressPercent.textContent = '100%';
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            animate();
+        }, 200);
+    }, 400);
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) cancelAnimationFrame(animId);
+        else animate();
+    });
+    </script>
+</body>
+</html>

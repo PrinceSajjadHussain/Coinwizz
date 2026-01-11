@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Galaxy - 4-Arm Spiral</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+    <style>
+        :root {
+            --header-height: 60px;
+            --toolbar-height: 50px;
+            --total-header-height: calc(var(--header-height) + var(--toolbar-height));
+            --primary-color: #00ffff; /* Cyan for Gravity */
+        }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, #0a0a1a 0%, #000005 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: #f8fafc;
+            padding-top: var(--total-header-height) !important;
+        }
+
+        /* Unified Header Styles */
+        .unified-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+
+        .unified-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .unified-logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, var(--primary-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .unified-nav {
+            display: flex;
+            gap: 8px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .unified-nav-link {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif; /* Keep Nav readable */
+        }
+
+        .unified-nav-link:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Sub-Toolbar for Controls */
+        .sub-toolbar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            height: var(--toolbar-height);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 999;
+        }
+
+        .sub-toolbar .title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 0.05em;
+        }
+
+        .sub-toolbar .controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        /* Adjustments for existing elements */
+        .info-banner {
+            bottom: 60px !important; /* Move up slightly */
+        }
+        .info-banner {
+            position: fixed;
+            bottom: 50px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15,23,42,0.85);
+            border: 1px solid rgba(251,191,36,0.25);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: rgba(248,250,252,0.7);
+            z-index: 90;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s;
+        }
+        .info-banner:hover { background: rgba(251,191,36,0.15); border-color: rgba(251,191,36,0.5); }
+        .info-banner a { color: #fbbf24; text-decoration: none; }
+        .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .btn {
+            background: rgba(251,191,36,0.2);
+            border: 1px solid rgba(251,191,36,0.5);
+            color: #fbbf24;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: rgba(251,191,36,0.3); }
+        .btn.active { background: rgba(251,191,36,0.5); }
+        .btn-back { background: rgba(59,130,246,0.2); border-color: rgba(59,130,246,0.5); color: #3b82f6; text-decoration: none; }
+        select {
+            background: rgba(30,41,59,0.8);
+            border: 1px solid rgba(251,191,36,0.4);
+            color: #f8fafc;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.7rem;
+        }
+        .canvas-container {
+            position: fixed;
+            top: var(--total-header-height); left: 0; right: 0; bottom: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #gravityCanvas { max-width: 100%; max-height: 100%; }
+        .footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            padding: 10px 20px;
+            background: rgba(10,10,18,0.9);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: rgba(248,250,252,0.5);
+        }
+        .stats { display: flex; gap: 20px; }
+        .stat-val { color: #fbbf24; }
+        .disclaimer { color: #ef4444; font-style: italic; }
+        .tooltip {
+            position: fixed;
+            background: rgba(15,23,42,0.95);
+            border: 1px solid rgba(251,191,36,0.5);
+            border-radius: 10px;
+            padding: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            z-index: 200;
+            min-width: 150px;
+        }
+        .tooltip.visible { opacity: 1; }
+        .tooltip-sym { font-size: 1rem; color: #fbbf24; font-weight: 700; }
+        .tooltip-change { font-size: 1.1rem; font-weight: 700; margin: 5px 0; }
+        .tooltip-change.pos { color: #22c55e; }
+        .tooltip-change.neg { color: #ef4444; }
+        .tooltip-zone { font-size: 0.65rem; color: rgba(248,250,252,0.6); }
+        
+        /* Pro Info Button */
+        .btn-info-pro {
+            background: transparent;
+            border: 1px solid rgba(251,191,36,0.4);
+            color: #fbbf24;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-info-pro:hover { background: rgba(251,191,36,0.2); transform: scale(1.1); }
+        
+        /* Pro Overlay */
+        .pro-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,5,0.92);
+            z-index: 500;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+        .pro-overlay.visible { display: flex; }
+        .pro-modal {
+            background: linear-gradient(145deg, rgba(15,23,42,0.98), rgba(10,10,26,0.98));
+            border: 1px solid rgba(251,191,36,0.4);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(251,191,36,0.15);
+        }
+        .pro-modal h2 { color: #fbbf24; font-size: 1.4rem; margin-bottom: 12px; }
+        .pro-modal .subtitle { color: rgba(248,250,252,0.6); font-size: 0.8rem; margin-bottom: 24px; }
+        .pro-features { text-align: left; margin: 20px 0; }
+        .pro-features li { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; color: rgba(248,250,252,0.8); }
+        .pro-features li::before { content: '✦ '; color: #fbbf24; }
+        .pro-btn {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #000; border: none;
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .pro-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(251,191,36,0.3); }
+        .pro-close {
+            position: absolute;
+            top: 16px; right: 20px;
+            background: transparent; border: none;
+            color: rgba(248,250,252,0.5);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .pro-close:hover { color: #fff; }
+        
+        /* Galaxy Info Spheres */
+        .info-spheres-container {
+            position: fixed;
+            pointer-events: none;
+            z-index: 150;
+        }
+        .info-sphere {
+            position: absolute;
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at 30% 30%, rgba(30,35,55,0.95), rgba(10,12,25,0.92));
+            border: 1px solid rgba(251,191,36,0.25);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.7);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            box-shadow: 0 0 30px rgba(0,0,0,0.6), 0 0 15px rgba(251,191,36,0.1), inset 0 0 20px rgba(251,191,36,0.05);
+        }
+        .info-sphere.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .info-sphere.pulse {
+            animation: spherePulse 1.2s ease-in-out infinite;
+        }
+        .info-sphere.vibrate {
+            animation: sphereVibrate 0.12s ease-in-out infinite;
+        }
+        @keyframes spherePulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(0,0,0,0.6), 0 0 15px rgba(251,191,36,0.1); }
+            50% { box-shadow: 0 0 35px rgba(0,0,0,0.5), 0 0 25px rgba(251,191,36,0.25); }
+        }
+        @keyframes sphereVibrate {
+            0%, 100% { transform: scale(1) translate(0, 0); }
+            25% { transform: scale(1) translate(-1px, 0.5px); }
+            75% { transform: scale(1) translate(1px, -0.5px); }
+        }
+        @keyframes sphereFloat {
+            0%, 100% { transform: scale(1) translateY(0); }
+            50% { transform: scale(1) translateY(-3px); }
+        }
+        .info-sphere.visible:not(.pulse):not(.vibrate) {
+            animation: sphereFloat 3s ease-in-out infinite;
+        }
+        .info-sphere-icon {
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+        .info-sphere-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.15;
+        }
+        .info-sphere-label {
+            font-size: 0.48rem;
+            color: rgba(248,250,252,0.45);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+        .info-sphere .green { color: #22c55e; }
+        .info-sphere .red { color: #ef4444; }
+        .info-sphere .gold { color: #fbbf24; }
+        .info-sphere .orange { color: #f97316; }
+        .info-sphere .blue { color: #3b82f6; }
+        .info-sphere .purple { color: #a855f7; }
+        
+        /* Sphere specific styles */
+        .info-sphere.price { border-color: rgba(34,197,94,0.4); }
+        .info-sphere.volume { border-color: rgba(59,130,246,0.4); }
+        .info-sphere.volatility { border-color: rgba(249,115,22,0.4); }
+        .info-sphere.sentiment { border-color: rgba(168,85,247,0.4); }
+        .info-sphere.event { border-color: rgba(251,191,36,0.4); }
+        
+        /* Countdown Ring */
+        .sphere-countdown {
+            position: fixed;
+            pointer-events: none;
+            z-index: 145;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .sphere-countdown.visible { opacity: 1; }
+        .sphere-countdown svg { transform: rotate(-90deg); }
+        .sphere-countdown circle { fill: none; stroke-width: 2.5; }
+        .sphere-countdown .bg { stroke: rgba(251,191,36,0.12); }
+        .sphere-countdown .progress { stroke: rgba(251,191,36,0.6); stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
+    </style>
+</head>
+<body>
+    <!-- Unified Header -->
+    <header class="unified-header">
+        <div class="unified-left">
+            <div class="unified-logo">CRYPTOSPACES</div>
+        </div>
+        <nav class="unified-nav">
+            <a href="top100.html" class="unified-nav-link">TOP 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">WHALES</a>
+            <a href="our-vision.html" class="unified-nav-link">VISION</a>
+        </nav>
+        <div class="unified-utils">
+        </div>
+    </header>
+
+    <!-- Sub-Toolbar -->
+    <div class="sub-toolbar">
+         <div class="title" style="color: #fbbf24;">GALAXY MODE</div>
+         <div class="controls">
+            <select id="coinCount">
+                <option value="10">10 Coins</option>
+                <option value="25" selected>25 Coins</option>
+                <option value="50">50 Coins</option>
+                <option value="100">100 Coins</option>
+            </select>
+            <button class="btn" id="rerollBtn">🎲 Re-seed Galaxy</button>
+            <a href="index.html" class="btn btn-back">← Zurück</a>
+            <button class="btn-info-pro" id="proInfoBtn" title="Pro Features">ⓘ</button>
+         </div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="gravityCanvas"></canvas>
+    </div>
+
+    <div class="info-banner">
+        <a href="gravity-info.html">ⓘ Why Galaxies? → Learn about Galaxy Analysis</a>
+        <span style="margin: 0 12px; color: rgba(255,255,255,0.2);">|</span>
+        <a href="orbit-info.html" style="color: #3b82f6;">⚛️ Orbit System → How Market Dynamics Work</a>
+    </div>
+
+    <div class="footer">
+        <div class="stats">
+            <span>Coins: <span class="stat-val" id="statCount">25</span></span>
+            <span>Core: <span class="stat-val" id="statCore">-</span></span>
+            <span>Top %: <span class="stat-val" id="statTop">-</span></span>
+        </div>
+        <div class="disclaimer">⚠️ Simulation – keine Live-Daten</div>
+    </div>
+
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-sym" id="ttSym">BTC</div>
+        <div class="tooltip-change pos" id="ttChange">+0%</div>
+        <div class="tooltip-zone" id="ttZone">Core</div>
+    </div>
+
+    <!-- Galaxy Info Spheres Container -->
+    <div class="info-spheres-container" id="infoSpheresContainer">
+        <div class="info-sphere price" id="spherePrice">
+            <div class="info-sphere-icon">⚡</div>
+            <div class="info-sphere-value"><span class="green">+2.4%</span> ↑</div>
+            <div class="info-sphere-label">Impuls 1H</div>
+        </div>
+        <div class="info-sphere volume" id="sphereVolume">
+            <div class="info-sphere-icon">🌊</div>
+            <div class="info-sphere-value blue">+38%</div>
+            <div class="info-sphere-label">Volumen</div>
+        </div>
+        <div class="info-sphere volatility" id="sphereVolatility">
+            <div class="info-sphere-icon">✧</div>
+            <div class="info-sphere-value orange">Medium</div>
+            <div class="info-sphere-label">Volatilität</div>
+        </div>
+        <div class="info-sphere sentiment" id="sphereSentiment">
+            <div class="info-sphere-icon">☯</div>
+            <div class="info-sphere-value"><span class="green">62%</span>|<span class="red">38%</span></div>
+            <div class="info-sphere-label">Buy/Sell</div>
+        </div>
+        <div class="info-sphere event" id="sphereEvent">
+            <div class="info-sphere-icon">◈</div>
+            <div class="info-sphere-value gold">Whale</div>
+            <div class="info-sphere-label">Event</div>
+        </div>
+    </div>
+    
+    <!-- Sphere Countdown Ring -->
+    <div class="sphere-countdown" id="sphereCountdown">
+        <svg width="44" height="44">
+            <circle class="bg" cx="22" cy="22" r="19"></circle>
+            <circle class="progress" id="sphereCountdownProgress" cx="22" cy="22" r="19" 
+                    stroke-dasharray="119.38" stroke-dashoffset="0"></circle>
+        </svg>
+    </div>
+
+    <script>
+    const SYMBOLS = ['BTC','ETH','SOL','BNB','XRP','ADA','AVAX','DOT','LINK','TRX','MATIC','LTC','BCH','ATOM','XMR','ETC','OP','ARB','INJ','SUI','APT','NEAR','FIL','UNI','DOGE','SHIB','PEPE','WIF','BONK','RENDER','FET','GRT','STX','SEI','TIA','JUP','ONDO','AAVE','MKR','CRV'];
+    
+    const NUM_ARMS = 4;
+    const MAX_CORE_COINS = 5;
+    const SPIRAL_TIGHTNESS = 0.4;
+    
+    // Performance zones (radial distance)
+    const ZONES = [
+        { name: 'Core', minPerf: 400, radiusFactor: 0, color: '#fbbf24', glow: 1.0 },
+        { name: 'Inner', minPerf: 200, radiusFactor: 0.25, color: '#ef4444', glow: 0.7 },
+        { name: 'Mid-Inner', minPerf: 100, radiusFactor: 0.45, color: '#f97316', glow: 0.5 },
+        { name: 'Mid', minPerf: 50, radiusFactor: 0.6, color: '#eab308', glow: 0.35 },
+        { name: 'Mid-Outer', minPerf: 20, radiusFactor: 0.75, color: '#22c55e', glow: 0.25 },
+        { name: 'Outer', minPerf: 0, radiusFactor: 0.88, color: '#3b82f6', glow: 0.15 },
+        { name: 'Halo', minPerf: -999, radiusFactor: 0.98, color: '#6b7280', glow: 0.08 }
+    ];
+
+    const canvas = document.getElementById('gravityCanvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+    
+    let coins = [];
+    let centerX, centerY, maxRadius;
+    let animId = null;
+    let hoveredCoin = null;
+    let galaxyRotation = 0;
+    let stars = [];
+
+    function resize() {
+        const container = document.querySelector('.canvas-container');
+        const size = Math.min(container.clientWidth, container.clientHeight) - 20;
+        canvas.width = size;
+        canvas.height = size;
+        centerX = size / 2;
+        centerY = size / 2;
+        maxRadius = size / 2 - 30;
+        generateStars();
+    }
+
+    function generateStars() {
+        stars = [];
+        for (let i = 0; i < 200; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 1.5,
+                alpha: 0.2 + Math.random() * 0.5
+            });
+        }
+    }
+
+    function getZone(perf) {
+        for (let z of ZONES) if (perf >= z.minPerf) return z;
+        return ZONES[ZONES.length - 1];
+    }
+
+    function hashSymbol(sym) {
+        let h = 0;
+        for (let c of sym) h = ((h << 5) - h) + c.charCodeAt(0);
+        return Math.abs(h);
+    }
+
+    function generateData(count) {
+        const shuffled = [...SYMBOLS].sort(() => Math.random() - 0.5).slice(0, count);
+        const data = shuffled.map((sym, i) => {
+            let perf;
+            // Generate varied performance distribution
+            if (i < 5) perf = 350 + Math.random() * 400; // Top 5 can be core candidates
+            else if (i < 10) perf = 150 + Math.random() * 200;
+            else if (i < 18) perf = 40 + Math.random() * 110;
+            else perf = -15 + Math.random() * 55;
+            return { symbol: sym, perf: perf, size: 10 + Math.random() * 16 };
+        });
+        return data.sort((a, b) => b.perf - a.perf);
+    }
+
+    function initGalaxy(count) {
+        const data = generateData(count);
+        coins = [];
+        
+        // Identify core coins (top performers up to MAX_CORE_COINS)
+        const coreThreshold = data.length > 0 ? Math.max(400, data[Math.min(MAX_CORE_COINS - 1, data.length - 1)].perf * 0.9) : 400;
+        let coreCoins = data.filter(d => d.perf >= coreThreshold).slice(0, MAX_CORE_COINS);
+        const nonCoreCoins = data.filter(d => !coreCoins.includes(d));
+        
+        // If no coins meet threshold, take top performer(s)
+        if (coreCoins.length === 0 && data.length > 0) {
+            coreCoins = [data[0]];
+        }
+
+        // Setup core coins in circular cluster
+        coreCoins.forEach((d, i) => {
+            const coreAngle = (Math.PI * 2 / coreCoins.length) * i;
+            const coreOrbitRadius = coreCoins.length > 1 ? 18 : 0;
+            coins.push({
+                ...d,
+                zone: ZONES[0],
+                isCore: true,
+                coreAngle: coreAngle,
+                coreOrbitRadius: coreOrbitRadius,
+                coreOrbitSpeed: 0.0008 + Math.random() * 0.0004,
+                x: centerX,
+                y: centerY,
+                targetX: centerX,
+                targetY: centerY
+            });
+        });
+
+        // Distribute non-core coins across 4 spiral arms
+        nonCoreCoins.forEach((d, i) => {
+            const zone = getZone(d.perf);
+            const arm = hashSymbol(d.symbol) % NUM_ARMS;
+            const armBaseAngle = (Math.PI * 2 / NUM_ARMS) * arm;
+            
+            // Radial position based on performance
+            const baseRadius = maxRadius * zone.radiusFactor;
+            const radiusVariance = maxRadius * 0.08;
+            const radius = baseRadius + (Math.random() - 0.5) * radiusVariance;
+            
+            // Spiral offset: further out = more rotation
+            const spiralOffset = zone.radiusFactor * SPIRAL_TIGHTNESS * Math.PI * 2;
+            const angleOffset = (Math.random() - 0.5) * 0.4; // Spread within arm
+            
+            coins.push({
+                ...d,
+                zone: zone,
+                isCore: false,
+                arm: arm,
+                baseRadius: radius,
+                baseAngle: armBaseAngle + spiralOffset + angleOffset,
+                driftSpeed: 0.0003 + Math.random() * 0.0003,
+                driftOffset: Math.random() * Math.PI * 2,
+                x: centerX,
+                y: centerY,
+                targetX: centerX,
+                targetY: centerY
+            });
+        });
+
+        // Update stats
+        document.getElementById('statCount').textContent = count;
+        const coreNames = coreCoins.map(c => c.symbol).join(', ');
+        document.getElementById('statCore').textContent = coreNames || '-';
+        document.getElementById('statTop').textContent = (data[0]?.perf.toFixed(0) || '0') + '%';
+    }
+
+    function update() {
+        galaxyRotation += 0.0006;
+        
+        coins.forEach(c => {
+            if (c.isCore) {
+                // Core coins: slow micro-orbit around center
+                c.coreAngle += c.coreOrbitSpeed;
+                c.targetX = centerX + Math.cos(c.coreAngle) * c.coreOrbitRadius;
+                c.targetY = centerY + Math.sin(c.coreAngle) * c.coreOrbitRadius;
+            } else {
+                // Arm coins: rotate with galaxy + slight radial drift
+                const rotationSpeed = (1 - c.zone.radiusFactor * 0.6); // Inner rotates faster
+                const angle = c.baseAngle + galaxyRotation * rotationSpeed;
+                const drift = Math.sin(galaxyRotation * 3 + c.driftOffset) * 8;
+                const r = c.baseRadius + drift;
+                
+                c.targetX = centerX + Math.cos(angle) * r;
+                c.targetY = centerY + Math.sin(angle) * r;
+            }
+            
+            // Smooth interpolation
+            c.x += (c.targetX - c.x) * 0.08;
+            c.y += (c.targetY - c.y) * 0.08;
+        });
+    }
+
+    function drawSpiral() {
+        ctx.save();
+        ctx.globalAlpha = 0.12;
+        
+        for (let arm = 0; arm < NUM_ARMS; arm++) {
+            const baseAngle = (Math.PI * 2 / NUM_ARMS) * arm + galaxyRotation;
+            
+            ctx.beginPath();
+            for (let r = 40; r < maxRadius; r += 2) {
+                const factor = r / maxRadius;
+                const spiralAngle = baseAngle + factor * SPIRAL_TIGHTNESS * Math.PI * 2;
+                const rotSpeed = (1 - factor * 0.6);
+                const angle = spiralAngle + galaxyRotation * (rotSpeed - 1);
+                
+                const x = centerX + Math.cos(angle) * r;
+                const y = centerY + Math.sin(angle) * r;
+                
+                if (r === 40) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            
+            const gradient = ctx.createLinearGradient(centerX, centerY, centerX + maxRadius, centerY);
+            gradient.addColorStop(0, '#fbbf24');
+            gradient.addColorStop(0.5, '#3b82f6');
+            gradient.addColorStop(1, '#1e293b');
+            
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 25;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw background stars
+        stars.forEach(s => {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255,255,255,${s.alpha * 0.5})`;
+            ctx.fill();
+        });
+
+        // Draw spiral arms
+        drawSpiral();
+
+        // Core glow
+        const coreGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 50);
+        coreGrad.addColorStop(0, 'rgba(251,191,36,0.5)');
+        coreGrad.addColorStop(0.5, 'rgba(251,191,36,0.15)');
+        coreGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = coreGrad;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 50, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw coins (outer first, core last)
+        const sortedCoins = [...coins].sort((a, b) => {
+            if (a.isCore && !b.isCore) return 1;
+            if (!a.isCore && b.isCore) return -1;
+            return b.zone.radiusFactor - a.zone.radiusFactor;
+        });
+
+        sortedCoins.forEach(c => {
+            // Glow effect
+            if (c.zone.glow > 0.1) {
+                const glowGrad = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, c.size * 2.5);
+                glowGrad.addColorStop(0, c.zone.color + Math.floor(c.zone.glow * 80).toString(16).padStart(2, '0'));
+                glowGrad.addColorStop(1, 'transparent');
+                ctx.fillStyle = glowGrad;
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, c.size * 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Coin body
+            const coinGrad = ctx.createRadialGradient(c.x - c.size * 0.3, c.y - c.size * 0.3, 0, c.x, c.y, c.size);
+            coinGrad.addColorStop(0, c.zone.color);
+            coinGrad.addColorStop(1, '#111');
+            ctx.fillStyle = coinGrad;
+            ctx.beginPath();
+            ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Core ring indicator
+            if (c.isCore) {
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, c.size + 2, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(251,191,36,0.6)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+            
+            // Symbol text
+            if (c.size > 10) {
+                ctx.fillStyle = '#fff';
+                ctx.font = `bold ${Math.max(8, c.size * 0.5)}px Orbitron`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(c.symbol, c.x, c.y);
+            }
+            
+            // Hover highlight
+            if (hoveredCoin === c) {
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, c.size + 4, 0, Math.PI * 2);
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        });
+    }
+
+    function animate() {
+        update();
+        draw();
+        animId = requestAnimationFrame(animate);
+    }
+
+    function findCoin(mx, my) {
+        const rect = canvas.getBoundingClientRect();
+        const x = mx - rect.left, y = my - rect.top;
+        // Check core coins first (they're on top)
+        for (let c of coins.filter(c => c.isCore)) {
+            if (Math.hypot(x - c.x, y - c.y) <= c.size) return c;
+        }
+        for (let c of coins) {
+            if (Math.hypot(x - c.x, y - c.y) <= c.size) return c;
+        }
+        return null;
+    }
+
+    canvas.addEventListener('mousemove', e => {
+        const c = findCoin(e.clientX, e.clientY);
+        hoveredCoin = c;
+        canvas.style.cursor = c ? 'pointer' : 'default';
+        if (c) {
+            document.getElementById('ttSym').textContent = c.symbol;
+            const ch = document.getElementById('ttChange');
+            ch.textContent = (c.perf >= 0 ? '+' : '') + c.perf.toFixed(1) + '%';
+            ch.className = 'tooltip-change ' + (c.perf >= 0 ? 'pos' : 'neg');
+            document.getElementById('ttZone').textContent = c.isCore ? '⭐ Core' : c.zone.name;
+            tooltip.style.left = (e.clientX + 15) + 'px';
+            tooltip.style.top = (e.clientY + 15) + 'px';
+            tooltip.classList.add('visible');
+            showInfoSpheres(c);
+        } else {
+            tooltip.classList.remove('visible');
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        hoveredCoin = null;
+        tooltip.classList.remove('visible');
+    });
+
+    // ==================== INFO SPHERES SYSTEM (15s Timer) ====================
+    const infoSpheres = [
+        document.getElementById('spherePrice'),
+        document.getElementById('sphereVolume'),
+        document.getElementById('sphereVolatility'),
+        document.getElementById('sphereSentiment'),
+        document.getElementById('sphereEvent')
+    ];
+    const sphereCountdown = document.getElementById('sphereCountdown');
+    const sphereCountdownProgress = document.getElementById('sphereCountdownProgress');
+    const SPHERE_CIRCUMFERENCE = 119.38; // 2 * PI * 19
+    const SPHERE_DURATION = 15000; // 15 seconds
+    
+    const GALAXY_EVENTS = ['News', 'Whale', 'Listing', 'Spike', 'Signal', 'Volume'];
+    let currentSphereCoin = null;
+    let sphereUpdateInterval = null;
+    let sphereHideTimer = null;
+    let sphereCountdownInterval = null;
+    let sphereTimerStart = 0;
+    
+    // Organic positioning offsets (non-geometric)
+    const SPHERE_POSITIONS = [
+        { angle: -78, dist: 62, floatOffset: 0 },
+        { angle: -15, dist: 70, floatOffset: 0.4 },
+        { angle: 50, dist: 65, floatOffset: 0.8 },
+        { angle: 115, dist: 72, floatOffset: 1.2 },
+        { angle: 175, dist: 60, floatOffset: 1.6 }
+    ];
+    
+    function generateSphereData(coin) {
+        const perf = coin.perf;
+        const volatility = Math.abs(perf) > 150 ? 'High' : (Math.abs(perf) > 40 ? 'Medium' : 'Low');
+        const impulse = (perf > 0 ? 1 : -1) * (Math.abs(perf) * 0.015 + (Math.random() - 0.5) * 2.5);
+        const volumeChange = Math.round(perf * 0.25 + (Math.random() - 0.3) * 35);
+        const buyPressure = Math.round(50 + (perf > 0 ? 1 : -1) * Math.min(28, Math.abs(perf) * 0.12) + (Math.random() - 0.5) * 12);
+        const event = GALAXY_EVENTS[Math.floor(Math.random() * GALAXY_EVENTS.length)];
+        
+        return { impulse, volume: volumeChange, volatility, buyPressure, sellPressure: 100 - buyPressure, event };
+    }
+    
+    function updateSphereContent(coin) {
+        const data = generateSphereData(coin);
+        
+        // Price Impulse
+        const priceEl = infoSpheres[0].querySelector('.info-sphere-value');
+        const impulseClass = data.impulse >= 0 ? 'green' : 'red';
+        const arrow = data.impulse >= 0 ? '↑' : '↓';
+        priceEl.innerHTML = `<span class="${impulseClass}">${data.impulse >= 0 ? '+' : ''}${data.impulse.toFixed(1)}%</span> ${arrow}`;
+        
+        // Volume
+        const volEl = infoSpheres[1].querySelector('.info-sphere-value');
+        const volClass = data.volume >= 0 ? 'blue' : 'red';
+        volEl.innerHTML = `<span class="${volClass}">${data.volume >= 0 ? '+' : ''}${data.volume}%</span>`;
+        infoSpheres[1].classList.toggle('pulse', data.volume > 45);
+        
+        // Volatility
+        const volatEl = infoSpheres[2].querySelector('.info-sphere-value');
+        const volatClass = data.volatility === 'High' ? 'orange' : (data.volatility === 'Medium' ? 'gold' : 'green');
+        volatEl.innerHTML = `<span class="${volatClass}">${data.volatility}</span>`;
+        infoSpheres[2].classList.toggle('vibrate', data.volatility === 'High');
+        
+        // Sentiment
+        const sentEl = infoSpheres[3].querySelector('.info-sphere-value');
+        sentEl.innerHTML = `<span class="green">${data.buyPressure}%</span>|<span class="red">${data.sellPressure}%</span>`;
+        
+        // Event
+        const eventEl = infoSpheres[4].querySelector('.info-sphere-value');
+        eventEl.innerHTML = `<span class="gold">${data.event}</span>`;
+    }
+    
+    function positionSpheres(coin) {
+        const rect = canvas.getBoundingClientRect();
+        const cx = rect.left + coin.x;
+        const cy = rect.top + coin.y;
+        const time = Date.now() / 1000;
+        
+        infoSpheres.forEach((sphere, i) => {
+            const pos = SPHERE_POSITIONS[i];
+            const floatY = Math.sin(time * 0.8 + pos.floatOffset) * 4;
+            const angle = (pos.angle) * (Math.PI / 180);
+            const dist = pos.dist + coin.size;
+            
+            const sx = cx + Math.cos(angle) * dist - 38;
+            const sy = cy + Math.sin(angle) * dist - 38 + floatY;
+            sphere.style.left = sx + 'px';
+            sphere.style.top = sy + 'px';
+        });
+        
+        // Position countdown at coin center
+        sphereCountdown.style.left = (cx - 22) + 'px';
+        sphereCountdown.style.top = (cy - 22) + 'px';
+    }
+    
+    function startSphereCountdown() {
+        sphereTimerStart = Date.now();
+        sphereCountdownProgress.style.strokeDashoffset = '0';
+        sphereCountdown.classList.add('visible');
+        
+        if (sphereCountdownInterval) clearInterval(sphereCountdownInterval);
+        
+        sphereCountdownInterval = setInterval(() => {
+            const elapsed = Date.now() - sphereTimerStart;
+            const progress = Math.min(elapsed / SPHERE_DURATION, 1);
+            sphereCountdownProgress.style.strokeDashoffset = SPHERE_CIRCUMFERENCE * progress;
+            
+            if (progress >= 1) {
+                clearInterval(sphereCountdownInterval);
+                sphereCountdownInterval = null;
+            }
+        }, 50);
+    }
+    
+    function showInfoSpheres(coin) {
+        const isSameCoin = currentSphereCoin && currentSphereCoin.symbol === coin.symbol;
+        
+        if (sphereHideTimer) {
+            clearTimeout(sphereHideTimer);
+            sphereHideTimer = null;
+        }
+        
+        // Same coin - just reset timer
+        if (isSameCoin && infoSpheres[0].classList.contains('visible')) {
+            startSphereCountdown();
+            sphereHideTimer = setTimeout(() => hideInfoSpheres(), SPHERE_DURATION);
+            return;
+        }
+        
+        // Different coin - switch
+        if (currentSphereCoin && currentSphereCoin.symbol !== coin.symbol) {
+            infoSpheres.forEach(s => s.classList.remove('visible', 'pulse', 'vibrate'));
+        }
+        
+        currentSphereCoin = coin;
+        updateSphereContent(coin);
+        positionSpheres(coin);
+        
+        // Staggered fade-in
+        infoSpheres.forEach((sphere, i) => {
+            setTimeout(() => sphere.classList.add('visible'), i * 60);
+        });
+        
+        startSphereCountdown();
+        sphereHideTimer = setTimeout(() => hideInfoSpheres(), SPHERE_DURATION);
+        
+        if (sphereUpdateInterval) clearInterval(sphereUpdateInterval);
+        sphereUpdateInterval = setInterval(() => {
+            if (currentSphereCoin) updateSphereContent(currentSphereCoin);
+        }, 1000);
+    }
+    
+    function hideInfoSpheres() {
+        currentSphereCoin = null;
+        
+        if (sphereHideTimer) { clearTimeout(sphereHideTimer); sphereHideTimer = null; }
+        if (sphereUpdateInterval) { clearInterval(sphereUpdateInterval); sphereUpdateInterval = null; }
+        if (sphereCountdownInterval) { clearInterval(sphereCountdownInterval); sphereCountdownInterval = null; }
+        
+        sphereCountdown.classList.remove('visible');
+        
+        infoSpheres.forEach((sphere, i) => {
+            setTimeout(() => sphere.classList.remove('visible', 'pulse', 'vibrate'), i * 35);
+        });
+    }
+    
+    function updateSpherePositions() {
+        if (currentSphereCoin) {
+            const coin = coins.find(c => c.symbol === currentSphereCoin.symbol);
+            if (coin) {
+                currentSphereCoin = coin;
+                positionSpheres(coin);
+            }
+        }
+    }
+    
+    // Override draw to update sphere positions
+    const originalDraw = draw;
+    draw = function() {
+        originalDraw();
+        updateSpherePositions();
+    };
+    
+    // Mobile touch support
+    let touchedCoin = null;
+    canvas.addEventListener('touchstart', e => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const c = findCoin(touch.clientX, touch.clientY);
+        
+        if (c) {
+            if (touchedCoin && touchedCoin.symbol === c.symbol) {
+                hideInfoSpheres();
+                touchedCoin = null;
+            } else {
+                hoveredCoin = c;
+                touchedCoin = c;
+                showInfoSpheres(c);
+                
+                document.getElementById('ttSym').textContent = c.symbol;
+                const ch = document.getElementById('ttChange');
+                ch.textContent = (c.perf >= 0 ? '+' : '') + c.perf.toFixed(1) + '%';
+                ch.className = 'tooltip-change ' + (c.perf >= 0 ? 'pos' : 'neg');
+                document.getElementById('ttZone').textContent = c.isCore ? '⭐ Core' : c.zone.name;
+                tooltip.style.left = (touch.clientX + 15) + 'px';
+                tooltip.style.top = (touch.clientY - 80) + 'px';
+                tooltip.classList.add('visible');
+            }
+        } else {
+            hideInfoSpheres();
+            touchedCoin = null;
+            hoveredCoin = null;
+            tooltip.classList.remove('visible');
+        }
+    }, { passive: false });
+
+    document.getElementById('coinCount').addEventListener('change', e => {
+        initGalaxy(parseInt(e.target.value));
+    });
+
+    document.getElementById('rerollBtn').addEventListener('click', () => {
+        initGalaxy(parseInt(document.getElementById('coinCount').value));
+    });
+
+    // Init
+    resize();
+    window.addEventListener('resize', resize);
+    initGalaxy(25);
+    animate();
+    
+    // Pro Overlay Logic
+    document.getElementById('proInfoBtn').addEventListener('click', () => {
+        document.getElementById('proOverlay').classList.add('visible');
+    });
+    document.getElementById('proOverlay').addEventListener('click', (e) => {
+        if (e.target.id === 'proOverlay' || e.target.classList.contains('pro-close')) {
+            document.getElementById('proOverlay').classList.remove('visible');
+        }
+    });
+    </script>
+
+    <!-- Pro Features Overlay -->
+    <div class="pro-overlay" id="proOverlay">
+        <button class="pro-close">&times;</button>
+        <div class="pro-modal">
+            <h2>🌌 Galaxy Constellations (Pro)</h2>
+            <p class="subtitle">Erweiterte Visualisierung für tiefere Marktanalysen</p>
+            <ul class="pro-features">
+                <li>Echtzeit-Daten statt Simulation</li>
+                <li>Historische Zeitraffer-Animation (24h, 7d, 30d)</li>
+                <li>Korrelations-Linien zwischen verwandten Assets</li>
+                <li>Sektor-Clustering (DeFi, L1, Memecoins...)</li>
+                <li>Export als HD-Video oder PNG</li>
+            </ul>
+            <a href="preise.html" class="pro-btn">Pro freischalten →</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE PRINTING ROOM | Money From Nothing | CryptoSpaces</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --concrete: #2a2a2e;
+            --concrete-dark: #1a1a1d;
+            --steel: #3d3d42;
+            --paper-white: #f5f5f0;
+            --paper-cream: #e8e4d9;
+            --warm-accent: #d97706;
+            --cold-accent: #0ea5e9;
+            --text: #d4d4d8;
+            --text-muted: rgba(212, 212, 216, 0.5);
+            --machine-metal: #52525b;
+        }
+
+        /* Header */
+        .unified-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(26, 26, 29, 0.98) 0%, rgba(26, 26, 29, 0.7) 100%);
+            padding: 12px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(217, 119, 6, 0.2);
+        }
+        .unified-left { display: flex; align-items: center; gap: 20px; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--warm-accent), #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+        .unified-nav { display: flex; gap: 10px; }
+        .unified-nav-link {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.6rem;
+            font-family: 'Orbitron', sans-serif;
+            padding: 6px 12px;
+            border: 1px solid rgba(217, 119, 6, 0.2);
+            border-radius: 5px;
+            transition: all 0.2s;
+            background: rgba(217, 119, 6, 0.05);
+        }
+        .unified-nav-link:hover {
+            background: rgba(217, 119, 6, 0.15);
+        }
+        .unified-utils { display: flex; gap: 10px; }
+        .unified-btn {
+            background: rgba(217, 119, 6, 0.1);
+            border: 1px solid rgba(217, 119, 6, 0.2);
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--concrete-dark);
+            min-height: 100vh;
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        /* The Factory Hall */
+        .printing-hall {
+            position: fixed;
+            top: 55px; left: 0; right: 0; bottom: 0;
+            background: 
+                linear-gradient(180deg, rgba(26,26,29,0.95) 0%, transparent 20%),
+                linear-gradient(0deg, rgba(26,26,29,0.9) 0%, transparent 30%),
+                linear-gradient(180deg, var(--concrete-dark) 0%, #151517 100%);
+            overflow: hidden;
+        }
+
+        /* Paper particles in air */
+        .paper-particles {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .paper-particle {
+            position: absolute;
+            width: 8px;
+            height: 12px;
+            background: var(--paper-cream);
+            opacity: 0.15;
+            animation: paper-float 12s linear infinite;
+        }
+        @keyframes paper-float {
+            0% { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.2; }
+            90% { opacity: 0.15; }
+            100% { transform: translateY(100vh) translateX(50px) rotate(360deg); opacity: 0; }
+        }
+
+        /* Room title */
+        .room-title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+        }
+        .room-title h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 6px;
+            color: var(--warm-accent);
+            text-shadow: 0 0 30px rgba(217, 119, 6, 0.3);
+        }
+        .room-title .subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            letter-spacing: 4px;
+            margin-top: 5px;
+        }
+
+        /* Main layout - Split view */
+        .main-container {
+            position: absolute;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 100px;
+            display: flex;
+        }
+
+        /* Fiat side (left) */
+        .fiat-side {
+            flex: 1;
+            position: relative;
+            border-right: 1px solid rgba(217, 119, 6, 0.1);
+            overflow: hidden;
+        }
+        .fiat-label {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            color: var(--warm-accent);
+            letter-spacing: 2px;
+            opacity: 0.7;
+        }
+
+        /* Printing machines */
+        .machines-container {
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            right: 0;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 0 20px;
+        }
+        .printing-machine {
+            width: 120px;
+            height: 180px;
+            background: linear-gradient(180deg, var(--machine-metal) 0%, #3f3f46 50%, #27272a 100%);
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            box-shadow: 
+                0 10px 40px rgba(0,0,0,0.5),
+                inset 0 2px 10px rgba(255,255,255,0.05);
+        }
+        .machine-body {
+            position: absolute;
+            top: 20px;
+            left: 10px;
+            right: 10px;
+            bottom: 40px;
+            background: #1f1f23;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .machine-roller {
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(90deg, #52525b, #71717a, #52525b);
+            border-radius: 10px;
+        }
+        .machine-roller.top { top: 20px; }
+        .machine-roller.bottom { bottom: 20px; }
+        .machine-roller.active {
+            animation: roller-spin 0.5s linear infinite;
+        }
+        @keyframes roller-spin {
+            from { background-position: 0 0; }
+            to { background-position: 20px 0; }
+        }
+        .machine-output {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 30px;
+            background: #18181b;
+            border-radius: 0 0 4px 4px;
+        }
+        .machine-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 10px #22c55e;
+            animation: indicator-blink 1s ease-in-out infinite;
+        }
+        .machine-indicator.intense {
+            background: var(--warm-accent);
+            box-shadow: 0 0 15px var(--warm-accent);
+            animation: indicator-fast 0.3s ease-in-out infinite;
+        }
+        @keyframes indicator-blink {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        @keyframes indicator-fast {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* Paper output animation */
+        .paper-stack {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+        }
+        .paper-sheet {
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--paper-cream), var(--paper-white), var(--paper-cream));
+            margin-top: -1px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            animation: paper-land 0.3s ease-out;
+        }
+        @keyframes paper-land {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Paper flood on floor */
+        .paper-flood {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            background: linear-gradient(180deg, transparent, rgba(245, 245, 240, 0.1), rgba(232, 228, 217, 0.15));
+            transition: height 2s ease;
+            pointer-events: none;
+        }
+
+        /* Crypto side (right) */
+        .crypto-side {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .crypto-label {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            color: var(--cold-accent);
+            letter-spacing: 2px;
+            opacity: 0.7;
+        }
+
+        /* Floating coins */
+        .coins-sanctuary {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            max-width: 400px;
+            padding: 20px;
+        }
+        .scarce-coin {
+            width: 90px;
+            height: 110px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: coin-hover 4s ease-in-out infinite;
+        }
+        .scarce-coin:nth-child(2) { animation-delay: -1s; }
+        .scarce-coin:nth-child(3) { animation-delay: -2s; }
+        .scarce-coin:nth-child(4) { animation-delay: -3s; }
+        @keyframes coin-hover {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .coin-disc {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #71717a 0%, #52525b 30%, #3f3f46 70%, #27272a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 8px 30px rgba(0,0,0,0.4),
+                inset 0 2px 15px rgba(255,255,255,0.08),
+                inset 0 -2px 10px rgba(0,0,0,0.3),
+                0 0 20px rgba(14, 165, 233, 0.1);
+            border: 2px solid rgba(14, 165, 233, 0.2);
+            position: relative;
+        }
+        .coin-disc img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: contain;
+            filter: brightness(0.95);
+        }
+        .coin-disc::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 12px;
+            width: 15px;
+            height: 8px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.15), transparent);
+            border-radius: 50%;
+        }
+        .coin-info {
+            margin-top: 8px;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .coin-symbol {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--cold-accent);
+            letter-spacing: 1px;
+        }
+        .coin-supply {
+            font-size: 0.45rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Status panels */
+        .status-panel {
+            position: absolute;
+            width: 170px;
+            background: rgba(26, 26, 29, 0.9);
+            border-radius: 6px;
+            padding: 12px;
+            backdrop-filter: blur(10px);
+        }
+        .status-panel.fiat-panel {
+            top: 40px;
+            left: 15px;
+            border: 1px solid rgba(217, 119, 6, 0.2);
+        }
+        .status-panel.crypto-panel {
+            top: 40px;
+            right: 15px;
+            border: 1px solid rgba(14, 165, 233, 0.2);
+        }
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.5rem;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+        }
+        .panel-title.warm {
+            color: var(--warm-accent);
+            border-bottom: 1px solid rgba(217, 119, 6, 0.2);
+        }
+        .panel-title.cold {
+            color: var(--cold-accent);
+            border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+        }
+        .panel-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 0.5rem;
+        }
+        .panel-label { color: var(--text-muted); }
+        .panel-value { 
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text);
+        }
+        .panel-value.warm { color: var(--warm-accent); }
+        .panel-value.cold { color: var(--cold-accent); }
+
+        /* Inflation meter */
+        .inflation-meter {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(217, 119, 6, 0.1);
+        }
+        .meter-label {
+            font-size: 0.45rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        .meter-bar {
+            height: 6px;
+            background: rgba(217, 119, 6, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #eab308, var(--warm-accent));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Divider */
+        .center-divider {
+            position: absolute;
+            top: 80px;
+            bottom: 100px;
+            left: 50%;
+            width: 2px;
+            background: linear-gradient(180deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-50%);
+        }
+        .divider-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--concrete-dark);
+            padding: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+        /* Bottom stats bar */
+        .bottom-stats {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: rgba(26, 26, 29, 0.95);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+            padding: 0 30px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 0.45rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .stat-value.fiat { color: var(--warm-accent); }
+        .stat-value.crypto { color: var(--cold-accent); }
+
+        /* Sound indicator */
+        .sound-indicator {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(26, 26, 29, 0.8);
+            padding: 6px 12px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .sound-bars {
+            display: flex;
+            gap: 2px;
+            align-items: flex-end;
+            height: 15px;
+        }
+        .sound-bar {
+            width: 3px;
+            background: var(--warm-accent);
+            border-radius: 2px;
+            transition: height 0.1s ease;
+        }
+        .sound-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.45rem;
+            color: var(--text-muted);
+        }
+
+        /* Footer */
+        .footer-disclaimer {
+            position: fixed;
+            bottom: 85px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.4rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        /* ==================== HOVER INFO PANELS ==================== */
+        .info-panel {
+            position: fixed;
+            width: 320px;
+            max-width: 90vw;
+            background: rgba(26, 26, 29, 0.92);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 18px 20px;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+        }
+        .info-panel.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .info-panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .info-panel-title.warm { color: var(--warm-accent); }
+        .info-panel-title.cold { color: var(--cold-accent); }
+        .info-panel-title.neutral { color: var(--text); }
+        .info-panel-content {
+            font-size: 0.55rem;
+            line-height: 1.7;
+            color: rgba(212, 212, 216, 0.85);
+            font-family: 'Inter', sans-serif;
+        }
+        .info-panel-content p {
+            margin-bottom: 10px;
+        }
+        .info-panel-content p:last-child {
+            margin-bottom: 0;
+        }
+        .info-panel-note {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.48rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        .info-panel-data {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .info-panel-data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 0.5rem;
+        }
+        .info-panel-data-label { color: var(--text-muted); }
+        .info-panel-data-value { 
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text);
+        }
+
+        /* Hoverable elements */
+        [data-hover-info] {
+            cursor: help;
+            transition: filter 0.2s ease;
+        }
+        [data-hover-info]:hover {
+            filter: brightness(1.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .status-panel { display: none; }
+            .machines-container { gap: 15px; }
+            .printing-machine { width: 80px; height: 140px; }
+        }
+        @media (max-width: 600px) {
+            .main-container { flex-direction: column; }
+            .fiat-side, .crypto-side { flex: none; height: 50%; }
+            .center-divider { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="unified-header">
+        <div class="unified-left">
+            <a href="index.html" class="unified-logo">CRYPTOSPACES</a>
+            <nav class="unified-nav">
+                <a href="index.html" class="unified-nav-link">HOME</a>
+                <a href="moonshot-control.html" class="unified-nav-link">MOONSHOT</a>
+                <a href="crashes-room.html" class="unified-nav-link">CRASHES</a>
+                <a href="gravity.html" class="unified-nav-link">GRAVITY</a>
+            </nav>
+        </div>
+        <div class="unified-utils">
+            <a href="preise.html" class="unified-btn">PRICING</a>
+            <a href="about.html" class="unified-btn">ABOUT</a>
+        </div>
+    </header>
+
+    <!-- The Hall -->
+    <div class="printing-hall">
+        <!-- Paper particles -->
+        <div class="paper-particles" id="paperParticles" data-hover-info="particles"></div>
+
+        <!-- Title -->
+        <div class="room-title">
+            <h1>THE PRINTING ROOM</h1>
+            <div class="subtitle">MONEY FROM NOTHING</div>
+        </div>
+
+        <!-- Main container -->
+        <div class="main-container">
+            <!-- Fiat Side -->
+            <div class="fiat-side">
+                <div class="fiat-label">FIAT · UNLIMITED SUPPLY</div>
+                
+                <!-- Fiat panel -->
+                <div class="status-panel fiat-panel">
+                    <div class="panel-title warm">MONEY SUPPLY</div>
+                    <div class="panel-row">
+                        <span class="panel-label">M2 (est.)</span>
+                        <span class="panel-value warm" id="m2Supply">$21.5T</span>
+                    </div>
+                    <div class="panel-row">
+                        <span class="panel-label">YoY GROWTH</span>
+                        <span class="panel-value warm" id="m2Growth">+4.2%</span>
+                    </div>
+                    <div class="panel-row">
+                        <span class="panel-label">PRINT RATE</span>
+                        <span class="panel-value" id="printRate">NORMAL</span>
+                    </div>
+                    <div class="inflation-meter">
+                        <div class="meter-label">EXPANSION INTENSITY</div>
+                        <div class="meter-bar">
+                            <div class="meter-fill" id="expansionMeter" style="width: 40%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Machines -->
+                <div class="machines-container" id="machinesContainer" data-hover-info="machine">
+                    <!-- Generated dynamically -->
+                </div>
+
+                <!-- Paper flood -->
+                <div class="paper-flood" id="paperFlood" data-hover-info="paperflood"></div>
+            </div>
+
+            <!-- Divider -->
+            <div class="center-divider" data-hover-info="concept">
+                <div class="divider-label">VS</div>
+            </div>
+
+            <!-- Crypto Side -->
+            <div class="crypto-side">
+                <div class="crypto-label">CRYPTO · FIXED SUPPLY</div>
+
+                <!-- Crypto panel -->
+                <div class="status-panel crypto-panel">
+                    <div class="panel-title cold">SCARCITY METRICS</div>
+                    <div class="panel-row">
+                        <span class="panel-label">BTC MAX</span>
+                        <span class="panel-value cold">21,000,000</span>
+                    </div>
+                    <div class="panel-row">
+                        <span class="panel-label">BTC MINED</span>
+                        <span class="panel-value" id="btcMined">19.6M</span>
+                    </div>
+                    <div class="panel-row">
+                        <span class="panel-label">HALVING</span>
+                        <span class="panel-value" id="nextHalving">2028</span>
+                    </div>
+                    <div class="panel-row">
+                        <span class="panel-label">ISSUANCE</span>
+                        <span class="panel-value cold">DECREASING</span>
+                    </div>
+                </div>
+
+                <!-- Coins sanctuary -->
+                <div class="coins-sanctuary" id="coinsSanctuary" data-hover-info="coins">
+                    <!-- Generated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom stats -->
+    <div class="bottom-stats">
+        <div class="stat-item">
+            <div class="stat-label">FIAT EXPANSION (24H EST.)</div>
+            <div class="stat-value fiat" id="fiatExpansion">+$2.3B</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">BTC NEW SUPPLY (24H)</div>
+            <div class="stat-value crypto" id="btcNewSupply">~900 BTC</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">STABLECOIN MINT (24H)</div>
+            <div class="stat-value fiat" id="stableMint">+$150M</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">BTC DOMINANCE</div>
+            <div class="stat-value crypto" id="btcDominance">52.4%</div>
+        </div>
+    </div>
+
+    <!-- Sound indicator -->
+    <div class="sound-indicator" data-hover-info="sound">
+        <div class="sound-bars" id="soundBars">
+            <div class="sound-bar" style="height: 4px"></div>
+            <div class="sound-bar" style="height: 8px"></div>
+            <div class="sound-bar" style="height: 12px"></div>
+            <div class="sound-bar" style="height: 8px"></div>
+            <div class="sound-bar" style="height: 4px"></div>
+        </div>
+        <span class="sound-label">MACHINE AUDIO</span>
+    </div>
+
+    <!-- Info Panel (single reusable) -->
+    <div class="info-panel" id="infoPanel">
+        <div class="info-panel-title" id="infoPanelTitle"></div>
+        <div class="info-panel-content" id="infoPanelContent"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-disclaimer">
+        VISUALIZATION ONLY · NO TRADING SIGNALS · NO FINANCIAL ADVICE
+    </div>
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        const CONFIG = {
+            API_URL: 'https://api.coingecko.com/api/v3',
+            UPDATE_INTERVAL: 30000,
+            SCARCE_COINS: ['bitcoin', 'litecoin', 'bitcoin-cash', 'monero'],
+            MACHINE_COUNT: 4,
+        };
+
+        // ==================== STATE ====================
+        let cryptoData = [];
+        let printIntensity = 0.4;
+        let audioContext = null;
+        let machineOscillators = [];
+        let isAudioPlaying = false;
+
+        // ==================== AUDIO ENGINE ====================
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContext;
+        }
+
+        function startMachineSound() {
+            if (isAudioPlaying) return;
+            const ctx = initAudio();
+            isAudioPlaying = true;
+
+            // Low rumble
+            const rumbleOsc = ctx.createOscillator();
+            const rumbleGain = ctx.createGain();
+            rumbleOsc.type = 'sawtooth';
+            rumbleOsc.frequency.value = 40;
+            rumbleGain.gain.value = 0.08;
+            rumbleOsc.connect(rumbleGain);
+            rumbleGain.connect(ctx.destination);
+            rumbleOsc.start();
+            machineOscillators.push({ osc: rumbleOsc, gain: rumbleGain });
+
+            // Mechanical rhythm
+            const rhythmOsc = ctx.createOscillator();
+            const rhythmGain = ctx.createGain();
+            rhythmOsc.type = 'square';
+            rhythmOsc.frequency.value = 2;
+            rhythmGain.gain.value = 0.03;
+            
+            const rhythmFilter = ctx.createBiquadFilter();
+            rhythmFilter.type = 'lowpass';
+            rhythmFilter.frequency.value = 200;
+            
+            rhythmOsc.connect(rhythmFilter);
+            rhythmFilter.connect(rhythmGain);
+            rhythmGain.connect(ctx.destination);
+            rhythmOsc.start();
+            machineOscillators.push({ osc: rhythmOsc, gain: rhythmGain });
+        }
+
+        function updateMachineSound(intensity) {
+            machineOscillators.forEach(({ osc, gain }, i) => {
+                if (i === 0) {
+                    // Rumble
+                    osc.frequency.value = 40 + intensity * 20;
+                    gain.gain.value = 0.05 + intensity * 0.08;
+                } else {
+                    // Rhythm
+                    osc.frequency.value = 2 + intensity * 4;
+                    gain.gain.value = 0.02 + intensity * 0.04;
+                }
+            });
+        }
+
+        function playPaperSound() {
+            const ctx = initAudio();
+            const bufferSize = ctx.sampleRate * 0.1;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.03));
+            }
+            
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.value = 2000;
+            
+            const gain = ctx.createGain();
+            gain.gain.value = 0.02;
+            
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            noise.start();
+        }
+
+        // ==================== VISUAL SETUP ====================
+        function createPaperParticles() {
+            const container = document.getElementById('paperParticles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'paper-particle';
+                particle.style.left = Math.random() * 50 + '%';
+                particle.style.animationDelay = Math.random() * 12 + 's';
+                particle.style.animationDuration = (10 + Math.random() * 6) + 's';
+                particle.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(particle);
+            }
+        }
+
+        function createMachines() {
+            const container = document.getElementById('machinesContainer');
+            for (let i = 0; i < CONFIG.MACHINE_COUNT; i++) {
+                const machine = document.createElement('div');
+                machine.className = 'printing-machine';
+                machine.innerHTML = `
+                    <div class="machine-indicator"></div>
+                    <div class="machine-body">
+                        <div class="machine-roller top active"></div>
+                        <div class="machine-roller bottom active"></div>
+                    </div>
+                    <div class="machine-output"></div>
+                    <div class="paper-stack" id="paperStack${i}"></div>
+                `;
+                container.appendChild(machine);
+            }
+        }
+
+        function createCoins() {
+            const container = document.getElementById('coinsSanctuary');
+            const scarceCoins = [
+                { symbol: 'BTC', name: 'Bitcoin', maxSupply: '21M', image: '' },
+                { symbol: 'LTC', name: 'Litecoin', maxSupply: '84M', image: '' },
+                { symbol: 'XMR', name: 'Monero', maxSupply: '~18.4M', image: '' },
+                { symbol: 'BCH', name: 'Bitcoin Cash', maxSupply: '21M', image: '' },
+            ];
+
+            scarceCoins.forEach(coin => {
+                const el = document.createElement('div');
+                el.className = 'scarce-coin';
+                el.innerHTML = `
+                    <div class="coin-disc">
+                        <img src="" alt="${coin.symbol}" id="img${coin.symbol}" onerror="this.style.display='none'">
+                    </div>
+                    <div class="coin-info">
+                        <div class="coin-symbol">${coin.symbol}</div>
+                        <div class="coin-supply">Max: ${coin.maxSupply}</div>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        // ==================== DATA ====================
+        async function fetchCryptoData() {
+            try {
+                const response = await fetch(
+                    `${CONFIG.API_URL}/coins/markets?vs_currency=usd&ids=${CONFIG.SCARCE_COINS.join(',')}&order=market_cap_desc`
+                );
+                const data = await response.json();
+                cryptoData = data;
+                updateCoinImages();
+                updateStats();
+            } catch (error) {
+                console.error('Data fetch error:', error);
+            }
+        }
+
+        function updateCoinImages() {
+            cryptoData.forEach(coin => {
+                const img = document.getElementById('img' + coin.symbol.toUpperCase());
+                if (img) {
+                    img.src = coin.image;
+                }
+            });
+        }
+
+        function updateStats() {
+            // BTC specific
+            const btc = cryptoData.find(c => c.id === 'bitcoin');
+            if (btc) {
+                document.getElementById('btcMined').textContent = 
+                    (btc.circulating_supply / 1000000).toFixed(2) + 'M';
+                document.getElementById('btcDominance').textContent = 
+                    (50 + Math.random() * 5).toFixed(1) + '%';
+            }
+
+            // Simulated monetary data
+            simulateMonetaryExpansion();
+        }
+
+        function simulateMonetaryExpansion() {
+            // Simulate based on time/randomness (real data would require specialized APIs)
+            const baseM2 = 21.5 + Math.random() * 0.5;
+            const growth = 3 + Math.random() * 3;
+            
+            document.getElementById('m2Supply').textContent = '$' + baseM2.toFixed(1) + 'T';
+            document.getElementById('m2Growth').textContent = '+' + growth.toFixed(1) + '%';
+            
+            // Calculate print intensity
+            printIntensity = Math.min(1, growth / 10);
+            
+            // Update expansion meter
+            document.getElementById('expansionMeter').style.width = (printIntensity * 100) + '%';
+            
+            // Update print rate label
+            let rateLabel = 'NORMAL';
+            if (printIntensity > 0.7) rateLabel = 'EXTREME';
+            else if (printIntensity > 0.5) rateLabel = 'HIGH';
+            else if (printIntensity > 0.3) rateLabel = 'MODERATE';
+            document.getElementById('printRate').textContent = rateLabel;
+            
+            // Update machine indicators
+            document.querySelectorAll('.machine-indicator').forEach(ind => {
+                ind.classList.toggle('intense', printIntensity > 0.5);
+            });
+            
+            // Update paper flood
+            document.getElementById('paperFlood').style.height = (printIntensity * 60) + 'px';
+            
+            // Update audio
+            updateMachineSound(printIntensity);
+            
+            // Simulated daily expansion
+            const dailyExpansion = (2 + Math.random() * 2).toFixed(1);
+            document.getElementById('fiatExpansion').textContent = '+$' + dailyExpansion + 'B';
+            
+            // Stablecoin mint
+            const stableMint = Math.floor(100 + Math.random() * 200);
+            document.getElementById('stableMint').textContent = '+$' + stableMint + 'M';
+        }
+
+        // ==================== PAPER PRINTING ANIMATION ====================
+        let paperInterval;
+        
+        function startPaperPrinting() {
+            paperInterval = setInterval(() => {
+                const stackIndex = Math.floor(Math.random() * CONFIG.MACHINE_COUNT);
+                const stack = document.getElementById('paperStack' + stackIndex);
+                
+                if (stack && stack.children.length < 30) {
+                    const paper = document.createElement('div');
+                    paper.className = 'paper-sheet';
+                    stack.appendChild(paper);
+                    
+                    if (Math.random() < 0.3) playPaperSound();
+                    
+                    // Remove old papers
+                    if (stack.children.length > 20) {
+                        stack.removeChild(stack.firstChild);
+                    }
+                }
+            }, 500 / (0.5 + printIntensity));
+        }
+
+        // ==================== SOUND BARS ====================
+        function updateSoundBars() {
+            const bars = document.querySelectorAll('.sound-bar');
+            bars.forEach((bar, i) => {
+                const baseHeight = [4, 8, 12, 8, 4][i];
+                const multiplier = 1 + printIntensity * 1.5;
+                const random = 0.5 + Math.random();
+                bar.style.height = (baseHeight * multiplier * random) + 'px';
+            });
+        }
+
+        // ==================== HOVER INFO SYSTEM ====================
+        const HOVER_INFO = {
+            machine: {
+                title: 'Fiat Money Expansion',
+                titleClass: 'warm',
+                content: `<p>This machine represents the creation of fiat money through central banking mechanisms.</p>
+                    <p>Its speed reflects changes in money supply (e.g. M2), balance sheet expansion, and liquidity programs.</p>`,
+                note: 'Higher expansion → faster printing'
+            },
+            paperflood: {
+                title: 'Inflationary Output',
+                titleClass: 'warm',
+                content: `<p>The growing volume of printed currency illustrates monetary dilution.</p>
+                    <p>An increasing supply reduces purchasing power over time.</p>`,
+                note: 'Quantity increases faster than economic output.'
+            },
+            coins: {
+                title: 'Fixed Supply Assets',
+                titleClass: 'cold',
+                content: `<p>These coins represent digitally scarce assets.</p>
+                    <p>Their supply is capped and not influenced by monetary policy or discretionary issuance.</p>`,
+                note: 'No reaction to printing pressure'
+            },
+            concept: {
+                title: 'Concept Overview',
+                titleClass: 'neutral',
+                content: `<p>This visualization contrasts unlimited monetary expansion with fixed digital scarcity.</p>
+                    <p>It does not evaluate. It illustrates.</p>`,
+                note: 'Observational. Neutral. Factual.'
+            },
+            particles: {
+                title: 'Hidden Effects',
+                titleClass: 'warm',
+                content: `<p>Inflation often acts gradually and invisibly.</p>
+                    <p>Its impact becomes noticeable over time, not instantly.</p>`,
+                note: 'The air fills slowly with diluted value.'
+            },
+            sound: {
+                title: 'System Activity',
+                titleClass: 'neutral',
+                content: `<p>Increased mechanical noise represents heightened monetary intervention.</p>
+                    <p>The intensity correlates with expansion rate data.</p>`,
+                note: 'Click anywhere to enable audio'
+            }
+        };
+
+        const infoPanel = document.getElementById('infoPanel');
+        const infoPanelTitle = document.getElementById('infoPanelTitle');
+        const infoPanelContent = document.getElementById('infoPanelContent');
+        let hoverTimeout = null;
+
+        function showInfoPanel(type, x, y) {
+            const info = HOVER_INFO[type];
+            if (!info) return;
+
+            infoPanelTitle.textContent = info.title;
+            infoPanelTitle.className = 'info-panel-title ' + info.titleClass;
+            
+            let html = info.content;
+            if (info.note) {
+                html += `<div class="info-panel-note">${info.note}</div>`;
+            }
+            infoPanelContent.innerHTML = html;
+
+            // Position panel
+            const panelWidth = 320;
+            const panelHeight = 180;
+            const padding = 20;
+            
+            let posX = x + padding;
+            let posY = y + padding;
+            
+            if (posX + panelWidth > window.innerWidth - padding) {
+                posX = x - panelWidth - padding;
+            }
+            if (posY + panelHeight > window.innerHeight - padding) {
+                posY = y - panelHeight - padding;
+            }
+            posX = Math.max(padding, posX);
+            posY = Math.max(padding, posY);
+
+            infoPanel.style.left = posX + 'px';
+            infoPanel.style.top = posY + 'px';
+            infoPanel.classList.add('visible');
+        }
+
+        function hideInfoPanel() {
+            infoPanel.classList.remove('visible');
+        }
+
+        document.querySelectorAll('[data-hover-info]').forEach(el => {
+            el.addEventListener('mouseenter', (e) => {
+                clearTimeout(hoverTimeout);
+                hoverTimeout = setTimeout(() => {
+                    showInfoPanel(el.dataset.hoverInfo, e.clientX, e.clientY);
+                }, 150);
+            });
+            el.addEventListener('mousemove', (e) => {
+                if (infoPanel.classList.contains('visible')) {
+                    showInfoPanel(el.dataset.hoverInfo, e.clientX, e.clientY);
+                }
+            });
+            el.addEventListener('mouseleave', () => {
+                clearTimeout(hoverTimeout);
+                hideInfoPanel();
+            });
+        });
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            createPaperParticles();
+            createMachines();
+            createCoins();
+            fetchCryptoData();
+            startPaperPrinting();
+            
+            setInterval(fetchCryptoData, CONFIG.UPDATE_INTERVAL);
+            setInterval(simulateMonetaryExpansion, 10000);
+            setInterval(updateSoundBars, 150);
+        });
+
+        // Enable audio on first interaction
+        document.addEventListener('click', () => {
+            startMachineSound();
+        }, { once: true });
+    </script>
+</body>
+</html>

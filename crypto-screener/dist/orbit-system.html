@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbit-System - Crypto Screener</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(ellipse at center, #0a0f1e 0%, #030712 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: #f8fafc;
+        }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at center, #0a0f1e 0%, #030712 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.4s ease-out;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-title { font-size: 1.5rem; color: #06b6d4; margin-bottom: 8px; letter-spacing: 3px; }
+        .loading-sub { font-size: 0.75rem; color: rgba(248,250,252,0.6); margin-bottom: 30px; }
+        .progress-container { width: 280px; height: 6px; background: rgba(6,182,212,0.1); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #06b6d4, #3b82f6); border-radius: 3px; transition: width 0.1s linear; }
+        .progress-percent { margin-top: 10px; font-size: 0.7rem; color: #06b6d4; }
+
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10,15,30,0.95);
+            z-index: 100;
+            border-bottom: 1px solid rgba(6,182,212,0.2);
+        }
+        .title { font-size: 1.2rem; color: #06b6d4; letter-spacing: 2px; }
+        .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .btn {
+            background: rgba(6,182,212,0.2);
+            border: 1px solid rgba(6,182,212,0.5);
+            color: #06b6d4;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: rgba(6,182,212,0.3); }
+        .btn.active { background: rgba(6,182,212,0.5); }
+        .btn-back { background: rgba(59,130,246,0.2); border-color: rgba(59,130,246,0.5); color: #3b82f6; text-decoration: none; }
+        
+        .canvas-container {
+            position: fixed;
+            top: 60px; left: 0; right: 0; bottom: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #orbitCanvas { max-width: 100%; max-height: 100%; }
+        
+        .footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            padding: 10px 20px;
+            background: rgba(10,15,30,0.95);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: rgba(248,250,252,0.5);
+            border-top: 1px solid rgba(6,182,212,0.2);
+        }
+        .stats { display: flex; gap: 20px; }
+        .stat-val { color: #06b6d4; }
+        .disclaimer { color: #f59e0b; font-style: italic; }
+        
+        .tooltip {
+            position: fixed;
+            background: rgba(10,15,30,0.95);
+            border: 1px solid rgba(6,182,212,0.5);
+            border-radius: 10px;
+            padding: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            z-index: 200;
+            min-width: 150px;
+        }
+        .tooltip.visible { opacity: 1; }
+        .tooltip-sym { font-size: 1rem; color: #06b6d4; font-weight: 700; }
+        .tooltip-change { font-size: 1.1rem; font-weight: 700; margin: 5px 0; }
+        .tooltip-change.pos { color: #22c55e; }
+        .tooltip-change.neg { color: #ef4444; }
+        .tooltip-ring { font-size: 0.65rem; color: rgba(248,250,252,0.6); }
+        
+        .info-banner {
+            position: fixed;
+            bottom: 50px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10,15,30,0.85);
+            border: 1px solid rgba(6,182,212,0.25);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: rgba(248,250,252,0.7);
+            z-index: 90;
+            backdrop-filter: blur(8px);
+        }
+        .info-banner a { text-decoration: none; transition: opacity 0.2s; }
+        .info-banner a:hover { opacity: 0.8; }
+        .info-banner .gold { color: #fbbf24; }
+        .info-banner .blue { color: #3b82f6; }
+        
+        /* Info Circles on Hover */
+        .info-circles-container {
+            position: fixed;
+            pointer-events: none;
+            z-index: 150;
+        }
+        .info-circle {
+            position: absolute;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(10,18,32,0.92);
+            border: 1px solid rgba(6,182,212,0.35);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 0 20px rgba(6,182,212,0.08);
+        }
+        .info-circle.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .info-circle.pulse {
+            animation: infoPulse 1s ease-in-out infinite;
+        }
+        .info-circle.vibrate {
+            animation: infoVibrate 0.15s ease-in-out infinite;
+        }
+        @keyframes infoPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 0 20px rgba(6,182,212,0.08); }
+            50% { box-shadow: 0 4px 25px rgba(6,182,212,0.4), inset 0 0 25px rgba(6,182,212,0.15); }
+        }
+        @keyframes infoVibrate {
+            0%, 100% { transform: scale(1) translateX(0); }
+            25% { transform: scale(1) translateX(-1px); }
+            75% { transform: scale(1) translateX(1px); }
+        }
+        .info-circle-icon {
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+        .info-circle-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.1;
+        }
+        .info-circle-label {
+            font-size: 0.5rem;
+            color: rgba(248,250,252,0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+        .info-circle .green { color: #22c55e; }
+        .info-circle .red { color: #ef4444; }
+        .info-circle .cyan { color: #06b6d4; }
+        .info-circle .yellow { color: #fbbf24; }
+        .info-circle .orange { color: #f97316; }
+        .info-circle .blue { color: #3b82f6; }
+        
+        /* Circle specific colors */
+        .info-circle.price { border-color: rgba(34,197,94,0.5); }
+        .info-circle.volume { border-color: rgba(59,130,246,0.5); }
+        .info-circle.volatility { border-color: rgba(249,115,22,0.5); }
+        .info-circle.sentiment { border-color: rgba(168,85,247,0.5); }
+        .info-circle.event { border-color: rgba(251,191,36,0.5); }
+        
+        /* Countdown Ring */
+        .countdown-ring {
+            position: fixed;
+            pointer-events: none;
+            z-index: 145;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .countdown-ring.visible { opacity: 1; }
+        .countdown-ring svg {
+            transform: rotate(-90deg);
+        }
+        .countdown-ring circle {
+            fill: none;
+            stroke-width: 3;
+        }
+        .countdown-ring .bg { stroke: rgba(6,182,212,0.15); }
+        .countdown-ring .progress {
+            stroke: #06b6d4;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        /* Unified Page Link Banner Style */
+        .page-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            text-decoration: none;
+            color: #f8fafc;
+            background: linear-gradient(135deg, rgba(6,182,212,0.25), rgba(59,130,246,0.2));
+            border: 1px solid rgba(6,182,212,0.5);
+            backdrop-filter: blur(8px);
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 12px rgba(6,182,212,0.15), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .page-link:hover {
+            background: linear-gradient(135deg, rgba(6,182,212,0.4), rgba(59,130,246,0.35));
+            border-color: rgba(6,182,212,0.7);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(6,182,212,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .page-link:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+<div style="position:fixed;top:10px;right:10px;z-index:9999;display:flex;gap:8px;">
+<a href="index.html" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);color:#3b82f6;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Home</a>
+<a href="crypto-matrix-vision.html" style="background:rgba(0,255,65,0.2);border:1px solid rgba(0,255,65,0.4);color:#00ff41;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Matrix Vision</a>
+<a href="financial-galaxy.html" style="background:rgba(34,211,238,0.2);border:1px solid rgba(34,211,238,0.4);color:#22d3ee;padding:6px 12px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:0.6rem;text-decoration:none;">Financial Galaxy</a>
+</div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-title">🪐 ORBIT-SYSTEM</div>
+        <div class="loading-sub" id="loadingSub">Initialisiere Orbit-Struktur...</div>
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+    <div class="header">
+        <div class="title">🪐 ORBIT-SYSTEM</div>
+        <div class="controls">
+            <button class="btn active" id="labelToggle">% Labels</button>
+            <button class="btn" id="rerollBtn">🎲 Re-roll</button>
+            <a href="ex-triv.html" class="page-link">⚡ EXTRIV</a>
+            <a href="rr.html" class="page-link">🔗 RR</a>
+            <a href="lyps.html" class="page-link">🔥 LYPS</a>
+            <a href="cscs.html" class="page-link">💧 CSCS</a>
+            <a href="nft-digital.html" class="page-link">🎨 NFT</a>
+            <a href="game-vev.html" class="page-link">🎮 GAME</a>
+            <a href="misvav.html" class="page-link">⛏️ MIS</a>
+            <a href="sacorcs.html" class="page-link">🛡️ SAC</a>
+            <a href="index.html" class="btn btn-back">← Zurück</a>
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="orbitCanvas"></canvas>
+    </div>
+
+    <div class="info-banner">
+        <a href="gravity-info.html" class="gold">ⓘ Why Galaxies? → Learn about Galaxy Analysis</a>
+        <span style="margin: 0 12px; color: rgba(255,255,255,0.2);">|</span>
+        <a href="orbit-info.html" class="blue">⚛️ Orbit System → How Market Dynamics Work</a>
+    </div>
+
+    <div class="footer">
+        <div class="stats">
+            <span>Assets: <span class="stat-val">25</span></span>
+            <span>Core: <span class="stat-val" id="statCore">-</span></span>
+            <span>Top: <span class="stat-val" id="statTop">-</span></span>
+        </div>
+        <div class="disclaimer">⚠️ Simulation preview – crypto only (25 assets)</div>
+    </div>
+
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-sym" id="ttSym">BTC</div>
+        <div class="tooltip-change pos" id="ttChange">+0%</div>
+        <div class="tooltip-ring" id="ttRing">Ring 1</div>
+    </div>
+
+    <!-- Info Circles Container -->
+    <div class="info-circles-container" id="infoCirclesContainer">
+        <div class="info-circle price" id="infoPrice">
+            <div class="info-circle-icon">📈</div>
+            <div class="info-circle-value"><span class="green">+2.4%</span> ↑</div>
+            <div class="info-circle-label">1H Impuls</div>
+        </div>
+        <div class="info-circle volume" id="infoVolume">
+            <div class="info-circle-icon">📊</div>
+            <div class="info-circle-value cyan">+38%</div>
+            <div class="info-circle-label">Volumen</div>
+        </div>
+        <div class="info-circle volatility" id="infoVolatility">
+            <div class="info-circle-icon">〰️</div>
+            <div class="info-circle-value orange">Medium</div>
+            <div class="info-circle-label">Volatilität</div>
+        </div>
+        <div class="info-circle sentiment" id="infoSentiment">
+            <div class="info-circle-icon">⚖️</div>
+            <div class="info-circle-value"><span class="green">62%</span>|<span class="red">38%</span></div>
+            <div class="info-circle-label">Buy/Sell</div>
+        </div>
+        <div class="info-circle event" id="infoEvent">
+            <div class="info-circle-icon">⚡</div>
+            <div class="info-circle-value yellow">Whale</div>
+            <div class="info-circle-label">Event</div>
+        </div>
+    </div>
+    
+    <!-- Countdown Ring -->
+    <div class="countdown-ring" id="countdownRing">
+        <svg width="50" height="50">
+            <circle class="bg" cx="25" cy="25" r="22"></circle>
+            <circle class="progress" id="countdownProgress" cx="25" cy="25" r="22" 
+                    stroke-dasharray="138.23" stroke-dashoffset="0"></circle>
+        </svg>
+    </div>
+
+    <script>
+    // Fixed 25 Crypto Assets (Coins & Tokens only)
+    const CRYPTO_ASSETS = ['BTC','ETH','SOL','BNB','XRP','ADA','AVAX','DOT','LINK','MATIC','LTC','ATOM','OP','ARB','INJ','SUI','APT','NEAR','FIL','UNI','DOGE','TRX','XMR','ETC','BCH'];
+    
+    // Ring configuration with labels
+    const RING_CONFIG = [
+        { radius: 0,    label: '≥500%',      color: '#06b6d4', speed: 0.0003 },
+        { radius: 0.18, label: '300–500%',   color: '#ef4444', speed: 0.0005 },
+        { radius: 0.32, label: '200–300%',   color: '#f97316', speed: 0.0007 },
+        { radius: 0.46, label: '100–200%',   color: '#eab308', speed: 0.0009 },
+        { radius: 0.60, label: '50–100%',    color: '#22c55e', speed: 0.0011 },
+        { radius: 0.76, label: '10–50%',     color: '#3b82f6', speed: 0.0013 },
+        { radius: 0.90, label: '<10%',       color: '#6b7280', speed: 0.0015 }
+    ];
+
+    const RINGS = [
+        { min: 500, color: '#06b6d4', glow: 0.9, name: 'Core', speed: 0.0003 },
+        { min: 300, color: '#ef4444', glow: 0.6, name: '300–500%', speed: 0.0005 },
+        { min: 200, color: '#f97316', glow: 0.5, name: '200–300%', speed: 0.0007 },
+        { min: 100, color: '#eab308', glow: 0.4, name: '100–200%', speed: 0.0009 },
+        { min: 50, color: '#22c55e', glow: 0.3, name: '50–100%', speed: 0.0011 },
+        { min: 10, color: '#3b82f6', glow: 0.2, name: '10–50%', speed: 0.0013 },
+        { min: -999, color: '#6b7280', glow: 0.1, name: '<10%', speed: 0.0015 }
+    ];
+
+    const canvas = document.getElementById('orbitCanvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+    
+    let bubbles = [];
+    let centerX, centerY, maxRadius;
+    let animId = null;
+    let hoveredBubble = null;
+    let showLabels = true;
+    let ringAngles = [0, 0, 0, 0, 0, 0, 0];
+    let isPageVisible = true;
+
+    function resize() {
+        const container = document.querySelector('.canvas-container');
+        const size = Math.min(container.clientWidth, container.clientHeight) - 20;
+        canvas.width = size;
+        canvas.height = size;
+        centerX = size / 2;
+        centerY = size / 2;
+        maxRadius = size / 2 - 25;
+    }
+
+    function getRing(perf) {
+        for (let r of RINGS) if (perf >= r.min) return r;
+        return RINGS[RINGS.length - 1];
+    }
+
+    function getOrbitRadius(perf) {
+        if (perf >= 500) return 0;
+        if (perf >= 300) return maxRadius * 0.18;
+        if (perf >= 200) return maxRadius * 0.32;
+        if (perf >= 100) return maxRadius * 0.46;
+        if (perf >= 50) return maxRadius * 0.60;
+        if (perf >= 10) return maxRadius * 0.76;
+        return maxRadius * 0.90;
+    }
+
+    function generateData() {
+        const shuffled = [...CRYPTO_ASSETS].sort(() => Math.random() - 0.5);
+        return shuffled.map((sym, i) => {
+            let perf;
+            if (i === 0) perf = 550 + Math.random() * 500;
+            else if (i < 3) perf = 300 + Math.random() * 200;
+            else if (i < 6) perf = 200 + Math.random() * 100;
+            else if (i < 10) perf = 100 + Math.random() * 100;
+            else if (i < 16) perf = 50 + Math.random() * 50;
+            else if (i < 22) perf = 10 + Math.random() * 40;
+            else perf = -5 + Math.random() * 15;
+            return { symbol: sym, perf: perf, size: 10 + Math.random() * 16 };
+        }).sort((a, b) => b.perf - a.perf);
+    }
+
+    function initBubbles() {
+        const data = generateData();
+        bubbles = [];
+        
+        const ringGroups = {};
+        data.forEach(d => {
+            const ring = getRing(d.perf);
+            if (!ringGroups[ring.name]) ringGroups[ring.name] = [];
+            ringGroups[ring.name].push(d);
+        });
+
+        data.forEach((d, i) => {
+            const ring = getRing(d.perf);
+            const orbitR = getOrbitRadius(d.perf);
+            const group = ringGroups[ring.name];
+            const idxInRing = group.indexOf(d);
+            const angleStep = (Math.PI * 2) / group.length;
+            const angle = angleStep * idxInRing + Math.random() * 0.2;
+            
+            bubbles.push({
+                ...d,
+                ring,
+                orbitRadius: orbitR + (Math.random() - 0.5) * 12,
+                angle,
+                speed: ring.speed * (0.85 + Math.random() * 0.3),
+                x: centerX,
+                y: centerY,
+                isCore: i === 0
+            });
+        });
+
+        document.getElementById('statCore').textContent = bubbles[0]?.symbol || '-';
+        document.getElementById('statTop').textContent = bubbles[0]?.perf.toFixed(0) + '%';
+    }
+
+    function drawTextOnArc(text, radius, angle, color) {
+        if (radius < 25) return;
+        const fontSize = Math.max(9, Math.min(13, radius * 0.07));
+        ctx.font = `bold ${fontSize}px 'JetBrains Mono', monospace`;
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.5;
+        
+        const textLen = text.length;
+        const arcLen = fontSize * 0.65 * textLen;
+        const startAngle = angle - (arcLen / radius) / 2;
+        
+        for (let i = 0; i < textLen; i++) {
+            const charAngle = startAngle + (i * fontSize * 0.65) / radius;
+            const x = centerX + Math.cos(charAngle) * radius;
+            const y = centerY + Math.sin(charAngle) * radius;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(charAngle + Math.PI / 2);
+            ctx.fillText(text[i], 0, 0);
+            ctx.restore();
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    function update() {
+        RING_CONFIG.forEach((ring, i) => { ringAngles[i] += ring.speed; });
+        
+        bubbles.forEach(b => {
+            b.angle += b.speed;
+            if (b.isCore) {
+                b.x = centerX + Math.sin(b.angle * 0.4) * 4;
+                b.y = centerY + Math.cos(b.angle * 0.4) * 4;
+            } else {
+                b.x = centerX + Math.cos(b.angle) * b.orbitRadius;
+                b.y = centerY + Math.sin(b.angle) * b.orbitRadius;
+            }
+        });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw orbit rings with rotating labels
+        RING_CONFIG.forEach((ring, i) => {
+            if (ring.radius === 0) return;
+            const r = maxRadius * ring.radius;
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
+            ctx.strokeStyle = ring.color + '18';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            if (showLabels) {
+                drawTextOnArc(ring.label, r + 10, ringAngles[i], ring.color);
+                drawTextOnArc(ring.label, r + 10, ringAngles[i] + Math.PI, ring.color);
+            }
+        });
+
+        // Core glow
+        const coreGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 35);
+        coreGrad.addColorStop(0, 'rgba(6,182,212,0.35)');
+        coreGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = coreGrad;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 35, 0, Math.PI * 2);
+        ctx.fill();
+        
+        if (showLabels) {
+            ctx.font = 'bold 10px JetBrains Mono';
+            ctx.fillStyle = 'rgba(6,182,212,0.5)';
+            ctx.textAlign = 'center';
+            ctx.fillText('≥500%', centerX, centerY + 50);
+        }
+
+        // Draw bubbles
+        [...bubbles].reverse().forEach(b => {
+            if (b.ring.glow > 0.2) {
+                ctx.beginPath();
+                const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.size * 2);
+                grad.addColorStop(0, b.ring.color + '50');
+                grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad;
+                ctx.arc(b.x, b.y, b.size * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.beginPath();
+            const bubGrad = ctx.createRadialGradient(b.x - b.size * 0.3, b.y - b.size * 0.3, 0, b.x, b.y, b.size);
+            bubGrad.addColorStop(0, b.ring.color);
+            bubGrad.addColorStop(1, '#0a0f1e');
+            ctx.fillStyle = bubGrad;
+            ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            if (b.size > 10) {
+                ctx.fillStyle = '#fff';
+                ctx.font = `bold ${Math.max(7, b.size * 0.45)}px Orbitron`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(b.symbol, b.x, b.y);
+            }
+            
+            if (hoveredBubble === b) {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.size + 3, 0, Math.PI * 2);
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        });
+    }
+
+    function animate() {
+        if (!isPageVisible) return;
+        update();
+        draw();
+        animId = requestAnimationFrame(animate);
+    }
+
+    function stopAnimation() {
+        if (animId) {
+            cancelAnimationFrame(animId);
+            animId = null;
+        }
+    }
+
+    function findBubble(mx, my) {
+        const rect = canvas.getBoundingClientRect();
+        const x = mx - rect.left, y = my - rect.top;
+        for (let b of bubbles) {
+            if (Math.hypot(x - b.x, y - b.y) <= b.size) return b;
+        }
+        return null;
+    }
+
+    canvas.addEventListener('mousemove', e => {
+        const b = findBubble(e.clientX, e.clientY);
+        hoveredBubble = b;
+        canvas.style.cursor = b ? 'pointer' : 'default';
+        if (b) {
+            document.getElementById('ttSym').textContent = b.symbol;
+            const ch = document.getElementById('ttChange');
+            ch.textContent = (b.perf >= 0 ? '+' : '') + b.perf.toFixed(1) + '%';
+            ch.className = 'tooltip-change ' + (b.perf >= 0 ? 'pos' : 'neg');
+            document.getElementById('ttRing').textContent = b.ring.name;
+            tooltip.style.left = (e.clientX + 15) + 'px';
+            tooltip.style.top = (e.clientY + 15) + 'px';
+            tooltip.classList.add('visible');
+            showInfoCircles(b);
+        } else {
+            tooltip.classList.remove('visible');
+            // Don't hide info circles on mouseleave - they stay for 15s
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        hoveredBubble = null;
+        tooltip.classList.remove('visible');
+        // Don't hide info circles - they stay visible for 15 seconds
+    });
+
+    // ==================== INFO CIRCLES SYSTEM (15s Timer) ====================
+    const infoCirclesContainer = document.getElementById('infoCirclesContainer');
+    const infoCircles = [
+        document.getElementById('infoPrice'),
+        document.getElementById('infoVolume'),
+        document.getElementById('infoVolatility'),
+        document.getElementById('infoSentiment'),
+        document.getElementById('infoEvent')
+    ];
+    const countdownRing = document.getElementById('countdownRing');
+    const countdownProgress = document.getElementById('countdownProgress');
+    const CIRCLE_CIRCUMFERENCE = 138.23; // 2 * PI * 22
+    const DISPLAY_DURATION = 15000; // 15 seconds
+    
+    const EVENT_TYPES = ['News', 'Whale', 'Listing', 'Spike', 'Update', 'Partnership'];
+    let currentInfoBubble = null;
+    let infoUpdateInterval = null;
+    let hideTimer = null;
+    let countdownInterval = null;
+    let timerStartTime = 0;
+    
+    function generateInfoData(bubble) {
+        // Generate plausible data based on bubble performance
+        const perf = bubble.perf;
+        const volatilityBase = Math.abs(perf) > 100 ? 'High' : (Math.abs(perf) > 30 ? 'Medium' : 'Low');
+        const impulse = (perf > 0 ? '+' : '') + (perf * 0.02 + (Math.random() - 0.5) * 3).toFixed(1);
+        const volumeChange = Math.round(perf * 0.3 + (Math.random() - 0.3) * 40);
+        const buyPressure = Math.round(50 + (perf > 0 ? 1 : -1) * Math.min(30, Math.abs(perf) * 0.15) + (Math.random() - 0.5) * 15);
+        const sellPressure = 100 - buyPressure;
+        const eventType = EVENT_TYPES[Math.floor(Math.random() * EVENT_TYPES.length)];
+        
+        return {
+            impulse: parseFloat(impulse),
+            volume: volumeChange,
+            volatility: volatilityBase,
+            buyPressure,
+            sellPressure,
+            event: eventType
+        };
+    }
+    
+    function updateInfoCircleContent(bubble) {
+        const data = generateInfoData(bubble);
+        
+        // Price Impulse
+        const priceEl = infoCircles[0].querySelector('.info-circle-value');
+        const impulseClass = data.impulse >= 0 ? 'green' : 'red';
+        const arrow = data.impulse >= 0 ? '↑' : '↓';
+        priceEl.innerHTML = `<span class="${impulseClass}">${data.impulse >= 0 ? '+' : ''}${data.impulse.toFixed(1)}%</span> ${arrow}`;
+        
+        // Volume
+        const volEl = infoCircles[1].querySelector('.info-circle-value');
+        const volClass = data.volume >= 0 ? 'cyan' : 'red';
+        volEl.innerHTML = `<span class="${volClass}">${data.volume >= 0 ? '+' : ''}${data.volume}%</span>`;
+        infoCircles[1].classList.toggle('pulse', data.volume > 50);
+        
+        // Volatility
+        const volatEl = infoCircles[2].querySelector('.info-circle-value');
+        const volatClass = data.volatility === 'High' ? 'orange' : (data.volatility === 'Medium' ? 'yellow' : 'green');
+        volatEl.innerHTML = `<span class="${volatClass}">${data.volatility}</span>`;
+        infoCircles[2].classList.toggle('vibrate', data.volatility === 'High');
+        
+        // Sentiment
+        const sentEl = infoCircles[3].querySelector('.info-circle-value');
+        sentEl.innerHTML = `<span class="green">${data.buyPressure}%</span>|<span class="red">${data.sellPressure}%</span>`;
+        
+        // Event
+        const eventEl = infoCircles[4].querySelector('.info-circle-value');
+        eventEl.innerHTML = `<span class="yellow">${data.event}</span>`;
+    }
+    
+    function positionInfoCircles(bubble) {
+        const rect = canvas.getBoundingClientRect();
+        const bx = rect.left + bubble.x;
+        const by = rect.top + bubble.y;
+        const radius = bubble.size + 55; // Distance from bubble center
+        
+        infoCircles.forEach((circle, i) => {
+            const angle = (i * 72 - 90) * (Math.PI / 180); // 72° apart, start from top
+            const cx = bx + Math.cos(angle) * radius - 36; // 36 = half of circle width
+            const cy = by + Math.sin(angle) * radius - 36;
+            circle.style.left = cx + 'px';
+            circle.style.top = cy + 'px';
+        });
+        
+        // Position countdown ring at center of bubble
+        countdownRing.style.left = (bx - 25) + 'px';
+        countdownRing.style.top = (by - 25) + 'px';
+    }
+    
+    function startCountdown() {
+        timerStartTime = Date.now();
+        countdownProgress.style.strokeDashoffset = '0';
+        countdownRing.classList.add('visible');
+        
+        // Clear existing countdown
+        if (countdownInterval) clearInterval(countdownInterval);
+        
+        // Update countdown ring every 50ms for smooth animation
+        countdownInterval = setInterval(() => {
+            const elapsed = Date.now() - timerStartTime;
+            const progress = Math.min(elapsed / DISPLAY_DURATION, 1);
+            const offset = CIRCLE_CIRCUMFERENCE * progress;
+            countdownProgress.style.strokeDashoffset = offset;
+            
+            if (progress >= 1) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+        }, 50);
+    }
+    
+    function showInfoCircles(bubble) {
+        const isSameBubble = currentInfoBubble === bubble;
+        
+        // Clear existing hide timer
+        if (hideTimer) {
+            clearTimeout(hideTimer);
+            hideTimer = null;
+        }
+        
+        // If same bubble, just reset timer (no re-render)
+        if (isSameBubble && infoCircles[0].classList.contains('visible')) {
+            startCountdown();
+            hideTimer = setTimeout(() => hideInfoCircles(), DISPLAY_DURATION);
+            return;
+        }
+        
+        // Different bubble - switch immediately
+        if (currentInfoBubble && currentInfoBubble !== bubble) {
+            // Quick hide without animation for switch
+            infoCircles.forEach(c => c.classList.remove('visible', 'pulse', 'vibrate'));
+        }
+        
+        currentInfoBubble = bubble;
+        updateInfoCircleContent(bubble);
+        positionInfoCircles(bubble);
+        
+        // Stagger animation
+        infoCircles.forEach((circle, i) => {
+            setTimeout(() => {
+                circle.classList.add('visible');
+            }, i * 40);
+        });
+        
+        // Start countdown visualization
+        startCountdown();
+        
+        // Start 15 second hide timer
+        hideTimer = setTimeout(() => hideInfoCircles(), DISPLAY_DURATION);
+        
+        // Update data every second
+        if (infoUpdateInterval) clearInterval(infoUpdateInterval);
+        infoUpdateInterval = setInterval(() => {
+            if (currentInfoBubble) {
+                updateInfoCircleContent(currentInfoBubble);
+            }
+        }, 1000);
+    }
+    
+    function hideInfoCircles() {
+        currentInfoBubble = null;
+        
+        // Clear all timers
+        if (hideTimer) {
+            clearTimeout(hideTimer);
+            hideTimer = null;
+        }
+        if (infoUpdateInterval) {
+            clearInterval(infoUpdateInterval);
+            infoUpdateInterval = null;
+        }
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
+        
+        // Hide countdown ring
+        countdownRing.classList.remove('visible');
+        
+        // Fade out info circles
+        infoCircles.forEach((circle, i) => {
+            setTimeout(() => {
+                circle.classList.remove('visible', 'pulse', 'vibrate');
+            }, i * 25);
+        });
+    }
+    
+    // Update positions during animation (follow the bubble)
+    function updateInfoCirclePositions() {
+        if (currentInfoBubble) {
+            // Find the bubble in array (it may have moved)
+            const bubble = bubbles.find(b => b.symbol === currentInfoBubble.symbol);
+            if (bubble) {
+                currentInfoBubble = bubble; // Update reference
+                positionInfoCircles(bubble);
+            }
+        }
+    }
+    
+    // Modify the existing animate function to update circle positions
+    const originalDraw = draw;
+    draw = function() {
+        originalDraw();
+        updateInfoCirclePositions();
+    };
+    
+    // Mobile touch support
+    let touchedBubble = null;
+    canvas.addEventListener('touchstart', e => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const b = findBubble(touch.clientX, touch.clientY);
+        
+        if (b) {
+            if (touchedBubble === b) {
+                // Second tap - close
+                hideInfoCircles();
+                touchedBubble = null;
+            } else {
+                // First tap - show
+                hoveredBubble = b;
+                touchedBubble = b;
+                showInfoCircles(b);
+                
+                // Show tooltip
+                document.getElementById('ttSym').textContent = b.symbol;
+                const ch = document.getElementById('ttChange');
+                ch.textContent = (b.perf >= 0 ? '+' : '') + b.perf.toFixed(1) + '%';
+                ch.className = 'tooltip-change ' + (b.perf >= 0 ? 'pos' : 'neg');
+                document.getElementById('ttRing').textContent = b.ring.name;
+                tooltip.style.left = (touch.clientX + 15) + 'px';
+                tooltip.style.top = (touch.clientY - 80) + 'px';
+                tooltip.classList.add('visible');
+            }
+        } else {
+            hideInfoCircles();
+            touchedBubble = null;
+            hoveredBubble = null;
+            tooltip.classList.remove('visible');
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('click', e => {
+        const b = findBubble(e.clientX, e.clientY);
+        if (b) {
+            // Placeholder: Open crypto info page
+            console.log('Open info for:', b.symbol);
+        }
+    });
+
+    document.getElementById('rerollBtn').addEventListener('click', () => initBubbles());
+    document.getElementById('labelToggle').addEventListener('click', function() {
+        showLabels = !showLabels;
+        this.classList.toggle('active', showLabels);
+    });
+
+    // Stop animation when page is hidden
+    document.addEventListener('visibilitychange', () => {
+        isPageVisible = !document.hidden;
+        if (isPageVisible && !animId) animate();
+        else if (!isPageVisible) stopAnimation();
+    });
+
+    // Loading sequence
+    const overlay = document.getElementById('loadingOverlay');
+    const progressBar = document.getElementById('progressBar');
+    const progressPercent = document.getElementById('progressPercent');
+    const loadingSub = document.getElementById('loadingSub');
+    
+    const steps = ['Lade Crypto-Assets...', 'Berechne Orbits...', 'Initialisiere Canvas...', 'Starte Animation...'];
+    let progress = 0, stepIdx = 0;
+    
+    const progressInterval = setInterval(() => {
+        if (progress < 92) {
+            progress += 10 + Math.random() * 15;
+            if (progress > 92) progress = 92;
+            if (stepIdx < steps.length && progress > stepIdx * 23) loadingSub.textContent = steps[stepIdx++];
+            progressBar.style.width = progress + '%';
+            progressPercent.textContent = Math.round(progress) + '%';
+        }
+    }, 70);
+    
+    resize();
+    window.addEventListener('resize', resize);
+    initBubbles();
+    
+    setTimeout(() => {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressPercent.textContent = '100%';
+        loadingSub.textContent = 'Bereit!';
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            animate();
+        }, 250);
+    }, 500);
+    </script>
+</body>
+</html>

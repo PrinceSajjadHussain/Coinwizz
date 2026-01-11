@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhaleBubbles | CryptoSpaces</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --space-black: #000510;
+            --accent-blue: #0ea5e9;
+            --accent-cyan: #22d3ee;
+            --text-light: #f1f5f9;
+        }
+        /* Unified Header Styles */
+        .unified-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0, 5, 16, 0.95) 0%, rgba(0, 5, 16, 0) 100%);
+            padding: 15px 30px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+        }
+        .unified-left { display: flex; align-items: center; gap: 20px; }
+        .unified-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+        .unified-nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .unified-nav-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            padding: 7px 12px;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: rgba(14, 165, 233, 0.05);
+            text-transform: uppercase;
+        }
+        .unified-nav-link:hover {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+        }
+        .unified-utils {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .unified-btn {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(34, 211, 238, 0.1));
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            color: var(--text-light);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .unified-btn:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(34, 211, 238, 0.2));
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+        @media (max-width: 900px) {
+            .unified-nav { display: none; }
+            .unified-header { padding: 10px 15px; }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--space-black);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(10, 22, 40, 0.95);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: #60a5fa;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-reset {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        
+        .btn-back {
+            background: rgba(100, 116, 139, 0.3);
+            color: #94a3b8;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+        
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            height: 100vh;
+            padding-top: 85px; /* Adjusted for Unified Header */
+        }
+        
+        /* Sidebars */
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .sidebar-left {
+            border-right: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .sidebar-right {
+            border-left: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .sidebar-header {
+            padding: 15px;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+            text-align: center;
+        }
+        
+        .sidebar-header h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+        
+        .sidebar-left .sidebar-header h3 { color: #22c55e; }
+        .sidebar-right .sidebar-header h3 { color: #ef4444; }
+        
+        .sidebar-header span {
+            font-size: 0.65rem;
+            color: #64748b;
+        }
+        
+        .whale-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .whale-list {
+            margin-bottom: 15px;
+        }
+        
+        .whale-list-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .whale-list-header.small { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .whale-list-header.medium { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+        .whale-list-header.mega { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+        
+        .whale-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 6px;
+            margin-bottom: 4px;
+            font-size: 0.65rem;
+            animation: itemAppear 0.3s ease-out;
+        }
+        
+        @keyframes itemAppear {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .whale-item img {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+        }
+        
+        .whale-item .ticker {
+            font-weight: 600;
+            color: #e2e8f0;
+            min-width: 45px;
+        }
+        
+        .whale-item .volume {
+            color: #64748b;
+            flex: 1;
+        }
+        
+        .whale-item .change {
+            font-weight: 500;
+        }
+        
+        .whale-item .change.positive { color: #22c55e; }
+        .whale-item .change.negative { color: #ef4444; }
+        
+        /* Ocean Area */
+        .ocean {
+            flex: 1;
+            position: relative;
+            background: radial-gradient(ellipse at center bottom, #0a1628 0%, #020818 100%);
+            overflow: hidden;
+        }
+        
+        /* Waves */
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 100px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path fill="%230a1628" d="M0,60 C300,100 600,20 900,60 C1200,100 1200,60 1200,60 L1200,120 L0,120 Z"/></svg>');
+            background-size: 50% 100%;
+            opacity: 0.3;
+            animation: wave 15s linear infinite;
+        }
+        
+        .wave:nth-child(2) {
+            bottom: 10px;
+            opacity: 0.2;
+            animation-duration: 20s;
+            animation-direction: reverse;
+        }
+        
+        @keyframes wave {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        
+        /* Whales */
+        .whale {
+            position: absolute;
+            font-size: 4rem;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+            z-index: 10;
+        }
+        
+        .whale:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.8));
+        }
+        
+        .whale.buy { left: 5%; }
+        .whale.sell { right: 5%; transform: scaleX(-1); }
+        .whale.sell:hover { transform: scaleX(-1) scale(1.1); }
+        
+        .whale.small { font-size: 3rem; }
+        .whale.medium { font-size: 4.5rem; }
+        .whale.mega { font-size: 6rem; }
+        
+        .whale.buy.small { top: 20%; }
+        .whale.buy.medium { top: 45%; }
+        .whale.buy.mega { top: 70%; }
+        
+        .whale.sell.small { top: 20%; }
+        .whale.sell.medium { top: 45%; }
+        .whale.sell.mega { top: 70%; }
+        
+        .whale-label {
+            position: absolute;
+            font-size: 0.6rem;
+            color: #94a3b8;
+            white-space: nowrap;
+            text-align: center;
+            width: 120px;
+        }
+        
+        .whale.buy .whale-label { left: 100%; margin-left: 10px; }
+        .whale.sell .whale-label { right: 100%; margin-right: 10px; transform: scaleX(-1); }
+        
+        /* Bubbles */
+        .bubble-container {
+            position: absolute;
+            top: 10%;
+            left: 20%;
+            right: 20%;
+            bottom: 20%;
+        }
+        
+        .crypto-bubble {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+        
+        .crypto-bubble:hover {
+            transform: scale(1.15);
+            z-index: 20;
+        }
+        
+        .crypto-bubble img {
+            width: 50%;
+            height: 50%;
+            border-radius: 50%;
+        }
+        
+        .crypto-bubble .ticker {
+            font-size: 0.5rem;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        
+        .crypto-bubble.swallowing {
+            animation: swallow 1s ease-in forwards;
+        }
+        
+        .crypto-bubble.spitting {
+            animation: spit 0.8s ease-out;
+        }
+        
+        @keyframes swallow {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(0.5); }
+            100% { transform: scale(0) translateX(-200px); opacity: 0; }
+        }
+        
+        @keyframes spit {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* Whale eating animation */
+        .whale.eating {
+            animation: chomp 0.5s ease-in-out;
+        }
+        
+        @keyframes chomp {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        
+        .whale.sell.eating {
+            animation: chompSell 0.5s ease-in-out;
+        }
+        
+        @keyframes chompSell {
+            0%, 100% { transform: scaleX(-1) scale(1); }
+            50% { transform: scaleX(-1) scale(1.15); }
+        }
+        
+        /* Footer Disclaimer */
+        .disclaimer {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: #475569;
+            text-align: center;
+            z-index: 50;
+        }
+        
+        /* Status */
+        .status-bar {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            font-size: 0.7rem;
+            color: #64748b;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-item .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-item .dot.green { background: #22c55e; }
+        .status-item .dot.red { background: #ef4444; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Unified Header -->
+    <header class="unified-header">
+        <div class="unified-left">
+            <a href="index.html" class="unified-logo">CRYPTOSPACES</a>
+            <span style="margin-left: 20px; font-family:'Orbitron'; font-size: 0.8rem; color: #60a5fa;">🐋 WhaleBubbles</span>
+        </div>
+        <nav class="unified-nav">
+            <a href="index.html" class="unified-nav-link">Home</a>
+            <a href="top100.html" class="unified-nav-link">Top 100</a>
+            <a href="whalebubbles.html" class="unified-nav-link">Whales</a>
+            <a href="canaveral.html" class="unified-nav-link">Canaveral</a>
+            <a href="financial-galaxy.html" class="unified-nav-link">Galaxy</a>
+        </nav>
+        <div class="unified-utils">
+            <button class="unified-btn" onclick="resetBubbles()">🔄 Reset</button>
+            <a href="top100.html" class="unified-btn">← Back</a>
+        </div>
+    </header>
+    
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar: Buy Whales -->
+        <div class="sidebar sidebar-left">
+            <div class="sidebar-header">
+                <h3>🟢 Swallowed by Whales</h3>
+                <span>Buy Pressure Detected (Today)</span>
+            </div>
+            <div class="whale-section">
+                <div class="whale-list" id="buySmallList">
+                    <div class="whale-list-header small">🐋 Small Buy-Whale</div>
+                </div>
+                <div class="whale-list" id="buyMediumList">
+                    <div class="whale-list-header medium">🐋🐋 Medium Buy-Whale</div>
+                </div>
+                <div class="whale-list" id="buyMegaList">
+                    <div class="whale-list-header mega">🐋🐋🐋 Mega Buy-Whale</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ocean Area -->
+        <div class="ocean" id="ocean">
+            <div class="wave"></div>
+            <div class="wave"></div>
+            
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="dot green"></span>
+                    <span>Buy Pressure: <strong id="buyCount">0</strong></span>
+                </div>
+                <div class="status-item">
+                    <span class="dot red"></span>
+                    <span>Sell Pressure: <strong id="sellCount">0</strong></span>
+                </div>
+            </div>
+            
+            <!-- Buy Whales (Left) -->
+            <div class="whale buy small" id="buyWhaleSmall" onclick="triggerWhale('buy', 'small')">
+                🐋
+                <div class="whale-label">Small Accumulator</div>
+            </div>
+            <div class="whale buy medium" id="buyWhaleMedium" onclick="triggerWhale('buy', 'medium')">
+                🐋
+                <div class="whale-label">Medium Accumulator</div>
+            </div>
+            <div class="whale buy mega" id="buyWhaleMega" onclick="triggerWhale('buy', 'mega')">
+                🐋
+                <div class="whale-label">Mega Accumulator</div>
+            </div>
+            
+            <!-- Sell Whales (Right) -->
+            <div class="whale sell small" id="sellWhaleSmall" onclick="triggerWhale('sell', 'small')">
+                🐋
+                <div class="whale-label">Small Distributor</div>
+            </div>
+            <div class="whale sell medium" id="sellWhaleMedium" onclick="triggerWhale('sell', 'medium')">
+                🐋
+                <div class="whale-label">Medium Distributor</div>
+            </div>
+            <div class="whale sell mega" id="sellWhaleMega" onclick="triggerWhale('sell', 'mega')">
+                🐋
+                <div class="whale-label">Mega Distributor</div>
+            </div>
+            
+            <!-- Bubble Container -->
+            <div class="bubble-container" id="bubbleContainer"></div>
+        </div>
+        
+        <!-- Right Sidebar: Sell Whales -->
+        <div class="sidebar sidebar-right">
+            <div class="sidebar-header">
+                <h3>🔴 Spit Out by Whales</h3>
+                <span>Sell Pressure Detected (Today)</span>
+            </div>
+            <div class="whale-section">
+                <div class="whale-list" id="sellSmallList">
+                    <div class="whale-list-header small">🐋 Small Sell-Whale</div>
+                </div>
+                <div class="whale-list" id="sellMediumList">
+                    <div class="whale-list-header medium">🐋🐋 Medium Sell-Whale</div>
+                </div>
+                <div class="whale-list" id="sellMegaList">
+                    <div class="whale-list-header mega">🐋🐋🐋 Mega Sell-Whale</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+        Visualization only. Signal-based interpretation of market data. Not financial advice.
+    </div>
+    
+    <script>
+        const API_URL = 'https://api.coingecko.com/api/v3/coins/markets';
+        let allCoins = [];
+        let bubbles = [];
+        let swallowedCoins = { buy: { small: [], medium: [], mega: [] }, sell: { small: [], medium: [], mega: [] } };
+        
+        // Fetch coin data
+        async function fetchCoins() {
+            try {
+                const res = await fetch(`${API_URL}?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=1h,24h,7d`);
+                allCoins = await res.json();
+                if (bubbles.length === 0) {
+                    createBubbles();
+                }
+                analyzeAndAssign();
+            } catch (e) {
+                console.error('Fetch error:', e);
+            }
+        }
+        
+        // Create bubbles
+        function createBubbles() {
+            const container = document.getElementById('bubbleContainer');
+            container.innerHTML = '';
+            bubbles = [];
+            
+            allCoins.forEach((coin, i) => {
+                const bubble = document.createElement('div');
+                bubble.className = 'crypto-bubble';
+                bubble.id = `bubble-${coin.id}`;
+                bubble.dataset.coinId = coin.id;
+                
+                const size = 40 + (50 - i) * 0.8;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                
+                // Random position
+                bubble.style.left = (10 + Math.random() * 80) + '%';
+                bubble.style.top = (5 + Math.random() * 85) + '%';
+                
+                // Color based on 24h change
+                const change = coin.price_change_percentage_24h || 0;
+                const hue = change >= 0 ? 120 + change * 2 : 0 - change * 2;
+                bubble.style.background = `radial-gradient(circle at 30% 30%, hsl(${hue}, 70%, 60%), hsl(${hue}, 70%, 30%))`;
+                
+                bubble.innerHTML = `
+                    <img src="${coin.image}" alt="${coin.symbol}">
+                    <span class="ticker">${coin.symbol.toUpperCase()}</span>
+                `;
+                
+                container.appendChild(bubble);
+                bubbles.push({ element: bubble, coin: coin, active: true });
+            });
+        }
+        
+        // Analyze coins and assign to whales
+        function analyzeAndAssign() {
+            // Sort by different criteria
+            const byVolumeIncrease = [...allCoins].sort((a, b) => {
+                const ratioA = a.total_volume / a.market_cap;
+                const ratioB = b.total_volume / b.market_cap;
+                return ratioB - ratioA;
+            });
+            
+            const buySignals = allCoins.filter(c => 
+                (c.price_change_percentage_24h || 0) > 0 && 
+                (c.total_volume / c.market_cap) > 0.05
+            ).sort((a, b) => (b.price_change_percentage_24h || 0) - (a.price_change_percentage_24h || 0));
+            
+            const sellSignals = allCoins.filter(c => 
+                (c.price_change_percentage_24h || 0) < 0 && 
+                (c.total_volume / c.market_cap) > 0.05
+            ).sort((a, b) => (a.price_change_percentage_24h || 0) - (b.price_change_percentage_24h || 0));
+            
+            // Assign to whales based on signal strength
+            // Buy Whales
+            if (buySignals.length >= 3) {
+                // Mega: top 2-3 strongest
+                assignToWhale(buySignals.slice(0, 3), 'buy', 'mega');
+            }
+            if (buySignals.length >= 6) {
+                // Medium: next 3-5
+                assignToWhale(buySignals.slice(3, 7), 'buy', 'medium');
+            }
+            if (buySignals.length >= 10) {
+                // Small: next few
+                assignToWhale(buySignals.slice(7, 12), 'buy', 'small');
+            }
+            
+            // Sell Whales
+            if (sellSignals.length >= 3) {
+                assignToWhale(sellSignals.slice(0, 3), 'sell', 'mega');
+            }
+            if (sellSignals.length >= 6) {
+                assignToWhale(sellSignals.slice(3, 7), 'sell', 'medium');
+            }
+            if (sellSignals.length >= 10) {
+                assignToWhale(sellSignals.slice(7, 12), 'sell', 'small');
+            }
+            
+            updateCounts();
+        }
+        
+        // Assign coins to a whale
+        function assignToWhale(coins, type, size) {
+            coins.forEach((coin, i) => {
+                setTimeout(() => {
+                    const bubble = bubbles.find(b => b.coin.id === coin.id && b.active);
+                    if (bubble) {
+                        if (type === 'buy') {
+                            swallowBubble(bubble, size);
+                        } else {
+                            // For sell, we track them but they stay visible
+                            markAsSpit(bubble, size);
+                        }
+                    }
+                }, i * 500);
+            });
+        }
+        
+        // Swallow bubble animation
+        function swallowBubble(bubble, size) {
+            const whale = document.getElementById(`buyWhale${capitalize(size)}`);
+            whale.classList.add('eating');
+            setTimeout(() => whale.classList.remove('eating'), 500);
+            
+            bubble.element.classList.add('swallowing');
+            bubble.active = false;
+            
+            // Add to list
+            swallowedCoins.buy[size].push(bubble.coin);
+            updateList('buy', size);
+            
+            setTimeout(() => {
+                bubble.element.style.display = 'none';
+            }, 1000);
+        }
+        
+        // Mark as spit (sell signal)
+        function markAsSpit(bubble, size) {
+            const whale = document.getElementById(`sellWhale${capitalize(size)}`);
+            whale.classList.add('eating');
+            setTimeout(() => whale.classList.remove('eating'), 500);
+            
+            bubble.element.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.6)';
+            
+            // Add to list
+            if (!swallowedCoins.sell[size].find(c => c.id === bubble.coin.id)) {
+                swallowedCoins.sell[size].push(bubble.coin);
+                updateList('sell', size);
+            }
+        }
+        
+        // Update sidebar list
+        function updateList(type, size) {
+            const listId = `${type}${capitalize(size)}List`;
+            const list = document.getElementById(listId);
+            const coins = swallowedCoins[type][size];
+            
+            // Keep header, add items
+            const header = list.querySelector('.whale-list-header');
+            list.innerHTML = '';
+            list.appendChild(header);
+            
+            coins.forEach(coin => {
+                const change = coin.price_change_percentage_24h || 0;
+                const volRatio = ((coin.total_volume / coin.market_cap) * 100).toFixed(1);
+                
+                const item = document.createElement('div');
+                item.className = 'whale-item';
+                item.innerHTML = `
+                    <img src="${coin.image}" alt="${coin.symbol}">
+                    <span class="ticker">${coin.symbol.toUpperCase()}</span>
+                    <span class="volume">Vol: ${volRatio}%</span>
+                    <span class="change ${change >= 0 ? 'positive' : 'negative'}">${change >= 0 ? '+' : ''}${change.toFixed(1)}%</span>
+                `;
+                list.appendChild(item);
+            });
+        }
+        
+        // Update counts
+        function updateCounts() {
+            const buyTotal = swallowedCoins.buy.small.length + swallowedCoins.buy.medium.length + swallowedCoins.buy.mega.length;
+            const sellTotal = swallowedCoins.sell.small.length + swallowedCoins.sell.medium.length + swallowedCoins.sell.mega.length;
+            
+            document.getElementById('buyCount').textContent = buyTotal;
+            document.getElementById('sellCount').textContent = sellTotal;
+        }
+        
+        // Manual trigger whale
+        function triggerWhale(type, size) {
+            const whale = document.getElementById(`${type}Whale${capitalize(size)}`);
+            whale.classList.add('eating');
+            setTimeout(() => whale.classList.remove('eating'), 500);
+        }
+        
+        // Reset all bubbles
+        function resetBubbles() {
+            swallowedCoins = { buy: { small: [], medium: [], mega: [] }, sell: { small: [], medium: [], mega: [] } };
+            
+            // Reset lists
+            ['buy', 'sell'].forEach(type => {
+                ['small', 'medium', 'mega'].forEach(size => {
+                    updateList(type, size);
+                });
+            });
+            
+            // Recreate bubbles
+            createBubbles();
+            updateCounts();
+            
+            // Re-analyze after short delay
+            setTimeout(analyzeAndAssign, 1000);
+        }
+        
+        // Helper
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+        
+        // Init
+        fetchCoins();
+        setInterval(fetchCoins, 60000);
+    </script>
+</body>
+</html>
