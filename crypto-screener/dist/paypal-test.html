@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayPal Button Test</title>
+    <script src="https://www.paypal.com/sdk/js?client-id=AWTLzIn6rdXSl9AnXS4JH_WYN5pu5oeab0035Cx23H0chTupESGKMxRxFZkRq2mASSUPNch6pOwG_ig&currency=EUR"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0a0f1e;
+            color: #f8fafc;
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .container {
+            background: rgba(15,23,42,0.8);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        h1 { color: #3b82f6; margin-bottom: 20px; }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(59,130,246,0.1);
+            border-radius: 8px;
+            border-left: 3px solid #3b82f6;
+        }
+        .button-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+        .status { padding: 10px; background: rgba(34,197,94,0.2); border-radius: 6px; margin: 10px 0; }
+        .error { background: rgba(239,68,68,0.2) !important; border-left-color: #ef4444 !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 PayPal Subscription Button Test</h1>
+        
+        <div class="test-section">
+            <h3>SDK Status</h3>
+            <div id="sdk-status" class="status">Checking PayPal SDK...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>Plan: Rallye 25 (€24.90/mo)</h3>
+            <div id="paypal-button-container-25" class="button-container"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Plan: Rallye 50 (€49.90/mo)</h3>
+            <div id="paypal-button-container-50" class="button-container"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Plan: ELITE 100 (€99.90/mo)</h3>
+            <div id="paypal-button-container-100" class="button-container"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Debug Log</h3>
+            <div id="debug-log" style="max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px;"></div>
+        </div>
+    </div>
+
+    <script>
+        const debugLog = document.getElementById('debug-log');
+        const sdkStatus = document.getElementById('sdk-status');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            if (type === 'error') {
+                logEntry.style.color = '#ef4444';
+            } else if (type === 'success') {
+                logEntry.style.color = '#22c55e';
+            }
+            debugLog.appendChild(logEntry);
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(message);
+        }
+
+        // Check SDK
+        log('Initializing PayPal test page...');
+        
+        function checkPayPal() {
+            if (window.paypal) {
+                log('✅ PayPal SDK loaded successfully', 'success');
+                sdkStatus.textContent = '✅ PayPal SDK is loaded and ready';
+                sdkStatus.style.background = 'rgba(34,197,94,0.2)';
+                initializeButtons();
+            } else {
+                log('⏳ Waiting for PayPal SDK...', 'info');
+                sdkStatus.textContent = '⏳ Waiting for PayPal SDK...';
+                setTimeout(checkPayPal, 500);
+            }
+        }
+
+        const paypalPlans = {
+            25: { price: '24.90', planId: 'PLAN_25' },
+            50: { price: '49.90', planId: 'PLAN_50' },
+            100: { price: '99.90', planId: 'PLAN_100' }
+        };
+
+        function initializeButtons() {
+            [25, 50, 100].forEach(planId => {
+                initializePayPalButton(planId);
+            });
+        }
+
+        function initializePayPalButton(planId) {
+            const containerId = `paypal-button-container-${planId}`;
+            const container = document.getElementById(containerId);
+
+            if (!container) {
+                log(`❌ Container not found: ${containerId}`, 'error');
+                return;
+            }
+
+            try {
+                log(`Creating button for plan ${planId}...`);
+                
+                window.paypal.Buttons({
+                    style: {
+                        layout: 'horizontal',
+                        color: planId === 25 ? 'gold' : (planId === 50 ? 'blue' : 'black'),
+                        shape: 'rect',
+                        label: 'subscribe',
+                        height: 40
+                    },
+                    createSubscription: function(data, actions) {
+                        log(`📋 Creating subscription - Plan ${planId} (€${paypalPlans[planId].price}/mo)`);
+                        return actions.subscription.create({
+                            quantity: '1',
+                            custom_id: `plan_${planId}`
+                        }).catch(err => {
+                            log(`❌ Subscription creation error: ${err.message}`, 'error');
+                            throw err;
+                        });
+                    },
+                    onApprove: function(data, actions) {
+                        log(`✅ Subscription approved! ID: ${data.subscriptionID}`, 'success');
+                        alert(`Success! Subscription ID: ${data.subscriptionID}`);
+                    },
+                    onError: function(err) {
+                        log(`❌ Error: ${err.message}`, 'error');
+                        alert(`Error: ${err.message}`);
+                    },
+                    onCancel: function(data) {
+                        log(`⚠️ User cancelled payment`);
+                    }
+                }).render(`#${containerId}`);
+
+                log(`✅ Button initialized successfully for plan ${planId}`, 'success');
+            } catch (error) {
+                log(`❌ Failed to create button for plan ${planId}: ${error.message}`, 'error');
+            }
+        }
+
+        // Start checking for PayPal SDK
+        setTimeout(checkPayPal, 100);
+
+        // Fallback check after 3 seconds
+        setTimeout(() => {
+            if (!window.paypal) {
+                log('❌ PayPal SDK failed to load after 3 seconds', 'error');
+                sdkStatus.textContent = '❌ Failed to load PayPal SDK';
+                sdkStatus.classList.add('error');
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
