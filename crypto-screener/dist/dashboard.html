@@ -38,7 +38,11 @@
             align-items: center;
             z-index: 1000;
         }
-        .auth-gate.hidden { display: none; }
+        .auth-gate.hidden { 
+            display: none !important; 
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
         .auth-box {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -300,6 +304,7 @@
                 <button class="lang-btn" data-lang="de" onclick="setLanguage('de')">DE</button>
                 <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
             </div>
+            <a href="super-admin.html" id="superAdminBtn" style="display:none;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;padding:6px 14px;border-radius:8px;font-size:0.65rem;text-decoration:none;margin-right:10px;font-family:Orbitron,sans-serif;font-weight:600;">🔐 SUPER ADMIN</a>
             <span id="userNameDisplay" style="color:#3b82f6;font-size:0.7rem;font-weight:600;margin-right:10px;"></span>
             <button class="logout-btn" id="logoutBtn" data-i18n="logout" title="">Logout</button>
         </div>
@@ -402,7 +407,7 @@
                                 <div class="coin-count" id="coinCount">0 / 25</div>
                                 <div class="coin-label" data-i18n="activeCoins">Aktive Coins</div>
                             </div>
-                            <button class="upgrade-btn gold" style="width:auto;margin:0;" data-i18n="manage">Verwalten</button>
+                            <a href="my-coins.html" class="upgrade-btn gold" style="width:auto;margin:0;text-decoration:none;display:inline-block;" data-i18n="manage">Verwalten</a>
                         </div>
                     </div>
                     <div class="locked-cta" id="coinControlLock">
@@ -532,9 +537,17 @@
                     picture: userData.picture,
                     plan: 'free',
                     authProvider: 'google',
-                    memberSince: new Date().toLocaleDateString('de-DE')
+                    memberSince: new Date().toLocaleDateString('de-DE'),
+                    lastActive: new Date().toISOString(),
+                    selectedCoins: [],
+                    selectedPages: []
                 };
+                
+                // Save to current user session
                 localStorage.setItem('cryptoUser', JSON.stringify(userInfo));
+                
+                // Save to persistent user database
+                localStorage.setItem('user_' + userData.email, JSON.stringify(userInfo));
                 
                 // Reload the page to update the dashboard
                 window.location.reload();
@@ -565,6 +578,15 @@
             document.body.style.overflow = 'hidden';
         } else {
             authGate.classList.add('hidden');
+            authGate.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            
+            // Completely hide Google Sign-In widget
+            const googleSignIn = document.getElementById('g_id_onload');
+            if (googleSignIn) {
+                googleSignIn.style.display = 'none';
+                googleSignIn.remove();
+            }
             
             // Set user name display
             const userNameDisplay = document.getElementById('userNameDisplay');
@@ -573,6 +595,13 @@
             // Set logout button tooltip with user info
             const logoutBtn = document.getElementById('logoutBtn');
             logoutBtn.title = `${user.name || 'Member'}\n${user.email || '-'}`;
+            
+            // Check if super admin
+            const SUPER_ADMINS = ['orhan366@gmail.com', 'sajjad.aiengineer@gmail.com'];
+            const isSuperAdmin = SUPER_ADMINS.some(email => email.toLowerCase() === user.email.toLowerCase());
+            if (isSuperAdmin) {
+                document.getElementById('superAdminBtn').style.display = 'inline-block';
+            }
             
             document.getElementById('memberSince').textContent = user.memberSince || new Date().toLocaleDateString('de-DE');
             
@@ -619,7 +648,10 @@
             document.getElementById('coinControlBadge').classList.add('active');
             
             document.getElementById('coinControlLock').style.display = 'none';
-            document.getElementById('coinCount').textContent = '0 / ' + limit;
+            
+            // Show actual selected coins count
+            const selectedCount = (user.selectedCoins && user.selectedCoins.length) || 0;
+            document.getElementById('coinCount').textContent = selectedCount + ' / ' + limit;
         }
         
         // Logout
