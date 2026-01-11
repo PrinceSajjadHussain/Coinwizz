@@ -251,13 +251,13 @@
                 <button class="lang-btn" data-lang="de" onclick="setLanguage('de')">DE</button>
                 <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
             </div>
-            <div class="user-info">
+            <!-- <div class="user-info">
                 <div style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.85rem;" id="userAvatar">A</div>
                 <div style="text-align:left;">
                     <div class="user-name" id="userName">admin</div>
                     <div class="user-email" id="userEmail">admin@member.cs</div>
                 </div>
-            </div>
+            </div> -->
             <button class="logout-btn" id="logoutBtn" data-i18n="logout">Logout</button>
         </div>
     </header>
@@ -590,7 +590,7 @@
             }
             
             document.body.appendChild(paypalForm);
-            console.log('Submitting PayPal form for plan:', planId);
+            // console.log('Submitting PayPal form for plan:', planId);
             paypalForm.submit();
         }
         
@@ -599,7 +599,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('tx')) {
                 // Transaction completed - verify with PayPal if needed
-                console.log('PayPal transaction returned:', urlParams.get('tx'));
+                // console.log('PayPal transaction returned:', urlParams.get('tx'));
                 // In real implementation, verify the transaction on backend
                 alert('✅ Payment processed! Your plan will be activated shortly.');
             }
