@@ -530,11 +530,12 @@
             const userData = parseJwt(response.credential);
             
             if (userData) {
+                // Create clean user object with only primitive values
                 const userInfo = {
                     loggedIn: true,
-                    name: userData.name,
-                    email: userData.email,
-                    picture: userData.picture,
+                    name: String(userData.name || 'Member'),
+                    email: String(userData.email || ''),
+                    picture: String(userData.picture || ''),
                     plan: 'free',
                     authProvider: 'google',
                     memberSince: new Date().toLocaleDateString('de-DE'),
@@ -543,11 +544,14 @@
                     selectedPages: []
                 };
                 
+                // IMPORTANT: Clear any existing corrupted data first
+                localStorage.removeItem('cryptoUser');
+                
                 // Save to current user session
                 localStorage.setItem('cryptoUser', JSON.stringify(userInfo));
                 
                 // Save to persistent user database
-                localStorage.setItem('user_' + userData.email, JSON.stringify(userInfo));
+                localStorage.setItem('user_' + userInfo.email, JSON.stringify(userInfo));
                 
                 // Reload the page to update the dashboard
                 window.location.reload();
@@ -570,8 +574,38 @@
         }
         
         // Auth Check
-        const user = JSON.parse(localStorage.getItem('cryptoUser') || 'null');
+        let user = JSON.parse(localStorage.getItem('cryptoUser') || 'null');
         const authGate = document.getElementById('authGate');
+        
+        // Detect and fix corrupted/nested JSON data
+        if (user && typeof user === 'object') {
+            // Check if name or email fields contain JSON strings instead of plain text
+            if (typeof user.name === 'string' && (user.name.startsWith('{') || user.name.startsWith('"{'))) {
+                console.error('Corrupted nested JSON detected! Cleaning localStorage...');
+                localStorage.removeItem('cryptoUser');
+                // Try to extract the original data from the nested JSON
+                try {
+                    let cleanUser = user;
+                    // Unwrap nested JSON up to 3 levels deep
+                    for (let i = 0; i < 3; i++) {
+                        if (typeof cleanUser.name === 'string' && cleanUser.name.startsWith('{')) {
+                            cleanUser = JSON.parse(cleanUser.name);
+                        } else {
+                            break;
+                        }
+                    }
+                    // If we found clean data, use it
+                    if (cleanUser.name && typeof cleanUser.name === 'string' && !cleanUser.name.startsWith('{')) {
+                        localStorage.setItem('cryptoUser', JSON.stringify(cleanUser));
+                        user = cleanUser;
+                    } else {
+                        user = null;
+                    }
+                } catch(e) {
+                    user = null;
+                }
+            }
+        }
         
         if (!user || !user.loggedIn) {
             authGate.classList.remove('hidden');
@@ -588,19 +622,30 @@
                 googleSignIn.remove();
             }
             
-            // Set user name display
+            // Set user name display - ensure it's a string, not an object
             const userNameDisplay = document.getElementById('userNameDisplay');
-            userNameDisplay.textContent = user.name || 'Member';
+            if (userNameDisplay && user.name) {
+                userNameDisplay.textContent = String(user.name);
+            } else if (userNameDisplay) {
+                userNameDisplay.textContent = 'Member';
+            }
             
             // Set logout button tooltip with user info
             const logoutBtn = document.getElementById('logoutBtn');
-            logoutBtn.title = `${user.name || 'Member'}\n${user.email || '-'}`;
+            if (logoutBtn && user.name && user.email) {
+                logoutBtn.title = `${String(user.name)}\n${String(user.email)}`;
+            }
             
-            // Check if super admin
+            // Check if super admin - ALWAYS check on page load
             const SUPER_ADMINS = ['orhan366@gmail.com', 'sajjad.aiengineer@gmail.com'];
-            const isSuperAdmin = SUPER_ADMINS.some(email => email.toLowerCase() === user.email.toLowerCase());
-            if (isSuperAdmin) {
-                document.getElementById('superAdminBtn').style.display = 'inline-block';
+            const userEmail = user.email ? String(user.email).toLowerCase() : '';
+            const isSuperAdmin = SUPER_ADMINS.some(email => email.toLowerCase() === userEmail);
+            
+            const superAdminBtn = document.getElementById('superAdminBtn');
+            if (isSuperAdmin && superAdminBtn) {
+                superAdminBtn.style.display = 'inline-block';
+            } else if (superAdminBtn) {
+                superAdminBtn.style.display = 'none';
             }
             
             document.getElementById('memberSince').textContent = user.memberSince || new Date().toLocaleDateString('de-DE');
