@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Admin Dashboard - CoinWizz</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase Configuration -->
+    <script src="../supabase-config.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -312,9 +316,17 @@
         }
         
         // Load all user data
-        function loadAdminData() {
-            // Get all users from localStorage (in real app, this would be from backend)
-            const allUsers = getAllUsers();
+        async function loadAdminData() {
+            console.log('📊 Loading admin data...');
+            
+            // Show loading indicator
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;"><div style="color:#3b82f6;">⏳ Loading users from Supabase...</div></td></tr>';
+            
+            // Get all users from Supabase (with fallback to localStorage)
+            const allUsers = await getAllUsers();
+            
+            console.log(`📋 Loaded ${allUsers.length} users`);
             
             // Update statistics
             document.getElementById('totalUsers').textContent = allUsers.length;
@@ -331,27 +343,56 @@
             populateUsersTable(allUsers);
         }
         
-        // Get all users (simulated - in production, fetch from backend)
-        function getAllUsers() {
+        // Get all users (fetch from Supabase with localStorage fallback)
+        async function getAllUsers() {
             const users = [];
             
-            // Get all keys from localStorage that look like user data
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('user_')) {
-                    try {
-                        const userData = JSON.parse(localStorage.getItem(key));
-                        users.push(userData);
-                    } catch(e) {}
-                }
-            }
+            // Try to fetch from Supabase first
+            console.log('🔍 Fetching users from Supabase...');
+            const supabaseResult = await getAllUsersFromSupabase();
             
-            // Also add current user if exists
-            const currentUser = JSON.parse(localStorage.getItem('cryptoUser') || 'null');
-            if (currentUser && currentUser.loggedIn) {
-                // Check if not already in users
-                if (!users.find(u => u.email === currentUser.email)) {
-                    users.push(currentUser);
+            if (supabaseResult.success) {
+                // Supabase query succeeded (even if 0 results)
+                console.log(`✅ Got ${supabaseResult.data.length} users from Supabase`);
+                // Convert Supabase format to app format
+                supabaseResult.data.forEach(dbUser => {
+                    users.push({
+                        name: dbUser.name,
+                        email: dbUser.email,
+                        picture: dbUser.picture,
+                        plan: dbUser.plan,
+                        authProvider: dbUser.auth_provider,
+                        selectedCoins: dbUser.selected_coins || [],
+                        selectedPages: dbUser.selected_pages || [],
+                        memberSince: dbUser.metadata?.memberSince || new Date(dbUser.created_at).toLocaleDateString('de-DE'),
+                        lastActive: dbUser.last_active,
+                        createdAt: dbUser.created_at,
+                        loggedIn: true
+                    });
+                });
+            } else {
+                // Supabase failed, fallback to localStorage
+                console.warn('⚠️ Supabase failed, falling back to localStorage');
+                // Fallback to localStorage
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('user_')) {
+                        try {
+                            const userData = JSON.parse(localStorage.getItem(key));
+                            users.push(userData);
+                        } catch(e) {
+                            console.error('Error parsing user data:', e);
+                        }
+                    }
+                }
+                
+                // Also add current user if exists
+                const currentUser = JSON.parse(localStorage.getItem('cryptoUser') || 'null');
+                if (currentUser && currentUser.loggedIn) {
+                    // Check if not already in users
+                    if (!users.find(u => u.email === currentUser.email)) {
+                        users.push(currentUser);
+                    }
                 }
             }
             
@@ -426,43 +467,67 @@
         }
         
         // User actions
-        function viewUserProfile(email) {
-            const user = getAllUsers().find(u => u.email === email);
+        async function viewUserProfile(email) {
+            const users = await getAllUsers();
+            const user = users.find(u => u.email === email);
             if (user) {
                 alert(`User Profile:\n\nName: ${user.name}\nEmail: ${user.email}\nPlan: ${user.plan}\nSelected Coins: ${user.selectedCoins ? user.selectedCoins.join(', ') : 'None'}\nMember Since: ${user.memberSince}`);
             }
         }
         
-        function editUserPlan(email) {
+        async function editUserPlan(email) {
             const newPlan = prompt('Enter new plan (free, rallye25, rallye50, rallye100):');
             if (newPlan && ['free', 'rallye25', 'rallye50', 'rallye100'].includes(newPlan)) {
-                const users = getAllUsers();
-                const user = users.find(u => u.email === email);
-                if (user) {
-                    user.plan = newPlan;
-                    localStorage.setItem('user_' + email, JSON.stringify(user));
-                    loadAdminData();
-                    alert('Plan updated successfully!');
+                // Update in Supabase
+                console.log(`📝 Updating plan for ${email} to ${newPlan}...`);
+                const result = await updateUserPlanInSupabase(email, newPlan);
+                
+                if (result.success) {
+                    console.log('✅ Plan updated in Supabase');
+                    // Also update localStorage for offline access
+                    const users = await getAllUsers();
+                    const user = users.find(u => u.email === email);
+                    if (user) {
+                        user.plan = newPlan;
+                        localStorage.setItem('user_' + email, JSON.stringify(user));
+                    }
+                    await loadAdminData();
+                    alert('✅ Plan updated successfully!');
+                } else {
+                    console.error('❌ Failed to update plan:', result.error);
+                    alert('⚠️ Failed to update plan in database. Please try again.');
                 }
             }
         }
         
-        function deleteUser(email) {
+        async function deleteUser(email) {
             if (confirm(`Are you sure you want to delete user: ${email}?`)) {
-                localStorage.removeItem('user_' + email);
-                loadAdminData();
-                alert('User deleted successfully!');
+                // Delete from Supabase
+                console.log(`🗑️ Deleting user ${email}...`);
+                const result = await deleteUserFromSupabase(email);
+                
+                if (result.success) {
+                    console.log('✅ User deleted from Supabase');
+                    // Also remove from localStorage
+                    localStorage.removeItem('user_' + email);
+                    await loadAdminData();
+                    alert('✅ User deleted successfully!');
+                } else {
+                    console.error('❌ Failed to delete user:', result.error);
+                    alert('⚠️ Failed to delete user from database. Please try again.');
+                }
             }
         }
         
         // Search functionality
-        document.getElementById('searchBox').addEventListener('input', function(e) {
+        document.getElementById('searchBox').addEventListener('input', async function(e) {
             const searchTerm = e.target.value.toLowerCase();
-            const users = getAllUsers().filter(user => 
+            const users = await getAllUsers();
+            const filteredUsers = users.filter(user => 
                 user.name?.toLowerCase().includes(searchTerm) ||
                 user.email?.toLowerCase().includes(searchTerm)
             );
-            populateUsersTable(users);
+            populateUsersTable(filteredUsers);
         });
         
         // Logout
@@ -472,7 +537,12 @@
         });
         
         // Initialize on page load
-        checkSuperAdminAccess();
+        window.addEventListener('load', () => {
+            // Initialize Supabase
+            initSupabase();
+            // Check access and load data
+            checkSuperAdminAccess();
+        });
     </script>
 </body>
 </html>

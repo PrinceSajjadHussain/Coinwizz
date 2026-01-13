@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Dashboard - CryptoSpaces</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase Configuration -->
+    <script src="../supabase-config.js"></script>
     <!-- Google Sign-In -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <!-- PayPal Sandbox Integration (removed SDK - using form-based approach) -->
@@ -525,7 +529,7 @@
         }
         
         // Google Sign-In Handler for Dashboard
-        function handleDashboardGoogleSignIn(response) {
+        async function handleDashboardGoogleSignIn(response) {
             // Decode JWT token to get user info
             const userData = parseJwt(response.credential);
             
@@ -552,6 +556,15 @@
                 
                 // Save to persistent user database
                 localStorage.setItem('user_' + userInfo.email, JSON.stringify(userInfo));
+                
+                // Save to Supabase
+                console.log('💾 Saving user to Supabase...');
+                const supabaseResult = await saveUserToSupabase(userInfo);
+                if (supabaseResult.success) {
+                    console.log('✅ User saved to Supabase successfully');
+                } else {
+                    console.warn('⚠️ Failed to save to Supabase:', supabaseResult.error);
+                }
                 
                 // Reload the page to update the dashboard
                 window.location.reload();
@@ -767,6 +780,30 @@
                 // console.log('PayPal transaction returned:', urlParams.get('tx'));
                 // In real implementation, verify the transaction on backend
                 alert('✅ Payment processed! Your plan will be activated shortly.');
+            }
+            
+            // Initialize Supabase on page load
+            initSupabase();
+            
+            // Sync existing logged-in user to Supabase (after initialization)
+            if (user && user.loggedIn && user.email && user.name) {
+                console.log('🔄 Syncing existing user to Supabase...');
+                saveUserToSupabase(user).then(result => {
+                    if (result.success) {
+                        console.log('✅ Existing user synced to Supabase');
+                    } else {
+                        console.warn('⚠️ Could not sync user to Supabase:', result.error);
+                    }
+                }).catch(err => {
+                    console.warn('⚠️ Error syncing to Supabase:', err);
+                });
+            }
+            
+            // Update user activity in Supabase if logged in
+            if (user && user.loggedIn && user.email) {
+                updateUserActivity(user.email).catch(err => 
+                    console.warn('Failed to update user activity:', err)
+                );
             }
         });
     </script>
