@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Trader - Professional Crypto Trading Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #606070;
+            --neon-cyan: #00f0ff;
+            --neon-cyan-dim: #00a0b0;
+            --neon-red: #ff003c;
+            --neon-red-dim: #b00030;
+            --neon-amber: #ffb000;
+            --neon-blue: #0080ff;
+            --border-color: #2a2a3a;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+        }
+
+        .asset-selector {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .asset-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .asset-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        .asset-btn.active {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
+        .price-display {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+        }
+
+        .current-price {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--neon-red);
+            font-family: 'Courier New', monospace;
+        }
+
+        .price-change {
+            font-size: 16px;
+            color: var(--neon-red);
+            font-family: 'Courier New', monospace;
+        }
+
+        .price-change.positive {
+            color: var(--neon-cyan);
+        }
+
+        /* Control Bar */
+        .control-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 24px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .timeframe-selector {
+            display: flex;
+            gap: 4px;
+        }
+
+        .timeframe-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .timeframe-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .timeframe-btn.active {
+            background: rgba(0, 240, 255, 0.15);
+            color: var(--neon-cyan);
+        }
+
+        .feature-toggles {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .toggle-btn {
+            padding: 6px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-secondary);
+        }
+
+        .toggle-btn.active {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        .tools-btn {
+            padding: 6px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .alerts-btn {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alerts-btn:hover {
+            border-color: var(--neon-amber);
+            color: var(--neon-amber);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: calc(100vh - 200px);
+            min-height: 400px;
+            background: var(--bg-primary);
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Chart Overlay Info */
+        .chart-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .chart-symbol {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .chart-timeframe {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Volume Panel */
+        .volume-panel {
+            height: 150px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .volume-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Footer */
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 24px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .watermark {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            font-size: 11px;
+        }
+
+        .watermark svg {
+            width: 14px;
+            height: 14px;
+            fill: var(--neon-cyan);
+        }
+
+        .status-indicators {
+            display: flex;
+            gap: 16px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-cyan);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .control-bar {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .chart-container {
+                height: calc(100vh - 320px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">NEON TRADER</div>
+        <div class="asset-selector">
+            <button class="asset-btn active">BTC</button>
+            <button class="asset-btn">ETH</button>
+            <button class="asset-btn">SOL</button>
+            <button class="asset-btn">XRP</button>
+            <button class="asset-btn">ADA</button>
+        </div>
+        <div class="price-display">
+            <span class="current-price" id="currentPrice">$94,749.46</span>
+            <span class="price-change" id="priceChange">-1.19%</span>
+        </div>
+    </header>
+
+    <!-- Control Bar -->
+    <div class="control-bar">
+        <div class="timeframe-selector">
+            <button class="timeframe-btn">1m</button>
+            <button class="timeframe-btn">5m</button>
+            <button class="timeframe-btn">15m</button>
+            <button class="timeframe-btn">1h</button>
+            <button class="timeframe-btn">4h</button>
+            <button class="timeframe-btn active">1D</button>
+        </div>
+        <div class="feature-toggles">
+            <button class="toggle-btn">LIVE</button>
+            <button class="toggle-btn active">RADAR</button>
+            <button class="toggle-btn">CROSS</button>
+            <button class="toggle-btn">SIGNALS</button>
+            <button class="toggle-btn">LIQ</button>
+            <button class="tools-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                Tools
+            </button>
+        </div>
+        <button class="alerts-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            Alerts
+        </button>
+    </div>
+
+    <!-- Main Chart -->
+    <div class="chart-container">
+        <canvas id="candlestickChart" class="chart-canvas"></canvas>
+        <div class="chart-overlay">
+            <span class="chart-symbol">BTC/USDT</span>
+            <span class="chart-timeframe">1 Day</span>
+        </div>
+    </div>
+
+    <!-- Volume Panel -->
+    <div class="volume-panel">
+        <canvas id="volumeChart" class="volume-canvas"></canvas>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-left">
+            <div class="watermark">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                Created by MiniMax Agent
+            </div>
+        </div>
+        <div class="status-indicators">
+            <div class="status-item">
+                <span class="status-dot"></span>
+                <span>Market Open</span>
+            </div>
+            <div class="status-item">
+                <span style="color: var(--neon-cyan);">●</span>
+                <span>API Connected</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Chart Configuration
+        const chartConfig = {
+            candleWidth: 8,
+            candleGap: 2,
+            upColor: '#00f0ff',
+            downColor: '#ff003c',
+            gridColor: '#ffffff10',
+            textColor: '#a0a0b0',
+            volumeHeight: 100
+        };
+
+        // Generate Mock OHLC Data
+        function generateCandleData(count = 100, startPrice = 95000) {
+            const data = [];
+            let price = startPrice;
+            const now = Date.now();
+            const dayMs = 24 * 60 * 60 * 1000;
+
+            for (let i = count - 1; i >= 0; i--) {
+                const volatility = 0.02;
+                const change = (Math.random() - 0.48) * volatility * price;
+                const open = price;
+                const close = price + change;
+                const high = Math.max(open, close) + Math.random() * volatility * price * 0.5;
+                const low = Math.min(open, close) - Math.random() * volatility * price * 0.5;
+                const volume = Math.random() * 1000000000 + 500000000;
+
+                price = close;
+                data.push({
+                    time: new Date(now - i * dayMs),
+                    open,
+                    high,
+                    low,
+                    close,
+                    volume
+                });
+            }
+            return data;
+        }
+
+        // Draw Candlestick Chart
+        function drawCandlestickChart(canvas, data) {
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+
+            // Set canvas size
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+
+            const width = rect.width;
+            const height = rect.height;
+
+            // Clear canvas
+            ctx.fillStyle = '#0a0a0f';
+            ctx.fillRect(0, 0, width, height);
+
+            // Calculate price range
+            const prices = data.flatMap(d => [d.high, d.low]);
+            const minPrice = Math.min(...prices) * 0.995;
+            const maxPrice = Math.max(...prices) * 1.005;
+            const priceRange = maxPrice - minPrice;
+
+            // Calculate candle dimensions
+            const chartWidth = width - 80;
+            const chartHeight = height - 40;
+            const candleWidth = chartConfig.candleWidth;
+            const spacing = chartWidth / data.length;
+            const startX = 60;
+
+            // Draw grid lines
+            ctx.strokeStyle = chartConfig.gridColor;
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 6; i++) {
+                const y = 20 + (chartHeight / 6) * i;
+                ctx.beginPath();
+                ctx.moveTo(startX, y);
+                ctx.lineTo(width - 20, y);
+                ctx.stroke();
+
+                // Price labels
+                const price = maxPrice - (priceRange / 6) * i;
+                ctx.fillStyle = chartConfig.textColor;
+                ctx.font = '11px Courier New';
+                ctx.textAlign = 'right';
+                ctx.fillText('$' + price.toFixed(2), startX - 10, y + 4);
+            }
+
+            // Draw candles
+            data.forEach((candle, index) => {
+                const x = startX + index * spacing + spacing / 2;
+                const candleX = x - candleWidth / 2;
+
+                const openY = 20 + ((maxPrice - candle.open) / priceRange) * chartHeight;
+                const closeY = 20 + ((maxPrice - candle.close) / priceRange) * chartHeight;
+                const highY = 20 + ((maxPrice - candle.high) / priceRange) * chartHeight;
+                const lowY = 20 + ((maxPrice - candle.low) / priceRange) * chartHeight;
+
+                const isUp = candle.close >= candle.open;
+                const color = isUp ? chartConfig.upColor : chartConfig.downColor;
+
+                // Draw wick
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x, highY);
+                ctx.lineTo(x, lowY);
+                ctx.stroke();
+
+                // Draw candle body
+                ctx.fillStyle = isUp ? '#0a0a0f' : color;
+                ctx.fillRect(candleX, Math.min(openY, closeY), candleWidth, Math.abs(closeY - openY) || 1);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1;
+                ctx.strokeRect(candleX, Math.min(openY, closeY), candleWidth, Math.abs(closeY - openY) || 1);
+            });
+
+            // Draw moving average line
+            ctx.strokeStyle = chartConfig.neonBlue;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            let maSum = 0;
+            const maPeriod = 20;
+            data.forEach((candle, index) => {
+                maSum += candle.close;
+                if (index >= maPeriod - 1) {
+                    const ma = maSum / maPeriod;
+                    const x = startX + index * spacing + spacing / 2;
+                    const y = 20 + ((maxPrice - ma) / priceRange) * chartHeight;
+                    if (index === maPeriod - 1) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                    maSum -= data[index - maPeriod + 1].close;
+                }
+            });
+            ctx.stroke();
+
+            // Draw Bollinger Band (simulated)
+            ctx.fillStyle = 'rgba(255, 176, 0, 0.1)';
+            ctx.beginPath();
+            data.forEach((candle, index) => {
+                const x = startX + index * spacing + spacing / 2;
+                const upperY = 20 + ((maxPrice - (candle.close * 1.02)) / priceRange) * chartHeight;
+                const lowerY = 20 + ((maxPrice - (candle.close * 0.98)) / priceRange) * chartHeight;
+                if (index === 0) {
+                    ctx.moveTo(x, upperY);
+                    ctx.lineTo(x, lowerY);
+                } else {
+                    ctx.lineTo(x, upperY);
+                    ctx.lineTo(x, lowerY);
+                }
+            });
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Draw Volume Chart
+        function drawVolumeChart(canvas, data) {
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+
+            const width = rect.width;
+            const height = rect.height;
+
+            ctx.fillStyle = '#12121a';
+            ctx.fillRect(0, 0, width, height);
+
+            const chartWidth = width - 80;
+            const chartHeight = height - 20;
+            const spacing = chartWidth / data.length;
+            const startX = 60;
+
+            const maxVolume = Math.max(...data.map(d => d.volume));
+            const barWidth = spacing - 2;
+
+            data.forEach((candle, index) => {
+                const x = startX + index * spacing + spacing / 2;
+                const barHeight = (candle.volume / maxVolume) * chartHeight * 0.9;
+                const y = height - 10 - barHeight;
+                const barX = x - barWidth / 2;
+
+                const isUp = candle.close >= candle.open;
+                const color = isUp ? chartConfig.upColor : chartConfig.downColor;
+
+                ctx.fillStyle = color + '40';
+                ctx.fillRect(barX, y, barWidth, barHeight);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1;
+                ctx.strokeRect(barX, y, barWidth, barHeight);
+            });
+        }
+
+        // Initialize Charts
+        function initCharts() {
+            const candleCanvas = document.getElementById('candlestickChart');
+            const volumeCanvas = document.getElementById('volumeChart');
+
+            const data = generateCandleData(100, 95000);
+
+            drawCandlestickChart(candleCanvas, data);
+            drawVolumeChart(volumeCanvas, data);
+
+            // Handle resize
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    drawCandlestickChart(candleCanvas, data);
+                    drawVolumeChart(volumeCanvas, data);
+                }, 100);
+            });
+        }
+
+        // Asset Button Click Handlers
+        document.querySelectorAll('.asset-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.asset-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                // Generate new data for different assets
+                const assetPrices = {
+                    'BTC': { price: 94749.46, change: -1.19 },
+                    'ETH': { price: 3456.78, change: 2.34 },
+                    'SOL': { price: 234.56, change: -0.87 },
+                    'XRP': { price: 2.34, change: 5.67 },
+                    'ADA': { price: 1.23, change: -2.45 }
+                };
+
+                const asset = this.textContent;
+                const data = assetPrices[asset];
+
+                document.getElementById('currentPrice').textContent = '$' + data.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                document.getElementById('priceChange').textContent = (data.change >= 0 ? '+' : '') + data.change.toFixed(2) + '%';
+                document.getElementById('priceChange').style.color = data.change >= 0 ? 'var(--neon-cyan)' : 'var(--neon-red)';
+                document.getElementById('currentPrice').style.color = data.change >= 0 ? 'var(--neon-cyan)' : 'var(--neon-red)';
+
+                // Redraw chart
+                const candleCanvas = document.getElementById('candlestickChart');
+                const volumeCanvas = document.getElementById('volumeChart');
+                const newData = generateCandleData(100, data.price);
+                drawCandlestickChart(candleCanvas, newData);
+                drawVolumeChart(volumeCanvas, newData);
+            });
+        });
+
+        // Timeframe Button Click Handlers
+        document.querySelectorAll('.timeframe-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.timeframe-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const candleCanvas = document.getElementById('candlestickChart');
+                const volumeCanvas = document.getElementById('volumeChart');
+                const currentPrice = parseFloat(document.getElementById('currentPrice').textContent.replace(/[^0-9.-]/g, ''));
+                const newData = generateCandleData(100, currentPrice);
+                drawCandlestickChart(candleCanvas, newData);
+                drawVolumeChart(volumeCanvas, newData);
+            });
+        });
+
+        // Toggle Button Click Handlers
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initCharts);
+    </script>
+</body>
+</html>

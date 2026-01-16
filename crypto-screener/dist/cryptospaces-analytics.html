@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoSpaces - Advanced Wallet Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #050505;
+            --bg-secondary: #0e0e14;
+            --bg-card: #1a1a24;
+            --bg-card-hover: #242432;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #606070;
+            --neon-cyan: #00e5ff;
+            --neon-cyan-dim: #00b0c0;
+            --neon-purple: #b026ff;
+            --neon-green: #00ff94;
+            --neon-red: #ff2e2e;
+            --neon-amber: #ffb000;
+            --neon-blue: #0080ff;
+            --border-color: #2a2a3a;
+            --glass-bg: rgba(26, 26, 36, 0.8);
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 40px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-input:focus {
+            border-color: var(--neon-cyan);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .timeframe-selector {
+            display: flex;
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .timeframe-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .timeframe-btn:hover {
+            color: var(--text-secondary);
+        }
+
+        .timeframe-btn.active {
+            background: rgba(0, 229, 255, 0.15);
+            color: var(--neon-cyan);
+        }
+
+        .ai-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .ai-toggle:hover {
+            border-color: var(--neon-purple);
+        }
+
+        .ai-toggle.active {
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 15px rgba(176, 38, 255, 0.3);
+        }
+
+        .ai-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .ai-badge {
+            padding: 2px 8px;
+            background: var(--neon-purple);
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .compare-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .compare-btn:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
+        .network-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 20px;
+            padding: 24px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Balance Card */
+        .balance-card {
+            grid-column: 1 / 2;
+            grid-row: 1 / 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .balance-orb {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, var(--neon-green), transparent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            animation: orbPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes orbPulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .balance-inner {
+            width: 100px;
+            height: 100px;
+            background: var(--bg-card);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .balance-amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .activity-score {
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .activity-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .activity-bar {
+            height: 8px;
+            background: var(--bg-card);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .activity-fill {
+            height: 100%;
+            width: 78%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green));
+            border-radius: 4px;
+        }
+
+        .wallet-address {
+            margin-top: 16px;
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Radar Charts */
+        .radar-card {
+            grid-column: 2 / 3;
+            grid-row: 1 / 2;
+        }
+
+        .radar-card-right {
+            grid-column: 3 / 4;
+            grid-row: 1 / 2;
+        }
+
+        .radar-container {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radar-svg {
+            width: 180px;
+            height: 180px;
+        }
+
+        .radar-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* Risk Metrics */
+        .risk-card {
+            grid-column: 1 / 2;
+            grid-row: 2 / 3;
+        }
+
+        .risk-item {
+            margin-bottom: 16px;
+        }
+
+        .risk-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .risk-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .risk-value {
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .risk-bar {
+            height: 6px;
+            background: var(--bg-card);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .risk-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .risk-fill.red { background: var(--neon-red); }
+        .risk-fill.purple { background: var(--neon-purple); }
+        .risk-fill.cyan { background: var(--neon-cyan); }
+        .risk-fill.green { background: var(--neon-green); }
+        .risk-fill.amber { background: var(--neon-amber); }
+
+        /* AI Insights */
+        .insights-card {
+            grid-column: 2 / 4;
+            grid-row: 2 / 3;
+        }
+
+        .insights-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(0, 255, 148, 0.1);
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--neon-green);
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        .insight-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .insight-pattern {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--neon-cyan);
+            margin-bottom: 12px;
+        }
+
+        .insight-text {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .confidence-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .confidence-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .confidence-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--neon-cyan);
+        }
+
+        /* Bottom Section */
+        .bottom-section {
+            grid-column: 1 / 4;
+            grid-row: 3 / 4;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        /* Discovery Engine */
+        .discovery-card {
+            grid-column: 1 / 2;
+        }
+
+        .discovery-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .discovery-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .discovery-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .discovery-wallet {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .wallet-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .wallet-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wallet-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .wallet-address {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: 'Courier New', monospace;
+        }
+
+        .match-score {
+            padding: 6px 12px;
+            background: rgba(0, 229, 255, 0.1);
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--neon-cyan);
+        }
+
+        .match-score.high {
+            background: rgba(0, 255, 148, 0.1);
+            color: var(--neon-green);
+        }
+
+        .match-score.medium {
+            background: rgba(255, 176, 0, 0.1);
+            color: var(--neon-amber);
+        }
+
+        /* Timeline */
+        .timeline-card {
+            grid-column: 2 / 3;
+        }
+
+        .timeline-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .play-btn {
+            width: 32px;
+            height: 32px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .play-btn:hover {
+            border-color: var(--neon-cyan);
+        }
+
+        .play-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: var(--text-secondary);
+        }
+
+        .speed-control {
+            padding: 6px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .timeline-date {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .timeline-container {
+            height: 80px;
+            margin-bottom: 16px;
+        }
+
+        .timeline-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .timeline-legend {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .legend-icon {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .legend-icon.inflow { background: var(--neon-green); }
+        .legend-icon.outflow { background: var(--neon-red); }
+        .legend-icon.trade { background: var(--neon-blue); }
+        .legend-icon.nft { background: var(--neon-purple); }
+
+        .timeline-scale {
+            display: flex;
+            justify-content: flex-end;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .footer-text {
+            opacity: 0.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .balance-card {
+                grid-column: 1 / 2;
+            }
+
+            .radar-card {
+                grid-column: 2 / 3;
+            }
+
+            .radar-card-right {
+                grid-column: 1 / 2;
+                grid-row: 2 / 3;
+            }
+
+            .risk-card {
+                grid-column: 2 / 3;
+                grid-row: 2 / 3;
+            }
+
+            .insights-card {
+                grid-column: 1 / 3;
+                grid-row: 3 / 4;
+            }
+
+            .bottom-section {
+                grid-column: 1 / 3;
+                grid-template-columns: 1fr;
+            }
+
+            .discovery-card {
+                grid-column: 1 / 2;
+            }
+
+            .timeline-card {
+                grid-column: 1 / 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-wrap: wrap;
+                gap: 16px;
+            }
+
+            .search-container {
+                order: 3;
+                max-width: 100%;
+                margin: 0;
+                width: 100%;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+                padding: 16px;
+                gap: 16px;
+            }
+
+            .balance-card,
+            .radar-card,
+            .radar-card-right,
+            .risk-card,
+            .insights-card,
+            .bottom-section {
+                grid-column: 1 / 2;
+                grid-row: auto;
+            }
+
+            .discovery-card,
+            .timeline-card {
+                grid-column: 1 / 2;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/>
+                    <circle cx="12" cy="12" r="4" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">CryptoSpaces</span>
+        </div>
+
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Wallet-Adresse eingeben..." id="walletSearch">
+        </div>
+
+        <div class="header-controls">
+            <div class="timeframe-selector">
+                <button class="timeframe-btn">1D</button>
+                <button class="timeframe-btn">1W</button>
+                <button class="timeframe-btn">2W</button>
+                <button class="timeframe-btn active">1M</button>
+                <button class="timeframe-btn">3M</button>
+                <button class="timeframe-btn">6M</button>
+                <button class="timeframe-btn">1Y</button>
+            </div>
+
+            <div class="ai-toggle active">
+                <span class="ai-label">AUTO AI</span>
+                <span class="ai-badge">PRO</span>
+            </div>
+
+            <button class="compare-btn">Compare</button>
+
+            <div class="network-status">
+                <span class="status-dot"></span>
+                <span>Solana Mainnet</span>
+            </div>
+
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-muted); cursor: pointer;">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard">
+        <!-- Total Balance Card -->
+        <div class="card balance-card">
+            <div class="balance-orb">
+                <div class="balance-inner">
+                    <span class="balance-amount">$142,848</span>
+                </div>
+            </div>
+            <div class="activity-score">
+                <div class="activity-label">
+                    <span>Activity Score</span>
+                    <span>78</span>
+                </div>
+                <div class="activity-bar">
+                    <div class="activity-fill"></div>
+                </div>
+            </div>
+            <div class="wallet-address">7xKXtg2C...uJosgAsU</div>
+        </div>
+
+        <!-- Intent Radar -->
+        <div class="card radar-card">
+            <div class="card-header">
+                <span class="card-title">Intent Radar</span>
+            </div>
+            <div class="radar-container">
+                <svg class="radar-svg" viewBox="0 0 180 180">
+                    <!-- Grid circles -->
+                    <circle cx="90" cy="90" r="80" fill="none" stroke="#2a2a3a" stroke-width="1"/>
+                    <circle cx="90" cy="90" r="60" fill="none" stroke="#2a2a3a" stroke-width="1"/>
+                    <circle cx="90" cy="90" r="40" fill="none" stroke="#2a2a3a" stroke-width="1"/>
+                    <circle cx="90" cy="90" r="20" fill="none" stroke="#2a2a3a" stroke-width="1"/>
+                    <!-- Axis lines -->
+                    <line x1="90" y1="10" x2="90" y2="170" stroke="#2a2a3a" stroke-width="1"/>
+                    <line x1="20" y1="90" x2="160" y2="90" stroke="#2a2a3a" stroke-width="1"/>
+                    <line x1="35" y1="35" x2="145" y2="145" stroke="#2a2a3a" stroke-width="1"/>
+                    <line x1="145" y1="35" x2="35" y2="145" stroke="#2a2a3a" stroke-width="1"/>
+                    <!-- Data polygon -->
+                    <polygon
+                        points="90,43 130,90 115,147 65,147 50,90"
+                        fill="rgba(0, 229, 255, 0.2)"
+                        stroke="#00e5ff"
+                        stroke-width="2"
+                    />
+                    <!-- Data points -->
+                    <circle cx="90" cy="43" r="4" fill="#ff2e2e"/>
+                    <circle cx="130" cy="90" r="4" fill="#00ff94"/>
+                    <circle cx="115" cy="147" r="4" fill="#0080ff"/>
+                    <circle cx="65" cy="147" r="4" fill="#00e5ff"/>
+                    <circle cx="50" cy="90" r="4" fill="#b026ff"/>
+                </svg>
+            </div>
+            <div class="radar-legend">
+                <div class="legend-item">
+                    <span class="legend-dot" style="background: #ff2e2e;"></span>
+                    Analysis 45%
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background: #00ff94;"></span>
+                    Interaction 65%
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background: #0080ff;"></span>
+                    Distribution 18%
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background: #00e5ff;"></span>
+                    Accumulation 72%
+                </div>
+            </div>
+        </div>
+
+        <!-- Wallet DNA -->
+        <div class="card radar-card-right">
+            <div class="card-header">
+                <span class="card-title">Wallet DNA</span>
+            </div>
+            <div class="radar-container">
+                <svg class="radar-svg" viewBox="0 0 180 180">
+                    <!-- Grid circles -->
+                    <circle cx="90" cy="90" r="80" fill="none" stroke="#2a2a3a" stroke-width="1"/>
+                    <circle cx="90" cy="90" r="60" fill="none" stroke="#2a2a3a" stroke-width="1"/>
+                    <circle cx="90" cy="90" r="40" fill="none" stroke="#2a2a3a" stroke-width="1"/>
+                    <circle cx="90" cy="90" r="20" fill="none" stroke="#2a2a3a" stroke-width="1"/>
+                    <!-- Hexagon shape -->
+                    <polygon
+                        points="90,10 168,50 168,130 90,170 12,130 12,50"
+                        fill="none"
+                        stroke="#2a2a3a"
+                        stroke-width="1"
+                    />
+                    <!-- Data polygon -->
+                    <polygon
+                        points="108,22 155,58 148,125 90,155 32,125 25,58"
+                        fill="rgba(176, 38, 255, 0.2)"
+                        stroke="#b026ff"
+                        stroke-width="2"
+                    />
+                    <!-- Data points -->
+                    <circle cx="108" cy="22" r="4" fill="#b026ff"/>
+                    <circle cx="155" cy="58" r="4" fill="#b026ff"/>
+                    <circle cx="148" cy="125" r="4" fill="#b026ff"/>
+                    <circle cx="90" cy="155" r="4" fill="#b026ff"/>
+                    <circle cx="32" cy="125" r="4" fill="#b026ff"/>
+                    <circle cx="25" cy="58" r="4" fill="#b026ff"/>
+                </svg>
+            </div>
+            <div class="radar-legend">
+                <div class="legend-item">
+                    <span class="legend-dot" style="background: var(--neon-purple);"></span>
+                    Risk 35
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background: var(--neon-green);"></span>
+                    Hold 82
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background: var(--neon-cyan);"></span>
+                    Speed 45
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background: var(--neon-red);"></span>
+                    Volatility 28
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background: var(--neon-amber);"></span>
+                    Rhythm 68
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background: var(--neon-blue);"></span>
+                    Diversify 55
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Metrics -->
+        <div class="card risk-card">
+            <div class="card-header">
+                <span class="card-title">Risk Metrics</span>
+            </div>
+            <div class="risk-item">
+                <div class="risk-header">
+                    <span class="risk-label">Risk</span>
+                    <span class="risk-value" style="color: var(--neon-red);">46</span>
+                </div>
+                <div class="risk-bar">
+                    <div class="risk-fill red" style="width: 46%;"></div>
+                </div>
+            </div>
+            <div class="risk-item">
+                <div class="risk-header">
+                    <span class="risk-label">Hold</span>
+                    <span class="risk-value" style="color: var(--neon-cyan);">NaN</span>
+                </div>
+                <div class="risk-bar">
+                    <div class="risk-fill cyan" style="width: 0%;"></div>
+                </div>
+            </div>
+            <div class="risk-item">
+                <div class="risk-header">
+                    <span class="risk-label">Speed</span>
+                    <span class="risk-value" style="color: var(--neon-cyan);">NaN</span>
+                </div>
+                <div class="risk-bar">
+                    <div class="risk-fill cyan" style="width: 0%;"></div>
+                </div>
+            </div>
+            <div class="risk-item">
+                <div class="risk-header">
+                    <span class="risk-label">Volatility</span>
+                    <span class="risk-value" style="color: var(--neon-cyan);">NaN</span>
+                </div>
+                <div class="risk-bar">
+                    <div class="risk-fill cyan" style="width: 0%;"></div>
+                </div>
+            </div>
+            <div class="risk-item">
+                <div class="risk-header">
+                    <span class="risk-label">Diversify</span>
+                    <span class="risk-value" style="color: var(--neon-cyan);">NaN</span>
+                </div>
+                <div class="risk-bar">
+                    <div class="risk-fill cyan" style="width: 0%;"></div>
+                </div>
+            </div>
+            <div class="risk-item">
+                <div class="risk-header">
+                    <span class="risk-label">Rhythm</span>
+                    <span class="risk-value" style="color: var(--neon-purple);">58</span>
+                </div>
+                <div class="risk-bar">
+                    <div class="risk-fill purple" style="width: 58%;"></div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <span style="font-size: 36px; font-weight: 700; color: var(--text-muted);">NaN</span>
+            </div>
+        </div>
+
+        <!-- AI Insights -->
+        <div class="card insights-card">
+            <div class="card-header">
+                <span class="card-title">AI Insights</span>
+                <div class="live-indicator">
+                    <span class="live-dot"></span>
+                    Live
+                </div>
+            </div>
+            <div class="insight-title">Pattern Analysis Report</div>
+            <div class="insight-pattern">Starke SOL-Akkumulation</div>
+            <div class="insight-text">
+                Diese Wallet zeigt ein konsistentes Buy-Pattern für SOL in den letzten 14 Tagen. Die Analyse zeigt eine erhöhte Akkumulationsrate mit einem Anstieg der SOL-Bestände um +127% im Vergleich zur Vorperiode. Die Transaktionsfrequenz und das Volumen deuten auf einen langfristigen Halter hin, der seine Position strategisch ausbaut.
+            </div>
+            <div class="confidence-bar">
+                <span class="confidence-label">Confidence Score</span>
+                <span class="confidence-value">89%</span>
+                <div style="flex: 1; height: 8px; background: var(--bg-card); border-radius: 4px; margin-left: 12px; overflow: hidden;">
+                    <div style="width: 89%; height: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)); border-radius: 4px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="bottom-section">
+            <!-- Discovery Engine -->
+            <div class="card discovery-card">
+                <div class="card-header">
+                    <span class="card-title">Discovery Engine</span>
+                </div>
+                <div class="discovery-list">
+                    <div class="discovery-item">
+                        <div class="discovery-wallet">
+                            <div class="wallet-avatar">W</div>
+                            <div class="wallet-info">
+                                <span class="wallet-name">Whale Cluster A</span>
+                                <span class="wallet-address">3Kxh...4mPq</span>
+                            </div>
+                        </div>
+                        <span class="match-score high">92% match</span>
+                    </div>
+                    <div class="discovery-item">
+                        <div class="discovery-wallet">
+                            <div class="wallet-avatar" style="background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));">D</div>
+                            <div class="wallet-info">
+                                <span class="wallet-name">DeFi Trader</span>
+                                <span class="wallet-address">9Bnm...7xLs</span>
+                            </div>
+                        </div>
+                        <span class="match-score">78% match</span>
+                    </div>
+                    <div class="discovery-item">
+                        <div class="discovery-wallet">
+                            <div class="wallet-avatar" style="background: linear-gradient(135deg, var(--neon-purple), var(--neon-red));">T</div>
+                            <div class="wallet-info">
+                                <span class="wallet-name">Unknown Wallet</span>
+                                <span class="wallet-address">5Jkr...2nWe</span>
+                            </div>
+                        </div>
+                        <span class="match-score medium">65% match</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="card timeline-card">
+                <div class="timeline-controls">
+                    <button class="play-btn">
+                        <svg viewBox="0 0 24 24">
+                            <polygon points="5,3 19,12 5,21"/>
+                        </svg>
+                    </button>
+                    <button class="play-btn">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="6" y="4" width="4" height="16"/>
+                            <rect x="14" y="4" width="4" height="16"/>
+                        </svg>
+                    </button>
+                    <select class="speed-control">
+                        <option>1x</option>
+                        <option>2x</option>
+                        <option>5x</option>
+                    </select>
+                    <span class="timeline-date">13. Jan. 2026, 19:28</span>
+                </div>
+                <div class="timeline-container">
+                    <svg class="timeline-svg" viewBox="0 0 800 80" preserveAspectRatio="none">
+                        <!-- Grid lines -->
+                        <line x1="0" y1="20" x2="800" y2="20" stroke="#2a2a3a" stroke-width="1"/>
+                        <line x1="0" y1="40" x2="800" y2="40" stroke="#2a2a3a" stroke-width="1"/>
+                        <line x1="0" y1="60" x2="800" y2="60" stroke="#2a2a3a" stroke-width="1"/>
+                        <!-- Activity line -->
+                        <polyline
+                            points="0,60 50,55 100,58 150,45 200,40 250,35 300,30 350,25 400,28 450,35 500,42 550,48 600,52 650,50 700,45 750,40 800,35"
+                            fill="none"
+                            stroke="url(#lineGradient)"
+                            stroke-width="2"
+                        />
+                        <defs>
+                            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:var(--neon-cyan)"/>
+                                <stop offset="100%" style="stop-color:var(--neon-green)"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Event markers -->
+                        <circle cx="100" cy="58" r="4" fill="var(--neon-green)"/>
+                        <circle cx="250" cy="35" r="4" fill="var(--neon-blue)"/>
+                        <circle cx="400" cy="28" r="4" fill="var(--neon-purple)"/>
+                        <circle cx="550" cy="48" r="4" fill="var(--neon-red)"/>
+                        <circle cx="700" cy="45" r="4" fill="var(--neon-green)"/>
+                    </svg>
+                </div>
+                <div class="timeline-legend">
+                    <div class="legend-item">
+                        <span class="legend-icon inflow"></span>
+                        Inflow
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon outflow"></span>
+                        Outflow
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon trade"></span>
+                        Trade
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon nft"></span>
+                        NFT
+                    </div>
+                </div>
+                <div class="timeline-scale">30 Tage</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="footer-text">CryptoSpaces Analytics • Market data for educational purposes only • DYOR • Not financial advice</p>
+    </footer>
+
+    <script>
+        // Timeframe selector
+        document.querySelectorAll('.timeframe-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.timeframe-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // AI toggle
+        document.querySelector('.ai-toggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+
+        // Wallet search
+        const walletSearch = document.getElementById('walletSearch');
+        walletSearch.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const address = this.value.trim();
+                if (address) {
+                    // Simulate search
+                    const walletAddressEl = document.querySelector('.wallet-address');
+                    const truncated = address.substring(0, 8) + '...' + address.substring(address.length - 6);
+                    walletAddressEl.textContent = truncated;
+                }
+            }
+        });
+
+        // Discovery items click
+        document.querySelectorAll('.discovery-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const walletName = this.querySelector('.wallet-name').textContent;
+                const walletAddress = this.querySelector('.wallet-address').textContent;
+                document.getElementById('walletSearch').value = walletAddress;
+                document.querySelector('.wallet-address').textContent = walletAddress;
+            });
+        });
+
+        // Play button animation
+        let isPlaying = false;
+        document.querySelector('.play-btn').addEventListener('click', function() {
+            isPlaying = !isPlaying;
+            const svg = this.querySelector('svg');
+            if (isPlaying) {
+                svg.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+            } else {
+                svg.innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+            }
+        });
+    </script>
+</body>
+</html>

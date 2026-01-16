@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoinWizz Rallye - Top Cryptocurrency Index</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #121218;
+            --bg-card: #1a1a22;
+            --bg-card-hover: #24242e;
+            --text-primary: #ffffff;
+            --text-secondary: #9090a0;
+            --text-muted: #606070;
+            --accent-cyan: #06b6d4;
+            --accent-purple: #d946ef;
+            --accent-orange: #f97316;
+            --positive-green: #22c55e;
+            --negative-red: #ef4444;
+            --border-color: #2a2a3a;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 20px 32px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .logo-coin {
+            color: var(--text-primary);
+        }
+
+        .logo-wizz {
+            background: linear-gradient(135deg, var(--accent-cyan), #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-left: 24px;
+            padding-left: 24px;
+            border-left: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* Rallye Selection Cards */
+        .rallye-selector {
+            display: flex;
+            gap: 16px;
+            margin: 32px 32px 24px;
+        }
+
+        .rallye-card {
+            flex: 1;
+            max-width: 280px;
+            padding: 20px 24px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .rallye-card:hover {
+            border-color: var(--text-muted);
+            transform: translateY(-2px);
+        }
+
+        .rallye-card.active {
+            border-width: 2px;
+        }
+
+        .rallye-card[data-rallye="25"] {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+        }
+
+        .rallye-card[data-rallye="25"] .rallye-title {
+            color: var(--accent-cyan);
+        }
+
+        .rallye-card[data-rallye="50"] {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 20px rgba(217, 70, 239, 0.2);
+        }
+
+        .rallye-card[data-rallye="50"] .rallye-title {
+            color: var(--accent-purple);
+        }
+
+        .rallye-card[data-rallye="100"] {
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+        }
+
+        .rallye-card[data-rallye="100"] .rallye-title {
+            color: var(--accent-orange);
+        }
+
+        .rallye-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .rallye-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Section Header */
+        .section-header {
+            display: flex;
+            align-items: center;
+            padding: 0 32px 16px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-orange);
+        }
+
+        /* Crypto Grid */
+        .crypto-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            padding: 0 32px 32px;
+        }
+
+        .crypto-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .crypto-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--text-muted);
+            transform: translateY(-2px);
+        }
+
+        .crypto-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .crypto-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .crypto-info {
+            text-align: right;
+        }
+
+        .crypto-ticker {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .crypto-name {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .crypto-price {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+        }
+
+        .crypto-change {
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .crypto-change.positive {
+            color: var(--positive-green);
+        }
+
+        .crypto-change.negative {
+            color: var(--negative-red);
+        }
+
+        /* Color classes for icons */
+        .bg-orange { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .bg-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .bg-purple { background: linear-gradient(135deg, #a855f7, #9333ea); }
+        .bg-green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .bg-yellow { background: linear-gradient(135deg, #eab308, #ca8a04); }
+        .bg-pink { background: linear-gradient(135deg, #ec4899, #db2777); }
+        .bg-cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        .bg-gray { background: linear-gradient(135deg, #6b7280, #4b5563); }
+        .bg-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .bg-teal { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+        .bg-indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+        .bg-violet { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+
+        /* Footer */
+        .footer {
+            padding: 20px 32px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                padding: 16px;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+
+            .page-title {
+                margin-left: 0;
+                padding-left: 0;
+                border-left: none;
+            }
+
+            .rallye-selector {
+                flex-direction: column;
+                margin: 24px 16px;
+                gap: 12px;
+            }
+
+            .rallye-card {
+                max-width: none;
+            }
+
+            .section-header {
+                padding: 0 16px 16px;
+            }
+
+            .crypto-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                padding: 0 16px 24px;
+            }
+
+            .crypto-card {
+                padding: 12px;
+            }
+
+            .crypto-ticker {
+                font-size: 14px;
+            }
+
+            .crypto-price {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .crypto-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <span class="logo-coin">Coin</span>
+            <span class="logo-wizz">Wizz</span>
+        </div>
+        <div class="page-title">CoinWizz Rallye</div>
+    </header>
+
+    <!-- Rallye Selection -->
+    <div class="rallye-selector">
+        <div class="rallye-card" data-rallye="25">
+            <div class="rallye-title">Rallye25</div>
+            <div class="rallye-subtitle">25 Top Crypto Coins</div>
+        </div>
+        <div class="rallye-card" data-rallye="50">
+            <div class="rallye-title">Rallye50</div>
+            <div class="rallye-subtitle">50 Top Crypto Coins</div>
+        </div>
+        <div class="rallye-card active" data-rallye="100">
+            <div class="rallye-title">Rallye100</div>
+            <div class="rallye-subtitle">100 Top Crypto Coins</div>
+        </div>
+    </div>
+
+    <!-- Section Header -->
+    <div class="section-header">
+        <h2 class="section-title">Rallye100 Coins</h2>
+    </div>
+
+    <!-- Crypto Grid -->
+    <div class="crypto-grid" id="cryptoGrid">
+        <!-- Cards will be generated by JavaScript -->
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Data is updated in real-time • Prices shown in USD • Market data provided for educational purposes</p>
+    </footer>
+
+    <script>
+        // Cryptocurrency Data
+        const cryptoData = [
+            { ticker: 'BTC', name: 'Bitcoin', price: 94749.46, change: 2.34, color: 'bg-orange' },
+            { ticker: 'ETH', name: 'Ethereum', price: 3193.69, change: 1.97, color: 'bg-blue' },
+            { ticker: 'BNB', name: 'BNB', price: 724.56, change: -0.45, color: 'bg-yellow' },
+            { ticker: 'XRP', name: 'XRP', price: 2.34, change: 5.67, color: 'bg-gray' },
+            { ticker: 'SOL', name: 'Solana', price: 234.56, change: 3.21, color: 'bg-purple' },
+            { ticker: 'DOGE', name: 'Dogecoin', price: 0.42, change: 8.90, color: 'bg-yellow' },
+            { ticker: 'ADA', name: 'Cardano', price: 1.12, change: -1.23, color: 'bg-blue' },
+            { ticker: 'LINK', name: 'Chainlink', price: 24.56, change: 4.56, color: 'bg-cyan' },
+            { ticker: 'XLM', name: 'Stellar', price: 0.52, change: 2.34, color: 'bg-purple' },
+            { ticker: 'SUI', name: 'Sui', price: 3.89, change: 6.78, color: 'bg-cyan' },
+            { ticker: 'AVAX', name: 'Avalanche', price: 42.15, change: -2.34, color: 'bg-red' },
+            { ticker: 'LTC', name: 'Litecoin', price: 112.34, change: 1.56, color: 'bg-blue' },
+            { ticker: 'SHIB', name: 'Shiba Inu', price: 0.000023, change: 12.34, color: 'bg-orange' },
+            { ticker: 'HBAR', name: 'Hedera', price: 0.28, change: -3.45, color: 'bg-cyan' },
+            { ticker: 'DOT', name: 'Polkadot', price: 9.87, change: 0.89, color: 'bg-pink' },
+            { ticker: 'UNI', name: 'Uniswap', price: 14.56, change: 2.67, color: 'bg-pink' },
+            { ticker: 'MNT', name: 'Mantle', price: 1.23, change: 4.56, color: 'bg-gray' },
+            { ticker: 'AAVE', name: 'Aave', price: 189.45, change: -1.23, color: 'bg-blue' },
+            { ticker: 'PEPE', name: 'Pepe', price: 0.000018, change: 15.67, color: 'bg-green' },
+            { ticker: 'NEAR', name: 'NEAR Protocol', price: 7.89, change: 3.45, color: 'bg-blue' },
+            { ticker: 'ICP', name: 'Internet Computer', price: 12.34, change: 5.67, color: 'bg-orange' },
+            { ticker: 'ENA', name: 'Ethena', price: 0.89, change: -2.34, color: 'bg-purple' },
+            { ticker: 'WLD', name: 'Worldcoin', price: 2.56, change: 7.89, color: 'bg-gray' },
+            { ticker: 'APT', name: 'Aptos', price: 9.12, change: 1.23, color: 'bg-orange' },
+            { ticker: 'ONDO', name: 'Ondo', price: 1.45, change: 4.56, color: 'bg-blue' },
+            { ticker: 'FET', name: 'Fetch.ai', price: 1.78, change: 8.90, color: 'bg-orange' },
+            { ticker: 'ATOM', name: 'Cosmos', price: 12.34, change: -0.67, color: 'bg-pink' },
+            { ticker: 'MATIC', name: 'Polygon', price: 0.89, change: 2.34, color: 'bg-purple' },
+            { ticker: 'ARB', name: 'Arbitrum', price: 1.23, change: -1.56, color: 'bg-blue' },
+            { ticker: 'OP', name: 'Optimism', price: 2.34, change: 3.45, color: 'bg-red' },
+            { ticker: 'STX', name: 'Stacks', price: 1.89, change: 5.67, color: 'bg-purple' },
+            { ticker: 'FIL', name: 'Filecoin', price: 7.89, change: -2.34, color: 'bg-cyan' },
+            { ticker: 'RNDR', name: 'Render', price: 9.12, change: 4.56, color: 'bg-orange' },
+            { ticker: 'GRT', name: 'The Graph', price: 0.23, change: 6.78, color: 'bg-orange' },
+            { ticker: 'AAVE', name: 'Aave', price: 189.45, change: 1.23, color: 'bg-blue' },
+            { ticker: 'MKR', name: 'Maker', price: 1890.12, change: -0.89, color: 'bg-purple' },
+            { ticker: 'COMP', name: 'Compound', price: 89.45, change: 2.34, color: 'bg-green' },
+            { ticker: 'SNX', name: 'Synthetix', price: 3.45, change: 5.67, color: 'bg-cyan' },
+            { ticker: 'CRV', name: 'Curve DAO', price: 0.89, change: -3.45, color: 'bg-cyan' },
+            { ticker: 'CVX', name: 'Convex Finance', price: 5.67, change: 1.23, color: 'bg-green' },
+            { ticker: 'LDO', name: 'Lido DAO', price: 2.34, change: 4.56, color: 'bg-cyan' },
+            { ticker: 'RPL', name: 'Rocket Pool', price: 45.67, change: -2.34, color: 'bg-purple' },
+            { ticker: 'FXS', name: 'Frax Share', price: 5.89, change: 3.21, color: 'bg-gray' },
+            { ticker: 'BAL', name: 'Balancer', price: 7.89, change: -1.23, color: 'bg-blue' },
+            { ticker: 'YFI', name: 'Yearn Finance', price: 7890.12, change: 5.67, color: 'bg-orange' },
+            { ticker: 'SUSHI', name: 'SushiSwap', price: 1.45, change: -4.56, color: 'bg-pink' },
+            { ticker: 'CAKE', name: 'PancakeSwap', price: 3.21, change: 2.34, color: 'bg-orange' },
+            { ticker: 'GMX', name: 'GMX', price: 34.56, change: -0.89, color: 'bg-blue' },
+            { ticker: 'SNX', name: 'Synthetix', price: 3.45, change: 1.23, color: 'bg-cyan' },
+            { ticker: 'PERP', name: 'Perpetual', price: 1.23, change: 4.56, color: 'bg-purple' },
+            { ticker: 'DPX', name: 'Dopex', price: 45.67, change: -2.34, color: 'bg-gray' },
+            { ticker: 'GNS', name: 'Gains Network', price: 7.89, change: 3.45, color: 'bg-orange' },
+            { ticker: 'RDNT', name: 'Radiant', price: 0.34, change: 5.67, color: 'bg-cyan' },
+            { ticker: 'CFX', name: 'Conflux', price: 0.23, change: -1.23, color: 'bg-blue' },
+            { ticker: 'OCEAN', name: 'Ocean Protocol', price: 0.89, change: 2.34, color: 'bg-cyan' },
+            { ticker: 'API3', name: 'API3', price: 2.56, change: -3.45, color: 'bg-blue' },
+            { ticker: 'BAND', name: 'Band Protocol', price: 1.78, change: 4.56, color: 'bg-purple' },
+            { ticker: 'TRB', name: 'Tellor', price: 56.78, change: 2.34, color: 'bg-orange' },
+            { ticker: 'NXM', name: 'Nexus Mutual', price: 34.56, change: -0.89, color: 'bg-green' },
+            { ticker: 'RGT', name: 'Rari Governance', price: 12.34, change: 1.23, color: 'bg-pink' },
+            { ticker: 'IDEX', name: 'IDEX', price: 0.12, change: 5.67, color: 'bg-blue' },
+            { ticker: 'SFP', name: 'SafePal', price: 1.45, change: -2.34, color: 'bg-orange' },
+            { ticker: 'NFT', name: 'APENFT', price: 0.000002, change: 8.90, color: 'bg-purple' },
+            { ticker: 'ASTR', name: 'Astar', price: 0.12, change: 3.45, color: 'bg-purple' },
+            { ticker: 'GLMR', name: 'Moonbeam', price: 0.45, change: -1.23, color: 'bg-pink' },
+            { ticker: 'MOVR', name: 'Moonriver', price: 18.90, change: 2.34, color: 'bg-pink' },
+            { ticker: 'ACA', name: 'Acala', price: 0.67, change: -0.89, color: 'bg-pink' },
+            { ticker: 'KAR', name: 'Karura', price: 0.34, change: 4.56, color: 'bg-purple' },
+            { ticker: 'KSM', name: 'Kusama', price: 34.56, change: 1.23, color: 'bg-pink' },
+            { ticker: 'DZOO', name: 'Zoo DAO', price: 0.001, change: 12.34, color: 'bg-yellow' },
+            { ticker: 'POL', name: 'Polkastarter', price: 0.23, change: -3.45, color: 'bg-blue' },
+            { ticker: 'MXC', name: 'MXC', price: 0.03, change: 5.67, color: 'bg-cyan' },
+            { ticker: 'FIO', name: 'FIO Protocol', price: 0.12, change: -2.34, color: 'bg-cyan' },
+            { ticker: 'TRAC', name: 'OriginTrail', price: 0.56, change: 3.45, color: 'bg-blue' },
+            { ticker: 'VSY', name: 'Visor', price: 0.89, change: -1.23, color: 'bg-purple' },
+            { ticker: 'CERE', name: 'Cere Network', price: 0.12, change: 2.34, color: 'bg-blue' },
+            { ticker: 'ARPA', name: 'ARPA', price: 0.08, change: -4.56, color: 'bg-cyan' },
+            { ticker: 'OGN', name: 'Origin Protocol', price: 0.23, change: 1.23, color: 'bg-gray' },
+            { ticker: 'POWR', name: 'Power Ledger', price: 0.12, change: 5.67, color: 'bg-orange' },
+            { ticker: 'LTO', name: 'LTO Network', price: 0.15, change: -2.34, color: 'bg-blue' },
+            { ticker: 'OCN', name: 'Odyssey', price: 0.001, change: 8.90, color: 'bg-cyan' },
+            { ticker: 'DOCK', name: 'Dock', price: 0.01, change: 3.45, color: 'bg-blue' },
+            { ticker: 'VET', name: 'VeChain', price: 0.04, change: -1.23, color: 'bg-cyan' },
+            { ticker: 'ENJ', name: 'Enjin Coin', price: 0.23, change: 2.34, color: 'bg-gray' },
+            { ticker: 'CHZ', name: 'Chiliz', price: 0.12, change: -0.89, color: 'bg-red' },
+            { ticker: 'SNT', name: 'Status', price: 0.05, change: 4.56, color: 'bg-purple' },
+            { ticker: 'MCO', name: 'MCO', price: 12.34, change: 1.23, color: 'bg-blue' },
+            { ticker: 'CVC', name: 'Civic', price: 0.12, change: -3.45, color: 'bg-green' },
+            { ticker: 'KEY', name: 'Selfkey', price: 0.01, change: 5.67, color: 'bg-blue' },
+            { ticker: 'NKN', name: 'NKN', price: 0.12, change: -2.34, color: 'bg-cyan' },
+            { ticker: 'ONG', name: 'Ontology Gas', price: 0.45, change: 3.45, color: 'bg-blue' },
+            { ticker: 'QKC', name: 'QuarkChain', price: 0.01, change: -1.23, color: 'bg-purple' },
+            { ticker: 'UTK', name: 'Utrust', price: 0.12, change: 2.34, color: 'bg-cyan' },
+            { ticker: 'NULS', name: 'NULS', price: 0.78, change: -0.89, color: 'bg-green' },
+            { ticker: 'STMX', name: 'StormX', price: 0.01, change: 4.56, color: 'bg-blue' },
+            { ticker: 'DENT', name: 'Dent', price: 0.001, change: 1.23, color: 'bg-cyan' },
+            { ticker: 'REEF', name: 'Reef', price: 0.005, change: -5.67, color: 'bg-cyan' }
+        ];
+
+        // Format price in European style
+        function formatPrice(price) {
+            if (price >= 1) {
+                return '$' + price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            } else {
+                return '$' + price.toLocaleString('de-DE', { minimumFractionDigits: 6, maximumFractionDigits: 6 });
+            }
+        }
+
+        // Generate crypto card HTML
+        function createCryptoCard(crypto) {
+            const changeClass = crypto.change >= 0 ? 'positive' : 'negative';
+            const changeSymbol = crypto.change >= 0 ? '+' : '';
+
+            return `
+                <div class="crypto-card">
+                    <div class="crypto-card-header">
+                        <div class="crypto-icon ${crypto.color}">${crypto.ticker.charAt(0)}</div>
+                        <div class="crypto-info">
+                            <div class="crypto-ticker">${crypto.ticker}</div>
+                            <div class="crypto-name">${crypto.name}</div>
+                        </div>
+                    </div>
+                    <div class="crypto-price">${formatPrice(crypto.price)}</div>
+                    <div class="crypto-change ${changeClass}">${changeSymbol}${crypto.change.toFixed(2)}%</div>
+                </div>
+            `;
+        }
+
+        // Render grid
+        function renderGrid(count = 100) {
+            const grid = document.getElementById('cryptoGrid');
+            const data = cryptoData.slice(0, count);
+            grid.innerHTML = data.map(createCryptoCard).join('');
+        }
+
+        // Rallye card click handlers
+        document.querySelectorAll('.rallye-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.rallye-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+
+                const rallyeType = this.dataset.rallye;
+                const count = parseInt(rallyeType);
+                renderGrid(count);
+
+                // Update section title
+                const sectionTitle = document.querySelector('.section-title');
+                sectionTitle.textContent = `Rallye${count} Coins`;
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGrid(100);
+        });
+    </script>
+</body>
+</html>

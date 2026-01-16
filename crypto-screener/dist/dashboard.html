@@ -246,6 +246,201 @@
         .locked-cta span { font-size: 2rem; margin-bottom: 8px; }
         .locked-cta p { font-size: 0.75rem; color: var(--text-muted); }
         
+        /* Premium Pages Preview Grid */
+        .premium-pages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .premium-page-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .premium-page-card:hover {
+            border-color: rgba(34, 211, 238, 0.5);
+            box-shadow: 0 10px 40px rgba(34, 211, 238, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .premium-page-card.unlocked {
+            cursor: pointer;
+        }
+
+        .premium-page-card.unlocked:hover {
+            border-color: var(--green);
+            box-shadow: 0 10px 40px rgba(34, 211, 129, 0.3);
+        }
+
+        .premium-page-preview {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #000510 0%, #0a1128 100%);
+        }
+
+        .premium-page-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .premium-page-blur-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 5, 16, 0.7);
+            backdrop-filter: blur(8px);
+            transition: all 0.4s ease;
+        }
+
+        .premium-page-card.unlocked .premium-page-blur-overlay {
+            backdrop-filter: blur(0px);
+            background: rgba(0, 5, 16, 0.1);
+        }
+
+        .premium-page-content {
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .premium-page-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .premium-page-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--text);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .premium-page-description {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .premium-page-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .premium-feature-tag {
+            font-size: 0.7rem;
+            padding: 5px 10px;
+            background: rgba(34, 211, 238, 0.1);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 12px;
+            color: var(--accent);
+        }
+
+        .premium-page-lock {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(10, 15, 30, 0.95) 0%, rgba(30, 27, 75, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .premium-page-card.unlocked .premium-page-lock {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .lock-icon {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 20px rgba(34, 211, 238, 0.5));
+            }
+            50% {
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 40px rgba(34, 211, 238, 0.8));
+            }
+        }
+
+        .lock-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .lock-upgrade-btn {
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            border: none;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(34, 211, 238, 0.3);
+        }
+
+        .lock-upgrade-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(34, 211, 238, 0.5);
+        }
+
+        /* Unlocked State - Click to Visit */
+        .premium-page-card.unlocked::after {
+            content: '→';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--green), #10b981);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #fff;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 15;
+        }
+
+        .premium-page-card.unlocked:hover::after {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
         /* Footer */
         .footer {
             text-align: center;
@@ -262,6 +457,7 @@
             .header { flex-direction: column; gap: 12px; padding: 12px; }
             .main { padding: 140px 16px 30px; }
             .grid { grid-template-columns: 1fr; }
+            .premium-pages-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -418,6 +614,85 @@
                     <div class="locked-cta" id="coinControlLock">
                         <span>🔒</span>
                         <p data-i18n="upgradeForCoin">Upgrade für Coin-Verwaltung</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Premium Pages Preview Section -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-header">
+                    <div class="card-title">🚀 Premium Features</div>
+                    <span class="card-badge premium" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000;">Exclusive</span>
+                </div>
+                
+                <div class="premium-pages-grid">
+                    <!-- Neon Trader Preview -->
+                    <div class="premium-page-card" data-page="neon-trader">
+                        <div class="premium-page-preview">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='250'%3E%3Crect fill='%23000510' width='400' height='250'/%3E%3Ctext x='50%25' y='40%25' text-anchor='middle' fill='%2322d3ee' font-size='32' font-family='monospace' font-weight='bold'%3E⚡ NEON%3C/text%3E%3Ctext x='50%25' y='60%25' text-anchor='middle' fill='%2310b981' font-size='28' font-family='monospace'%3ETRADER%3C/text%3E%3C/svg%3E" alt="Neon Trader">
+                            <div class="premium-page-blur-overlay"></div>
+                        </div>
+                        <div class="premium-page-content">
+                            <div class="premium-page-icon">⚡</div>
+                            <h3 class="premium-page-title">Neon Trader</h3>
+                            <p class="premium-page-description">Advanced trading interface with live charts, signals, and technical indicators</p>
+                            <div class="premium-page-features">
+                                <span class="premium-feature-tag">📊 Live Charts</span>
+                                <span class="premium-feature-tag">🎯 Signals</span>
+                                <span class="premium-feature-tag">📈 RSI/MACD</span>
+                            </div>
+                        </div>
+                        <div class="premium-page-lock" data-lock-page="neon-trader">
+                            <div class="lock-icon">🔒</div>
+                            <p class="lock-text">Premium Feature</p>
+                            <button class="lock-upgrade-btn" onclick="scrollToUpgrade()">Upgrade Now</button>
+                        </div>
+                    </div>
+
+                    <!-- CryptoSpaces Analytics Preview -->
+                    <div class="premium-page-card" data-page="cryptospaces-analytics">
+                        <div class="premium-page-preview">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='250'%3E%3Crect fill='%23000510' width='400' height='250'/%3E%3Ccircle cx='200' cy='125' r='60' fill='none' stroke='%2322d3ee' stroke-width='2'/%3E%3Cpolygon points='200,65 260,95 260,155 200,185 140,155 140,95' fill='rgba(34,211,238,0.2)' stroke='%2322d3ee' stroke-width='2'/%3E%3Ctext x='50%25' y='95%25' text-anchor='middle' fill='%2310b981' font-size='24' font-family='monospace' font-weight='bold'%3E$142,848%3C/text%3E%3C/svg%3E" alt="CryptoSpaces Analytics">
+                            <div class="premium-page-blur-overlay"></div>
+                        </div>
+                        <div class="premium-page-content">
+                            <div class="premium-page-icon">🌌</div>
+                            <h3 class="premium-page-title">CryptoSpaces Analytics</h3>
+                            <p class="premium-page-description">Wallet intelligence with DNA visualization, risk metrics, and AI insights</p>
+                            <div class="premium-page-features">
+                                <span class="premium-feature-tag">💎 Wallet DNA</span>
+                                <span class="premium-feature-tag">⚠️ Risk Score</span>
+                                <span class="premium-feature-tag">🤖 AI Insights</span>
+                            </div>
+                        </div>
+                        <div class="premium-page-lock" data-lock-page="cryptospaces-analytics">
+                            <div class="lock-icon">🔒</div>
+                            <p class="lock-text">Premium Feature</p>
+                            <button class="lock-upgrade-btn" onclick="scrollToUpgrade()">Upgrade Now</button>
+                        </div>
+                    </div>
+
+                    <!-- CoinWizz Rallye Preview -->
+                    <div class="premium-page-card" data-page="coinwizz-rallye">
+                        <div class="premium-page-preview">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='250'%3E%3Crect fill='%23000510' width='400' height='250'/%3E%3Ctext x='50%25' y='35%25' text-anchor='middle' fill='%23fbbf24' font-size='36' font-family='monospace' font-weight='bold'%3E🏆%3C/text%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='%2322d3ee' font-size='24' font-family='monospace'%3ETop 100%3C/text%3E%3Ctext x='50%25' y='75%25' text-anchor='middle' fill='%2310b981' font-size='20' font-family='monospace'%3ECoins%3C/text%3E%3C/svg%3E" alt="CoinWizz Rallye">
+                            <div class="premium-page-blur-overlay"></div>
+                        </div>
+                        <div class="premium-page-content">
+                            <div class="premium-page-icon">🏆</div>
+                            <h3 class="premium-page-title">CoinWizz Rallye</h3>
+                            <p class="premium-page-description">Top 100 coins organized by subscription tier with advanced analytics</p>
+                            <div class="premium-page-features">
+                                <span class="premium-feature-tag">📊 25/50/100 Coins</span>
+                                <span class="premium-feature-tag">🎙️ Audio News</span>
+                                <span class="premium-feature-tag">📈 Analytics</span>
+                            </div>
+                        </div>
+                        <div class="premium-page-lock" data-lock-page="coinwizz-rallye">
+                            <div class="lock-icon">🔒</div>
+                            <p class="lock-text">Premium Feature</p>
+                            <button class="lock-upgrade-btn" onclick="scrollToUpgrade()">Upgrade Now</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -773,6 +1048,77 @@
             paypalForm.submit();
         }
         
+        // ===== PREMIUM PAGE ACCESS CONTROL =====
+        const SUPER_ADMIN_EMAILS = ['orhan366@gmail.com', 'sajjad.aiengineer@gmail.com'];
+        const PAID_PLANS = ['rallye25', 'rallye50', 'rallye100', 'elite', 'lifetime'];
+
+        function getUserRole() {
+            const user = JSON.parse(localStorage.getItem('cryptoUser') || 'null');
+            
+            if (user && user.email && SUPER_ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+                return 'super_admin';
+            }
+            
+            if (user && user.loggedIn && user.plan && PAID_PLANS.includes(user.plan)) {
+                return 'paid';
+            }
+            
+            return 'free';
+        }
+
+        function initPremiumPages() {
+            const role = getUserRole();
+            console.log('[PREMIUM PAGES] User role:', role);
+            
+            const premiumCards = document.querySelectorAll('.premium-page-card');
+            
+            premiumCards.forEach(card => {
+                const pageName = card.dataset.page;
+                const pageUrls = {
+                    'neon-trader': 'neon-trader.html',
+                    'cryptospaces-analytics': 'cryptospaces-analytics.html',
+                    'coinwizz-rallye': 'coinwizz-rallye.html'
+                };
+                
+                if (role === 'super_admin' || role === 'paid') {
+                    // Unlock the page
+                    card.classList.add('unlocked');
+                    
+                    // Add click handler to redirect
+                    card.addEventListener('click', function(e) {
+                        // Don't redirect if clicking the upgrade button
+                        if (e.target.classList.contains('lock-upgrade-btn')) return;
+                        
+                        const url = pageUrls[pageName];
+                        if (url) {
+                            console.log('[PREMIUM PAGES] Redirecting to:', url);
+                            window.location.href = url;
+                        }
+                    });
+                    
+                    // Update styling
+                    card.style.cursor = 'pointer';
+                } else {
+                    // Keep locked for free users
+                    card.classList.remove('unlocked');
+                }
+            });
+        }
+
+        // Scroll to upgrade section
+        function scrollToUpgrade() {
+            const upgradeSection = document.getElementById('upgradeSection');
+            if (upgradeSection) {
+                upgradeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Add a pulse animation
+                upgradeSection.style.animation = 'pulse 1s ease-in-out 2';
+                setTimeout(() => {
+                    upgradeSection.style.animation = '';
+                }, 2000);
+            }
+        }
+
         // Listen for successful returns from PayPal
         window.addEventListener('load', function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -785,6 +1131,9 @@
             
             // Initialize Supabase on page load
             initSupabase();
+            
+            // Initialize premium pages access control
+            initPremiumPages();
             
             // Sync existing logged-in user to Supabase (after initialization)
             if (user && user.loggedIn && user.email && user.name) {
