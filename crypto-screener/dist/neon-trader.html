@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Trader - Professional Crypto Trading Dashboard</title>
+    <title>CoinWizz NEON PULSE - Professional Trading Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -11,28 +11,67 @@
             box-sizing: border-box;
         }
 
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Roboto+Mono:wght@400;500;600&display=swap');
+
         :root {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #12121a;
-            --bg-tertiary: #1a1a25;
+            --bg-primary: #050510;
+            --bg-secondary: #0a0b1e;
+            --bg-tertiary: #0f1025;
+            --bg-card: #12142a;
+            --bg-card-hover: #1a1c3a;
             --text-primary: #ffffff;
-            --text-secondary: #a0a0b0;
-            --text-muted: #606070;
-            --neon-cyan: #00f0ff;
-            --neon-cyan-dim: #00a0b0;
-            --neon-red: #ff003c;
-            --neon-red-dim: #b00030;
-            --neon-amber: #ffb000;
-            --neon-blue: #0080ff;
-            --border-color: #2a2a3a;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --neon-green: #00ff9d;
+            --neon-green-dim: #00b868;
+            --neon-cyan: #00f3ff;
+            --neon-cyan-dim: #00c4cf;
+            --neon-pink: #ff2a6d;
+            --neon-purple: #bc13fe;
+            --neon-orange: #ff9e00;
+            --neon-blue: #0066ff;
+            --neon-yellow: #ffd700;
+            --border-color: #1f2937;
+            --grid-color: #1f2937;
         }
 
         body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Rajdhani', sans-serif;
             background-color: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated Background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, 
+                rgba(128, 0, 128, 0.1) 0%, 
+                rgba(0, 50, 100, 0.15) 50%, 
+                rgba(0, 100, 100, 0.1) 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
         }
 
         /* Header */
@@ -43,65 +82,212 @@
             padding: 12px 24px;
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
+            position: relative;
+            z-index: 100;
         }
 
         .logo {
-            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .logo-coinwizz {
+            font-size: 22px;
             font-weight: 700;
-            letter-spacing: 2px;
             color: var(--text-primary);
+        }
+
+        .logo-neon {
+            font-size: 18px;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(188, 19, 254, 0.5);
         }
 
         .asset-selector {
             display: flex;
             gap: 8px;
-            align-items: center;
         }
 
         .asset-btn {
             padding: 8px 16px;
             background: transparent;
-            border: 1px solid transparent;
+            border: 1px solid var(--border-color);
             color: var(--text-secondary);
+            font-family: 'Rajdhani', sans-serif;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            border-radius: 6px;
+            border-radius: 20px;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .asset-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .asset-btn:hover::before {
+            left: 100%;
         }
 
         .asset-btn:hover {
+            border-color: var(--neon-cyan);
             color: var(--text-primary);
-            border-color: var(--border-color);
+            transform: translateY(-2px);
         }
 
         .asset-btn.active {
-            background: rgba(0, 240, 255, 0.1);
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-green-dim));
+            border-color: var(--neon-green);
+            color: var(--bg-primary);
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+            font-weight: 700;
+        }
+
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            width: 200px;
+            padding: 10px 16px 10px 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
             border-color: var(--neon-cyan);
-            color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
         }
 
         .price-display {
             display: flex;
-            align-items: baseline;
+            align-items: center;
             gap: 12px;
         }
 
         .current-price {
+            font-family: 'Share Tech Mono', monospace;
             font-size: 28px;
-            font-weight: 700;
-            color: var(--neon-red);
-            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
         }
 
         .price-change {
-            font-size: 16px;
-            color: var(--neon-red);
-            font-family: 'Courier New', monospace;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
         }
 
         .price-change.positive {
+            background: rgba(0, 255, 157, 0.15);
+            color: var(--neon-green);
+        }
+
+        .price-change.negative {
+            background: rgba(255, 42, 109, 0.15);
+            color: var(--neon-pink);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-link {
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-link:hover {
             color: var(--neon-cyan);
+        }
+
+        .settings-btn, .alerts-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+        .settings-btn:hover, .alerts-btn:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            transform: rotate(90deg);
+        }
+
+        .alerts-btn {
+            position: relative;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 18px;
+            height: 18px;
+            background: var(--neon-orange);
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Control Bar */
@@ -112,33 +298,40 @@
             padding: 10px 24px;
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
+            position: relative;
+            z-index: 99;
         }
 
         .timeframe-selector {
             display: flex;
             gap: 4px;
+            background: var(--bg-card);
+            padding: 4px;
+            border-radius: 10px;
         }
 
         .timeframe-btn {
-            padding: 6px 12px;
+            padding: 8px 14px;
             background: transparent;
             border: none;
             color: var(--text-secondary);
+            font-family: 'Rajdhani', sans-serif;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.2s ease;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
 
         .timeframe-btn:hover {
-            background: var(--bg-tertiary);
+            background: var(--bg-card-hover);
             color: var(--text-primary);
         }
 
         .timeframe-btn.active {
-            background: rgba(0, 240, 255, 0.15);
+            background: rgba(0, 243, 255, 0.15);
             color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
         }
 
         .feature-toggles {
@@ -148,95 +341,362 @@
         }
 
         .toggle-btn {
-            padding: 6px 14px;
-            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
-            color: var(--text-muted);
+            color: var(--text-secondary);
+            font-family: 'Rajdhani', sans-serif;
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             border-radius: 20px;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
         .toggle-btn:hover {
-            border-color: var(--text-secondary);
-            color: var(--text-secondary);
+            border-color: var(--text-muted);
+            color: var(--text-primary);
+            transform: translateY(-2px);
         }
 
         .toggle-btn.active {
-            background: rgba(0, 240, 255, 0.1);
+            background: rgba(0, 243, 255, 0.08);
             border-color: var(--neon-cyan);
             color: var(--neon-cyan);
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2), inset 0 0 20px rgba(0, 243, 255, 0.05);
         }
 
-        .tools-btn {
-            padding: 6px 14px;
-            background: var(--bg-tertiary);
+        .toggle-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: all 0.3s ease;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .toggle-btn.active .toggle-indicator {
+            box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+        }
+
+        .toggle-btn[data-toggle="LIVE"].active .toggle-indicator {
+            background: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+        }
+
+        .toggle-btn[data-toggle="RADAR"].active .toggle-indicator {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+        }
+
+        .toggle-btn[data-toggle="CROSS"].active .toggle-indicator {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+        }
+
+        .toggle-btn[data-toggle="SIGNALS"].active .toggle-indicator {
+            background: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+        }
+
+        .toggle-btn[data-toggle="LIQ"].active .toggle-indicator {
+            background: var(--neon-orange);
+            box-shadow: 0 0 10px var(--neon-orange), 0 0 20px var(--neon-orange);
+        }
+
+        .toggle-btn[data-toggle="PRESSURE"].active .toggle-indicator {
+            background: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+        }
+
+        .toggle-btn[data-toggle="MOOD"].active .toggle-indicator {
+            background: var(--neon-purple);
+            box-shadow: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple);
+        }
+
+        .tools-dropdown {
+            padding: 8px 16px;
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
+            font-family: 'Rajdhani', sans-serif;
             font-size: 12px;
             font-weight: 500;
             cursor: pointer;
             border-radius: 20px;
             display: flex;
             align-items: center;
-            gap: 6px;
-        }
-
-        .alerts-btn {
-            padding: 8px 16px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
             gap: 8px;
+            transition: all 0.3s ease;
         }
 
-        .alerts-btn:hover {
-            border-color: var(--neon-amber);
-            color: var(--neon-amber);
+        .tools-dropdown:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
         }
 
-        /* Chart Container */
+        /* Main Chart Container */
+        .chart-wrapper {
+            position: relative;
+            height: calc(100vh - 170px);
+            min-height: 400px;
+            z-index: 1;
+        }
+
         .chart-container {
             position: relative;
-            height: calc(100vh - 200px);
-            min-height: 400px;
-            background: var(--bg-primary);
+            width: 100%;
+            height: 100%;
         }
 
-        .chart-canvas {
+        #mainChart {
             width: 100%;
             height: 100%;
             display: block;
         }
 
-        /* Chart Overlay Info */
+        /* Chart Overlays */
         .chart-overlay {
             position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .buying-pressure-container {
+            position: absolute;
+            right: 60px;
             top: 20px;
-            left: 20px;
+            width: 40px;
+            height: calc(100% - 40px);
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            align-items: center;
         }
 
-        .chart-symbol {
-            font-size: 24px;
-            font-weight: 700;
+        .pressure-label {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--neon-green);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .pressure-bar {
+            flex: 1;
+            width: 20px;
+            background: linear-gradient(to bottom, 
+                rgba(255, 42, 109, 0.3) 0%, 
+                rgba(255, 158, 0, 0.3) 50%, 
+                rgba(0, 243, 255, 0.3) 100%);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pressure-level {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(to top, 
+                var(--neon-green) 0%, 
+                var(--neon-cyan) 50%, 
+                var(--neon-orange) 100%);
+            border-radius: 10px;
+            transition: height 0.5s ease;
+            opacity: 0.8;
+        }
+
+        .pressure-indicator {
+            position: absolute;
+            left: 100%;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .pressure-indicator.high {
+            background: rgba(0, 255, 157, 0.2);
+            color: var(--neon-green);
+        }
+
+        .pressure-indicator.medium {
+            background: rgba(255, 158, 0, 0.2);
+            color: var(--neon-orange);
+        }
+
+        .pressure-indicator.low {
+            background: rgba(255, 42, 109, 0.2);
+            color: var(--neon-pink);
+        }
+
+        /* Radar Overlay */
+        .radar-overlay {
+            position: absolute;
+            right: 120px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 150px;
+            height: 150px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .radar-overlay.active {
+            opacity: 1;
+        }
+
+        .radar-svg {
+            width: 100%;
+            height: 100%;
+            animation: radarRotate 4s linear infinite;
+        }
+
+        @keyframes radarRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .radar-blip {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            animation: radarBlip 2s ease-in-out infinite;
+        }
+
+        @keyframes radarBlip {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+        }
+
+        /* Signal Markers */
+        .signal-markers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .signal-dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: signalPulse 1.5s ease-in-out infinite;
+        }
+
+        .signal-dot.buy {
+            background: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .signal-dot.sell {
+            background: var(--neon-pink);
+            box-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        @keyframes signalPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+        }
+
+        /* Live Particles */
+        .particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--neon-yellow);
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleFloat 3s ease-out forwards;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                opacity: 1;
+                transform: translateX(0) translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(100px) translateY(-50px);
+            }
+        }
+
+        /* Crosshair */
+        .crosshair {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .crosshair.active {
+            opacity: 1;
+        }
+
+        .crosshair-v-line {
+            position: absolute;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border-left: 1px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        .crosshair-h-line {
+            position: absolute;
+            left: 0;
+            height: 1px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border-top: 1px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        .crosshair-tooltip {
+            position: absolute;
+            padding: 6px 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 6px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 11px;
             color: var(--text-primary);
-        }
-
-        .chart-timeframe {
-            font-size: 14px;
-            color: var(--text-muted);
+            white-space: nowrap;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
         }
 
         /* Volume Panel */
@@ -245,9 +705,10 @@
             background: var(--bg-secondary);
             border-top: 1px solid var(--border-color);
             position: relative;
+            z-index: 10;
         }
 
-        .volume-canvas {
+        #volumeChart {
             width: 100%;
             height: 100%;
             display: block;
@@ -263,6 +724,8 @@
             border-top: 1px solid var(--border-color);
             font-size: 12px;
             color: var(--text-muted);
+            position: relative;
+            z-index: 10;
         }
 
         .footer-left {
@@ -276,19 +739,22 @@
             align-items: center;
             gap: 8px;
             padding: 6px 12px;
-            background: var(--bg-tertiary);
+            background: var(--bg-card);
             border-radius: 20px;
             font-size: 11px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
         }
 
         .watermark svg {
-            width: 14px;
-            height: 14px;
-            fill: var(--neon-cyan);
+            width: 16px;
+            height: 16px;
+            fill: var(--neon-purple);
         }
 
-        .status-indicators {
+        .footer-right {
             display: flex;
+            align-items: center;
             gap: 16px;
         }
 
@@ -296,101 +762,267 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            font-size: 11px;
+            color: var(--text-secondary);
         }
 
         .status-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: var(--neon-cyan);
             animation: pulse 2s infinite;
         }
 
+        .status-dot.green {
+            background: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .status-dot.cyan {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+
+        /* Live indicator */
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--neon-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            animation: pulse 1s infinite;
         }
 
         /* Responsive */
+        @media (max-width: 1200px) {
+            .feature-toggles {
+                flex-wrap: wrap;
+            }
+        }
+
         @media (max-width: 768px) {
             .header {
-                flex-direction: column;
-                gap: 16px;
-            }
-
-            .control-bar {
                 flex-wrap: wrap;
                 gap: 12px;
             }
 
-            .chart-container {
-                height: calc(100vh - 320px);
+            .asset-selector {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .header-center {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .chart-wrapper {
+                height: calc(100vh - 280px);
             }
         }
     </style>
 </head>
 <body>
+    <!-- Background Effects -->
+    <div class="bg-gradient"></div>
+    <div class="grid-overlay"></div>
+
     <!-- Header -->
     <header class="header">
-        <div class="logo">NEON TRADER</div>
-        <div class="asset-selector">
-            <button class="asset-btn active">BTC</button>
-            <button class="asset-btn">ETH</button>
-            <button class="asset-btn">SOL</button>
-            <button class="asset-btn">XRP</button>
-            <button class="asset-btn">ADA</button>
+        <div class="logo">
+            <span class="logo-coinwizz">CoinWizz</span>
+            <span class="logo-neon">NEON PULSE</span>
         </div>
-        <div class="price-display">
-            <span class="current-price" id="currentPrice">$94,749.46</span>
-            <span class="price-change" id="priceChange">-1.19%</span>
+
+        <div class="asset-selector">
+            <button class="asset-btn active" data-asset="BTC">BTC</button>
+            <button class="asset-btn" data-asset="ETH">ETH</button>
+            <button class="asset-btn" data-asset="SOL">SOL</button>
+            <button class="asset-btn" data-asset="XRP">XRP</button>
+            <button class="asset-btn" data-asset="ADA">ADA</button>
+        </div>
+
+        <div class="header-center">
+            <div class="search-container">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input type="text" class="search-input" placeholder="Search coin...">
+            </div>
+
+            <div class="price-display">
+                <span class="current-price" id="currentPrice">$95.026</span>
+                <span class="price-change positive" id="priceChange">+2.34%</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="header-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4M12 8h.01"/>
+                </svg>
+                Legal
+            </div>
+
+            <button class="settings-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </button>
+
+            <button class="alerts-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                <span class="notification-badge">3</span>
+            </button>
         </div>
     </header>
 
     <!-- Control Bar -->
     <div class="control-bar">
         <div class="timeframe-selector">
-            <button class="timeframe-btn">1m</button>
-            <button class="timeframe-btn">5m</button>
-            <button class="timeframe-btn">15m</button>
-            <button class="timeframe-btn">1h</button>
-            <button class="timeframe-btn">4h</button>
-            <button class="timeframe-btn active">1D</button>
+            <button class="timeframe-btn" data-tf="1m">1m</button>
+            <button class="timeframe-btn" data-tf="5m">5m</button>
+            <button class="timeframe-btn" data-tf="15m">15m</button>
+            <button class="timeframe-btn" data-tf="1h">1h</button>
+            <button class="timeframe-btn" data-tf="4h">4h</button>
+            <button class="timeframe-btn active" data-tf="1d">1d</button>
         </div>
+
         <div class="feature-toggles">
-            <button class="toggle-btn">LIVE</button>
-            <button class="toggle-btn active">RADAR</button>
-            <button class="toggle-btn">CROSS</button>
-            <button class="toggle-btn">SIGNALS</button>
-            <button class="toggle-btn">LIQ</button>
-            <button class="tools-btn">
+            <button class="toggle-btn active" data-toggle="LIVE">
+                <span class="toggle-indicator"></span>
+                LIVE
+            </button>
+            <button class="toggle-btn active" data-toggle="RADAR">
+                <span class="toggle-indicator"></span>
+                RADAR
+            </button>
+            <button class="toggle-btn active" data-toggle="CROSS">
+                <span class="toggle-indicator"></span>
+                CROSS
+            </button>
+            <button class="toggle-btn active" data-toggle="SIGNALS">
+                <span class="toggle-indicator"></span>
+                SIGNALS
+            </button>
+            <button class="toggle-btn active" data-toggle="LIQ">
+                <span class="toggle-indicator"></span>
+                LIQ
+            </button>
+            <button class="toggle-btn active" data-toggle="PRESSURE">
+                <span class="toggle-indicator"></span>
+                PRESSURE
+            </button>
+            <button class="toggle-btn active" data-toggle="MOOD">
+                <span class="toggle-indicator"></span>
+                MOOD
+            </button>
+
+            <button class="tools-dropdown">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    <line x1="4" y1="21" x2="4" y2="14"/>
+                    <line x1="4" y1="10" x2="4" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12" y2="3"/>
+                    <line x1="20" y1="21" x2="20" y2="16"/>
+                    <line x1="20" y1="12" x2="20" y2="3"/>
+                    <line x1="1" y1="14" x2="7" y2="14"/>
+                    <line x1="9" y1="8" x2="15" y2="8"/>
+                    <line x1="17" y1="16" x2="23" y2="16"/>
                 </svg>
                 Tools
             </button>
         </div>
-        <button class="alerts-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-            Alerts
-        </button>
+
+        <div class="live-badge">
+            <span class="live-dot"></span>
+            LIVE
+        </div>
     </div>
 
     <!-- Main Chart -->
-    <div class="chart-container">
-        <canvas id="candlestickChart" class="chart-canvas"></canvas>
-        <div class="chart-overlay">
-            <span class="chart-symbol">BTC/USDT</span>
-            <span class="chart-timeframe">1 Day</span>
+    <div class="chart-wrapper">
+        <div class="chart-container">
+            <canvas id="mainChart"></canvas>
+
+            <div class="chart-overlay">
+                <!-- Buying Pressure Meter -->
+                <div class="buying-pressure-container">
+                    <span class="pressure-label">BUYING PRESSURE</span>
+                    <div class="pressure-bar">
+                        <div class="pressure-level" id="pressureLevel"></div>
+                    </div>
+                    <span class="pressure-indicator high" id="pressureIndicator">HIGH</span>
+                </div>
+
+                <!-- Radar Overlay -->
+                <div class="radar-overlay active" id="radarOverlay">
+                    <svg class="radar-svg" viewBox="0 0 150 150">
+                        <defs>
+                            <linearGradient id="radarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:var(--neon-cyan);stop-opacity:0.3"/>
+                                <stop offset="100%" style="stop-color:var(--neon-purple);stop-opacity:0"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="75" cy="75" r="70" fill="none" stroke="rgba(0, 243, 255, 0.2)" stroke-width="1"/>
+                        <circle cx="75" cy="75" r="50" fill="none" stroke="rgba(0, 243, 255, 0.15)" stroke-width="1"/>
+                        <circle cx="75" cy="75" r="30" fill="none" stroke="rgba(0, 243, 255, 0.1)" stroke-width="1"/>
+                        <polygon points="75,75 75,5 130,75 75,145 20,75" fill="url(#radarGradient)" stroke="var(--neon-cyan)" stroke-width="1"/>
+                    </svg>
+                    <div class="radar-blip" style="top: 30%; right: 20%;"></div>
+                    <div class="radar-blip" style="bottom: 40%; left: 25%; animation-delay: 0.5s;"></div>
+                    <div class="radar-blip" style="top: 50%; left: 50%; animation-delay: 1s;"></div>
+                </div>
+
+                <!-- Signal Markers -->
+                <div class="signal-markers" id="signalMarkers"></div>
+
+                <!-- Particles Container -->
+                <div class="particles-container" id="particlesContainer"></div>
+
+                <!-- Crosshair -->
+                <div class="crosshair" id="crosshair">
+                    <div class="crosshair-v-line" id="crosshairV"></div>
+                    <div class="crosshair-h-line" id="crosshairH"></div>
+                    <div class="crosshair-tooltip" id="crosshairTooltip"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Volume Panel -->
     <div class="volume-panel">
-        <canvas id="volumeChart" class="volume-canvas"></canvas>
+        <canvas id="volumeChart"></canvas>
     </div>
 
     <!-- Footer -->
@@ -398,70 +1030,119 @@
         <div class="footer-left">
             <div class="watermark">
                 <svg viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
                 Created by MiniMax Agent
             </div>
         </div>
-        <div class="status-indicators">
+        <div class="footer-right">
             <div class="status-item">
-                <span class="status-dot"></span>
+                <span class="status-dot green"></span>
                 <span>Market Open</span>
             </div>
             <div class="status-item">
-                <span style="color: var(--neon-cyan);">●</span>
+                <span class="status-dot cyan"></span>
                 <span>API Connected</span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot green"></span>
+                <span>Real-time Data</span>
             </div>
         </div>
     </footer>
 
     <script>
-        // Chart Configuration
-        const chartConfig = {
+        // =====================
+        // Configuration & State
+        // =====================
+        const config = {
             candleWidth: 8,
             candleGap: 2,
-            upColor: '#00f0ff',
-            downColor: '#ff003c',
-            gridColor: '#ffffff10',
-            textColor: '#a0a0b0',
-            volumeHeight: 100
+            upColor: '#00ff9d',
+            downColor: '#ff2a6d',
+            ma1Color: '#00f3ff',
+            ma2Color: '#0066ff',
+            cloudColor: 'rgba(255, 158, 0, 0.15)',
+            gridColor: '#1f2937',
+            textColor: '#94a3b8',
+            volumeScale: 0.3
         };
 
-        // Generate Mock OHLC Data
-        function generateCandleData(count = 100, startPrice = 95000) {
+        const state = {
+            currentAsset: 'BTC',
+            currentTimeframe: '1d',
+            price: 95026,
+            change: 2.34,
+            pressure: 78,
+            toggles: {
+                LIVE: true,
+                RADAR: true,
+                CROSS: true,
+                SIGNALS: true,
+                LIQ: true,
+                PRESSURE: true,
+                MOOD: true
+            },
+            data: [],
+            isLive: true,
+            animationFrame: null
+        };
+
+        const assetConfigs = {
+            BTC: { basePrice: 95000, volatility: 0.015 },
+            ETH: { basePrice: 3200, volatility: 0.025 },
+            SOL: { basePrice: 230, volatility: 0.035 },
+            XRP: { basePrice: 2.3, volatility: 0.04 },
+            ADA: { basePrice: 1.1, volatility: 0.05 }
+        };
+
+        // =====================
+        // Data Generation
+        // =====================
+        function generateData(count = 100, asset = 'BTC') {
+            const cfg = assetConfigs[asset] || assetConfigs.BTC;
             const data = [];
-            let price = startPrice;
+            let price = cfg.basePrice;
             const now = Date.now();
-            const dayMs = 24 * 60 * 60 * 1000;
+            const intervalMs = getIntervalMs();
 
             for (let i = count - 1; i >= 0; i--) {
-                const volatility = 0.02;
-                const change = (Math.random() - 0.48) * volatility * price;
+                const volatility = cfg.volatility;
+                const trend = Math.sin(i * 0.1) * 0.002;
+                const change = (Math.random() - 0.48 + trend) * volatility * price;
                 const open = price;
                 const close = price + change;
                 const high = Math.max(open, close) + Math.random() * volatility * price * 0.5;
                 const low = Math.min(open, close) - Math.random() * volatility * price * 0.5;
-                const volume = Math.random() * 1000000000 + 500000000;
+                const volume = Math.random() * 500000000 + 200000000;
 
                 price = close;
                 data.push({
-                    time: new Date(now - i * dayMs),
+                    time: new Date(now - i * intervalMs),
                     open,
                     high,
                     low,
                     close,
-                    volume
+                    volume,
+                    isUp: close >= open
                 });
             }
             return data;
         }
 
-        // Draw Candlestick Chart
-        function drawCandlestickChart(canvas, data) {
+        function getIntervalMs() {
+            const intervals = { '1m': 60000, '5m': 300000, '15m': 900000, '1h': 3600000, '4h': 14400000, '1d': 86400000 };
+            return intervals[state.currentTimeframe] || 86400000;
+        }
+
+        // =====================
+        // Chart Rendering
+        // =====================
+        function drawChart() {
+            const canvas = document.getElementById('mainChart');
             const ctx = canvas.getContext('2d');
             const dpr = window.devicePixelRatio || 1;
 
-            // Set canvas size
             const rect = canvas.getBoundingClientRect();
             canvas.width = rect.width * dpr;
             canvas.height = rect.height * dpr;
@@ -470,43 +1151,82 @@
             const width = rect.width;
             const height = rect.height;
 
-            // Clear canvas
-            ctx.fillStyle = '#0a0a0f';
+            // Clear and draw background
+            ctx.fillStyle = '#050510';
             ctx.fillRect(0, 0, width, height);
 
+            if (state.data.length === 0) return;
+
             // Calculate price range
-            const prices = data.flatMap(d => [d.high, d.low]);
-            const minPrice = Math.min(...prices) * 0.995;
-            const maxPrice = Math.max(...prices) * 1.005;
+            const prices = state.data.flatMap(d => [d.high, d.low]);
+            const minPrice = Math.min(...prices) * 0.998;
+            const maxPrice = Math.max(...prices) * 1.002;
             const priceRange = maxPrice - minPrice;
 
-            // Calculate candle dimensions
-            const chartWidth = width - 80;
+            // Calculate dimensions
+            const chartWidth = width - 100;
             const chartHeight = height - 40;
-            const candleWidth = chartConfig.candleWidth;
-            const spacing = chartWidth / data.length;
+            const candleWidth = Math.max(3, Math.min(config.candleWidth, chartWidth / state.data.length - 2));
+            const spacing = chartWidth / state.data.length;
             const startX = 60;
 
-            // Draw grid lines
-            ctx.strokeStyle = chartConfig.gridColor;
+            // Draw grid
+            ctx.strokeStyle = config.gridColor;
             ctx.lineWidth = 1;
             for (let i = 0; i <= 6; i++) {
                 const y = 20 + (chartHeight / 6) * i;
                 ctx.beginPath();
                 ctx.moveTo(startX, y);
-                ctx.lineTo(width - 20, y);
+                ctx.lineTo(width - 40, y);
                 ctx.stroke();
 
                 // Price labels
                 const price = maxPrice - (priceRange / 6) * i;
-                ctx.fillStyle = chartConfig.textColor;
-                ctx.font = '11px Courier New';
+                ctx.fillStyle = config.textColor;
+                ctx.font = '11px Roboto Mono';
                 ctx.textAlign = 'right';
-                ctx.fillText('$' + price.toFixed(2), startX - 10, y + 4);
+                ctx.fillText(formatPrice(price), startX - 10, y + 4);
+            }
+
+            // Draw volatility cloud (Ichimoku-like)
+            if (state.toggles.LIQ) {
+                ctx.fillStyle = config.cloudColor;
+                ctx.beginPath();
+                state.data.forEach((candle, index) => {
+                    const x = startX + index * spacing + spacing / 2;
+                    const cloudTop = 20 + ((maxPrice - (candle.close * 1.015)) / priceRange) * chartHeight;
+                    const cloudBottom = 20 + ((maxPrice - (candle.close * 0.985)) / priceRange) * chartHeight;
+                    if (index === 0) {
+                        ctx.moveTo(x, cloudTop);
+                        ctx.lineTo(x, cloudBottom);
+                    } else {
+                        ctx.lineTo(x, cloudTop);
+                        ctx.lineTo(x, cloudBottom);
+                    }
+                });
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // Draw moving averages
+            if (state.toggles.CROSS) {
+                // MA 1 (Fast)
+                ctx.strokeStyle = config.ma1Color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                drawMovingAverage(ctx, state.data, 9, startX, spacing, chartHeight, minPrice, maxPrice, priceRange, 20);
+                ctx.stroke();
+
+                // MA 2 (Slow)
+                ctx.strokeStyle = config.ma2Color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                drawMovingAverage(ctx, state.data, 21, startX, spacing, chartHeight, minPrice, maxPrice, priceRange, 20);
+                ctx.stroke();
             }
 
             // Draw candles
-            data.forEach((candle, index) => {
+            state.data.forEach((candle, index) => {
                 const x = startX + index * spacing + spacing / 2;
                 const candleX = x - candleWidth / 2;
 
@@ -516,7 +1236,11 @@
                 const lowY = 20 + ((maxPrice - candle.low) / priceRange) * chartHeight;
 
                 const isUp = candle.close >= candle.open;
-                const color = isUp ? chartConfig.upColor : chartConfig.downColor;
+                const color = isUp ? config.upColor : config.downColor;
+
+                // Glow effect
+                ctx.shadowColor = color;
+                ctx.shadowBlur = 8;
 
                 // Draw wick
                 ctx.strokeStyle = color;
@@ -527,56 +1251,65 @@
                 ctx.stroke();
 
                 // Draw candle body
-                ctx.fillStyle = isUp ? '#0a0a0f' : color;
-                ctx.fillRect(candleX, Math.min(openY, closeY), candleWidth, Math.abs(closeY - openY) || 1);
+                const bodyHeight = Math.max(1, Math.abs(closeY - openY));
+                ctx.fillStyle = isUp ? 'transparent' : color;
+                ctx.fillRect(candleX, Math.min(openY, closeY), candleWidth, bodyHeight);
                 ctx.strokeStyle = color;
                 ctx.lineWidth = 1;
-                ctx.strokeRect(candleX, Math.min(openY, closeY), candleWidth, Math.abs(closeY - openY) || 1);
+                ctx.strokeRect(candleX, Math.min(openY, closeY), candleWidth, bodyHeight);
+
+                ctx.shadowBlur = 0;
             });
 
-            // Draw moving average line
-            ctx.strokeStyle = chartConfig.neonBlue;
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            let maSum = 0;
-            const maPeriod = 20;
+            // Draw signal markers
+            if (state.toggles.SIGNALS) {
+                drawSignalMarkers(ctx, startX, spacing, chartHeight, minPrice, maxPrice, priceRange, 20);
+            }
+
+            // Store chart dimensions for crosshair
+            window.chartBounds = { startX, chartWidth, chartHeight, minPrice, maxPrice, priceRange, spacing };
+        }
+
+        function drawMovingAverage(ctx, data, period, startX, spacing, chartHeight, minPrice, maxPrice, priceRange, topOffset) {
+            let sum = 0;
             data.forEach((candle, index) => {
-                maSum += candle.close;
-                if (index >= maPeriod - 1) {
-                    const ma = maSum / maPeriod;
+                sum += candle.close;
+                if (index >= period - 1) {
+                    const ma = sum / period;
                     const x = startX + index * spacing + spacing / 2;
-                    const y = 20 + ((maxPrice - ma) / priceRange) * chartHeight;
-                    if (index === maPeriod - 1) {
+                    const y = topOffset + ((maxPrice - ma) / priceRange) * chartHeight;
+                    if (index === period - 1) {
                         ctx.moveTo(x, y);
                     } else {
                         ctx.lineTo(x, y);
                     }
-                    maSum -= data[index - maPeriod + 1].close;
+                    sum -= data[index - period + 1].close;
                 }
             });
-            ctx.stroke();
-
-            // Draw Bollinger Band (simulated)
-            ctx.fillStyle = 'rgba(255, 176, 0, 0.1)';
-            ctx.beginPath();
-            data.forEach((candle, index) => {
-                const x = startX + index * spacing + spacing / 2;
-                const upperY = 20 + ((maxPrice - (candle.close * 1.02)) / priceRange) * chartHeight;
-                const lowerY = 20 + ((maxPrice - (candle.close * 0.98)) / priceRange) * chartHeight;
-                if (index === 0) {
-                    ctx.moveTo(x, upperY);
-                    ctx.lineTo(x, lowerY);
-                } else {
-                    ctx.lineTo(x, upperY);
-                    ctx.lineTo(x, lowerY);
-                }
-            });
-            ctx.closePath();
-            ctx.fill();
         }
 
-        // Draw Volume Chart
-        function drawVolumeChart(canvas, data) {
+        function drawSignalMarkers(ctx, startX, spacing, chartHeight, minPrice, maxPrice, priceRange, topOffset) {
+            state.data.slice(-10).forEach((candle, index) => {
+                if (Math.random() > 0.7) {
+                    const x = startX + (state.data.length - 10 + index) * spacing + spacing / 2;
+                    const isBuy = Math.random() > 0.5;
+                    const y = topOffset + ((maxPrice - candle.high) / priceRange) * chartHeight - (isBuy ? 20 : -20);
+
+                    ctx.fillStyle = isBuy ? config.upColor : config.downColor;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.shadowColor = ctx.fillStyle;
+                    ctx.shadowBlur = 10;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            });
+        }
+
+        function drawVolume() {
+            const canvas = document.getElementById('volumeChart');
             const ctx = canvas.getContext('2d');
             const dpr = window.devicePixelRatio || 1;
 
@@ -588,25 +1321,36 @@
             const width = rect.width;
             const height = rect.height;
 
-            ctx.fillStyle = '#12121a';
+            ctx.fillStyle = '#0a0b1e';
             ctx.fillRect(0, 0, width, height);
 
-            const chartWidth = width - 80;
+            if (state.data.length === 0) return;
+
+            const chartWidth = width - 100;
             const chartHeight = height - 20;
-            const spacing = chartWidth / data.length;
+            const spacing = chartWidth / state.data.length;
             const startX = 60;
 
-            const maxVolume = Math.max(...data.map(d => d.volume));
-            const barWidth = spacing - 2;
+            const maxVolume = Math.max(...state.data.map(d => d.volume));
+            const barWidth = Math.max(2, spacing - 2);
 
-            data.forEach((candle, index) => {
+            // Draw zero line
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(startX, height / 2);
+            ctx.lineTo(width - 40, height / 2);
+            ctx.stroke();
+
+            // Draw volume bars
+            state.data.forEach((candle, index) => {
                 const x = startX + index * spacing + spacing / 2;
-                const barHeight = (candle.volume / maxVolume) * chartHeight * 0.9;
-                const y = height - 10 - barHeight;
+                const barHeight = (candle.volume / maxVolume) * chartHeight * config.volumeScale;
+                const y = height / 2 - barHeight;
                 const barX = x - barWidth / 2;
 
                 const isUp = candle.close >= candle.open;
-                const color = isUp ? chartConfig.upColor : chartConfig.downColor;
+                const color = isUp ? config.upColor : config.downColor;
 
                 ctx.fillStyle = color + '40';
                 ctx.fillRect(barX, y, barWidth, barHeight);
@@ -616,83 +1360,230 @@
             });
         }
 
-        // Initialize Charts
-        function initCharts() {
-            const candleCanvas = document.getElementById('candlestickChart');
-            const volumeCanvas = document.getElementById('volumeChart');
+        // =====================
+        // Real-time Updates
+        // =====================
+        function updatePrice() {
+            if (!state.toggles.LIVE) return;
 
-            const data = generateCandleData(100, 95000);
+            const cfg = assetConfigs[state.currentAsset];
+            const change = (Math.random() - 0.48) * cfg.volatility * state.price;
+            state.price += change;
+            state.change = ((Math.random() - 0.4) * 5);
 
-            drawCandlestickChart(candleCanvas, data);
-            drawVolumeChart(volumeCanvas, data);
+            const priceEl = document.getElementById('currentPrice');
+            const changeEl = document.getElementById('priceChange');
 
-            // Handle resize
-            let resizeTimeout;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => {
-                    drawCandlestickChart(candleCanvas, data);
-                    drawVolumeChart(volumeCanvas, data);
-                }, 100);
+            priceEl.textContent = formatPrice(state.price);
+            priceEl.style.color = change >= 0 ? 'var(--neon-green)' : 'var(--neon-pink)';
+
+            changeEl.textContent = (change >= 0 ? '+' : '') + state.change.toFixed(2) + '%';
+            changeEl.className = 'price-change ' + (change >= 0 ? 'positive' : 'negative');
+
+            // Update pressure
+            state.pressure = 30 + Math.random() * 50;
+            updatePressureMeter();
+        }
+
+        function updatePressureMeter() {
+            const level = document.getElementById('pressureLevel');
+            const indicator = document.getElementById('pressureIndicator');
+
+            level.style.height = state.pressure + '%';
+
+            if (state.pressure > 60) {
+                indicator.textContent = 'HIGH';
+                indicator.className = 'pressure-indicator high';
+            } else if (state.pressure > 40) {
+                indicator.textContent = 'MED';
+                indicator.className = 'pressure-indicator medium';
+            } else {
+                indicator.textContent = 'LOW';
+                indicator.className = 'pressure-indicator low';
+            }
+        }
+
+        function createParticle() {
+            if (!state.toggles.SIGNALS) return;
+
+            const container = document.getElementById('particlesContainer');
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+
+            const bounds = window.chartBounds;
+            if (bounds) {
+                const x = bounds.startX + bounds.chartWidth - 50;
+                const y = 50 + Math.random() * (bounds.chartHeight - 100);
+
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.animationDuration = (2 + Math.random() * 2) + 's';
+                particle.style.background = Math.random() > 0.5 ? 'var(--neon-yellow)' : 'var(--neon-green)';
+
+                container.appendChild(particle);
+
+                setTimeout(() => particle.remove(), 4000);
+            }
+        }
+
+        function formatPrice(price) {
+            if (price >= 1000) {
+                return '$' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            } else if (price >= 1) {
+                return '$' + price.toFixed(2);
+            } else {
+                return '$' + price.toFixed(6);
+            }
+        }
+
+        // =====================
+        // Event Handlers
+        // =====================
+        function setupEventListeners() {
+            // Asset buttons
+            document.querySelectorAll('.asset-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.asset-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    state.currentAsset = this.dataset.asset;
+                    const cfg = assetConfigs[state.currentAsset];
+                    state.price = cfg.basePrice;
+                    state.data = generateData(100, state.currentAsset);
+
+                    drawChart();
+                    drawVolume();
+                    updatePressureMeter();
+                });
+            });
+
+            // Timeframe buttons
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.timeframe-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    state.currentTimeframe = this.dataset.tf;
+                    state.data = generateData(100, state.currentAsset);
+
+                    drawChart();
+                    drawVolume();
+                });
+            });
+
+            // Toggle buttons
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    const toggle = this.dataset.toggle;
+                    state.toggles[toggle] = this.classList.contains('active');
+
+                    // Update visibility of chart elements
+                    if (toggle === 'RADAR') {
+                        document.getElementById('radarOverlay').classList.toggle('active', state.toggles.RADAR);
+                    }
+
+                    drawChart();
+                });
+            });
+
+            // Crosshair interaction
+            const chartWrapper = document.querySelector('.chart-wrapper');
+            chartWrapper.addEventListener('mousemove', function(e) {
+                const bounds = window.chartBounds;
+                if (!bounds) return;
+
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                if (x >= bounds.startX && x <= bounds.startX + bounds.chartWidth && y >= 20 && y <= 20 + bounds.chartHeight) {
+                    const crosshair = document.getElementById('crosshair');
+                    crosshair.classList.add('active');
+
+                    document.getElementById('crosshairV').style.left = x + 'px';
+                    document.getElementById('crosshairH').style.top = y + 'px';
+
+                    const price = bounds.maxPrice - ((y - 20) / bounds.chartHeight) * (bounds.maxPrice - bounds.minPrice);
+                    const index = Math.floor((x - bounds.startX) / bounds.spacing);
+                    const time = state.data[index] ? state.data[index].time.toLocaleString() : '';
+
+                    document.getElementById('crosshairTooltip').innerHTML = `
+                        ${formatPrice(price)}<br>
+                        <span style="color: var(--text-muted);">${time}</span>
+                    `;
+                    document.getElementById('crosshairTooltip').style.left = (x + 15) + 'px';
+                    document.getElementById('crosshairTooltip').style.top = (y - 30) + 'px';
+                } else {
+                    document.getElementById('crosshair').classList.remove('active');
+                }
+            });
+
+            chartWrapper.addEventListener('mouseleave', function() {
+                document.getElementById('crosshair').classList.remove('active');
+            });
+
+            // Settings button rotation
+            document.querySelector('.settings-btn').addEventListener('click', function() {
+                this.style.transform = 'rotate(90deg)';
+                setTimeout(() => this.style.transform = '', 300);
+            });
+
+            // Alerts button interaction
+            document.querySelector('.alerts-btn').addEventListener('click', function() {
+                const badge = this.querySelector('.notification-badge');
+                badge.style.transform = 'scale(0)';
+                setTimeout(() => badge.style.display = 'none', 200);
+            });
+
+            // Window resize
+            window.addEventListener('resize', function() {
+                drawChart();
+                drawVolume();
             });
         }
 
-        // Asset Button Click Handlers
-        document.querySelectorAll('.asset-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.asset-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
+        // =====================
+        // Animation Loop
+        // =====================
+        function animate() {
+            if (state.toggles.LIVE) {
+                updatePrice();
+            }
 
-                // Generate new data for different assets
-                const assetPrices = {
-                    'BTC': { price: 94749.46, change: -1.19 },
-                    'ETH': { price: 3456.78, change: 2.34 },
-                    'SOL': { price: 234.56, change: -0.87 },
-                    'XRP': { price: 2.34, change: 5.67 },
-                    'ADA': { price: 1.23, change: -2.45 }
-                };
+            // Periodic chart redraw for animations
+            drawChart();
+            drawVolume();
 
-                const asset = this.textContent;
-                const data = assetPrices[asset];
+            // Create particles periodically
+            if (Math.random() > 0.7) {
+                createParticle();
+            }
 
-                document.getElementById('currentPrice').textContent = '$' + data.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                document.getElementById('priceChange').textContent = (data.change >= 0 ? '+' : '') + data.change.toFixed(2) + '%';
-                document.getElementById('priceChange').style.color = data.change >= 0 ? 'var(--neon-cyan)' : 'var(--neon-red)';
-                document.getElementById('currentPrice').style.color = data.change >= 0 ? 'var(--neon-cyan)' : 'var(--neon-red)';
+            state.animationFrame = requestAnimationFrame(animate);
+        }
 
-                // Redraw chart
-                const candleCanvas = document.getElementById('candlestickChart');
-                const volumeCanvas = document.getElementById('volumeChart');
-                const newData = generateCandleData(100, data.price);
-                drawCandlestickChart(candleCanvas, newData);
-                drawVolumeChart(volumeCanvas, newData);
-            });
+        // =====================
+        // Initialization
+        // =====================
+        document.addEventListener('DOMContentLoaded', function() {
+            state.data = generateData(100, state.currentAsset);
+
+            drawChart();
+            drawVolume();
+            updatePressureMeter();
+            setupEventListeners();
+
+            // Start animation loop
+            animate();
+
+            // Initial particle burst
+            setTimeout(() => {
+                for (let i = 0; i < 10; i++) {
+                    setTimeout(() => createParticle(), i * 200);
+                }
+            }, 1000);
         });
-
-        // Timeframe Button Click Handlers
-        document.querySelectorAll('.timeframe-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.timeframe-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-
-                const candleCanvas = document.getElementById('candlestickChart');
-                const volumeCanvas = document.getElementById('volumeChart');
-                const currentPrice = parseFloat(document.getElementById('currentPrice').textContent.replace(/[^0-9.-]/g, ''));
-                const newData = generateCandleData(100, currentPrice);
-                drawCandlestickChart(candleCanvas, newData);
-                drawVolumeChart(volumeCanvas, newData);
-            });
-        });
-
-        // Toggle Button Click Handlers
-        document.querySelectorAll('.toggle-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                this.classList.toggle('active');
-            });
-        });
-
-        // Initialize on load
-        document.addEventListener('DOMContentLoaded', initCharts);
     </script>
 </body>
 </html>
