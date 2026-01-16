@@ -8,7 +8,7 @@
     <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Supabase Configuration -->
-    <script src="../supabase-config.js"></script>
+    <script src="supabase-config.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -458,6 +458,7 @@
                     <td>
                         <button class="action-btn" onclick="viewUserProfile('${user.email}')">View</button>
                         <button class="action-btn" onclick="editUserPlan('${user.email}')">Edit Plan</button>
+                        <button class="action-btn" onclick="syncUserSession('${user.email}', '${user.plan}')">Sync Session</button>
                         <button class="action-btn danger" onclick="deleteUser('${user.email}')">Delete</button>
                     </td>
                 `;
@@ -491,12 +492,34 @@
                         user.plan = newPlan;
                         localStorage.setItem('user_' + email, JSON.stringify(user));
                     }
+                    
+                    // Update active session if this is the currently logged-in user
+                    const currentUser = JSON.parse(localStorage.getItem('cryptoUser') || 'null');
+                    if (currentUser && currentUser.email === email) {
+                        currentUser.plan = newPlan;
+                        localStorage.setItem('cryptoUser', JSON.stringify(currentUser));
+                        console.log('✅ Active session updated with new plan');
+                    }
+                    
                     await loadAdminData();
                     alert('✅ Plan updated successfully!');
                 } else {
                     console.error('❌ Failed to update plan:', result.error);
                     alert('⚠️ Failed to update plan in database. Please try again.');
                 }
+            }
+        }
+        
+        function syncUserSession(email, plan) {
+            // Force sync the active session if this user is logged in
+            const currentUser = JSON.parse(localStorage.getItem('cryptoUser') || 'null');
+            if (currentUser && currentUser.email === email) {
+                currentUser.plan = plan;
+                localStorage.setItem('cryptoUser', JSON.stringify(currentUser));
+                console.log(`✅ Session synced for ${email} with plan: ${plan}`);
+                alert(`✅ Session synced! User now has ${plan} plan.\n\nPlease refresh the main app to see changes.`);
+            } else {
+                alert(`⚠️ User ${email} is not currently logged in on this browser.`);
             }
         }
         

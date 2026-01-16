@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Top 100 Coins | CryptoSpaces</title>
+    <link rel="icon" type="image/jpeg" href="assets/img/icon.jpeg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -1738,7 +1739,10 @@
     <!-- Unified Header -->
     <header class="unified-header">
         <div class="unified-left">
-            <a href="index.html" class="unified-logo">COINWIZZ</a>
+            <a href="index.html" class="unified-logo" style="display:flex;align-items:center;gap:8px;">
+                <img src="assets/img/icon.jpeg" alt="CoinWizz" style="height:28px;border-radius:6px;">
+                <span>COINWIZZ</span>
+            </a>
             <span class="page-title" style="margin-left: 20px; font-size: 0.8rem; color: #fbbf24;">🏆 Top 100 Coins</span>
         </div>
         <nav class="unified-nav">
@@ -2050,6 +2054,24 @@
         let searchTerm = '';
         let lastFetchTime = 0;
         
+        // ===== GET USER PLAN =====
+        function getUserAudioLimit() {
+            const user = JSON.parse(localStorage.getItem('cryptoUser') || 'null');
+            if (!user || !user.loggedIn) {
+                console.log('[AUDIO LIMIT] No user logged in, returning 3 audio buttons');
+                return 3; // Not logged in: 3 audio buttons preview
+            }
+            
+            const plan = user.plan || 'free';
+            let limit = 3; // Free plan: 3 audio buttons view (but read-only)
+            if (plan === 'rallye25') limit = 25;
+            else if (plan === 'rallye50') limit = 50;
+            else if (plan === 'rallye100' || plan === 'elite') limit = 100;
+            
+            console.log(`[AUDIO LIMIT] User plan: ${plan}, Audio limit: ${limit}`);
+            return limit;
+        }
+        
         // ===== HELPER FUNCTIONS =====
         function formatNumber(n) {
             if (n == null) return '—';
@@ -2199,6 +2221,7 @@
                 const signals = generateSignals(coin);
                 const isWatchlist = watchlist.includes(coin.id);
                 const supplyPercent = coin.max_supply ? ((coin.circulating_supply / coin.max_supply) * 100).toFixed(1) + '%' : '—';
+                const audioLimit = getUserAudioLimit();
                 
                 return `
                     <tr data-coin-id="${coin.id}">
@@ -2213,9 +2236,9 @@
                                 <button class="start-btn" onclick="launchRocket(event, '${coin.id}', '${coin.symbol.toUpperCase()}', ${coin.price_change_percentage_24h || 0}, ${coin.total_volume / coin.market_cap || 0})">🚀 Start</button>
                                 <button class="chart-btn" onclick="launchChartRocket(event, '${coin.id}', '${coin.symbol.toUpperCase()}')">📈 Chart</button>
                                 <button class="news-btn" onclick="openNewsSpace(event, '${coin.id}', '${coin.name}', '${coin.symbol.toUpperCase()}')">📰 News</button>
-                                ${index < 3 ? 
+                                ${index < audioLimit ? 
                                     `<button class="audio-btn" onclick="openCoinAudio(event, '${coin.id}', '${coin.name}', '${coin.symbol.toUpperCase()}', '${coin.image}')">🎙️ Audio</button>` :
-                                    `<span class="audio-btn-wrapper"><button class="audio-btn disabled" onclick="showAboHint(event)">🎙️ Audio</button><span class="audio-tooltip">🔒 Nur mit Abo-Modell verfügbar</span></span>`}
+                                    `<span class="audio-btn-wrapper"><button class="audio-btn disabled" onclick="showAboHint(event)">🎙️ Audio</button><span class="audio-tooltip">🔒 Upgrade für mehr Audio-Buttons</span></span>`}
                             </div>
                         </td>
                         <td>${formatPrice(coin.current_price)}</td>
